@@ -65,6 +65,8 @@ export default function LoginForm() {
 
       const data = await response.json();
 
+      console.log("LOGIN RESPONSE:", data);
+
       if (!data.success) {
         setAlert({
           show: true,
@@ -78,6 +80,8 @@ export default function LoginForm() {
 
       localStorage.setItem("token", data.data.token);
 
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
       setAlert({
         show: true,
         type: "success",
@@ -88,6 +92,7 @@ export default function LoginForm() {
         if (data.data.user.role === "admin") {
           router.push("/admin/dashboard");
         } else {
+          console.log("USER ROLE:", data.data.user.role);
           router.push("/");
         }
       }, 1000);
@@ -266,7 +271,7 @@ export default function LoginForm() {
               },
             }}
           >
-            {loading ? "Signing In..." : "Admin Login"}
+            {loading ? "Signing In..." : "Login"}
           </Button>
 
           {/* Alert */}
