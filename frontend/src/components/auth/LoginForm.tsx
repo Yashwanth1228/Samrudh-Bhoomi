@@ -78,9 +78,9 @@ export default function LoginForm() {
         return;
       }
 
-      localStorage.setItem("token", data.data.token);
+      // localStorage.setItem("token", data.data.token);
 
-      localStorage.setItem("user", JSON.stringify(data.data.user));
+      // localStorage.setItem("user", JSON.stringify(data.data.user));
 
       setAlert({
         show: true,
@@ -225,30 +225,6 @@ export default function LoginForm() {
           </Box>
 
           {/* Remember + Forgot */}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 4,
-              flexWrap: "wrap",
-              gap: 1,
-            }}
-          >
-            <FormControlLabel control={<Checkbox />} label="Remember Me" />
-
-            <Link
-              href="#"
-              underline="hover"
-              sx={{
-                color: "#154212",
-                fontWeight: 600,
-              }}
-            >
-              Forgot Password?
-            </Link>
-          </Box>
 
           {/* Button */}
 
