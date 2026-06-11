@@ -229,3 +229,90 @@ export const FullWidthField = styled(Box)`
 export const StyledTextField = styled(TextField)`
   width: 100%;
 `;
+
+export const FooterContainer = styled(Box)`
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px 32px;
+
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+
+  z-index: 40;
+
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.05);
+`;
+
+export const FooterActions = styled(Box)`
+  display: flex;
+  gap: 16px;
+`;
+
+export const CancelButton = styled(Button)`
+  color: #6b7280;
+
+  &:hover {
+    color: #dc2626;
+    background: transparent;
+  }
+`;
+
+export const PreviewButton = styled(Button)`
+  color: #2d5a27;
+
+  &:hover {
+    background: rgba(45, 90, 39, 0.08);
+  }
+`;
+
+export const DraftButton = styled(Button)`
+  border: 1px solid #2d5a27;
+  color: #2d5a27;
+  padding: 8px 24px;
+
+  &:hover {
+    background: rgba(45, 90, 39, 0.05);
+  }
+`;
+
+export const SaveButton = styled(Button)`
+  background: #d7ead2;
+  color: #1b4332;
+  padding: 8px 32px;
+  font-weight: 700;
+
+  &:hover {
+    background: #c5dfbe;
+  }
+`;
+
+export const BenefitContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const BenefitItem = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #fafafa;
+`;
+
+export const AddBenefitSection = styled(Box)`
+  display: flex;
+  gap: 16px;
+`;
