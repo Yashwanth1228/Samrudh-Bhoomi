@@ -1,11 +1,140 @@
+import React, { useState } from "react";
+import { Box, Typography, Button, Tabs, Tab, Paper, Container } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
+import { InventoryTable } from "@/components/admin/inventory/InventoryTable";
+import { StockInForm } from "@/components/admin/inventory/StockInForm";
+import { KPICards } from "@/components/admin/inventory/KPICards";
+import {
+  PageHeader,
+  ContentContainer,
+  TabPanel,
+} from "@/styles/admin/Inventory.styles";
+import { AddButton } from "@/styles/admin/Product.styles";
+import { useRouter } from "next/router";
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
 
-
-export default function invertoryPage() {
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
   return (
-    <>
-    <h1>this is invertory page</h1>
-    </>
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`inventory-tabpanel-${index}`}
+      aria-labelledby={`inventory-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 0 }}>{children}</Box>}
+    </div>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    id: `inventory-tab-${index}`,
+    "aria-controls": `inventory-tabpanel-${index}`,
+  };
+}
+
+export default function InventoryManagement() {
+  const [tabValue, setTabValue] = useState(0);
+  const router = useRouter();
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  return (
+    <ContentContainer>
+      <Container maxWidth={false} sx={{ maxWidth: "1400px", mx: "auto" }}>
+        {/* Page Header */}
+        <PageHeader>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+              Inventory Management
+            </Typography>
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              Manage stock levels, stock movements, and inventory transactions.
+            </Typography>
+          </Box>
+          <AddButton startIcon={<AddIcon />}onClick={() => router.push("/admin/inventory/add")}>
+            Add Inventory
+          </AddButton>
+        </PageHeader>
+
+        {/* KPI Cards */}
+        <KPICards />
+
+        {/* Tabs Section */}
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: "12px",
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            mt: 4,
+          }}
+        >
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="inventory tabs"
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: "background.paper",
+              "& .MuiTab-root": {
+                textTransform: "none",
+                fontWeight: 500,
+                fontSize: "14px",
+                minHeight: 56,
+              },
+              "& .Mui-selected": {
+                color: "#6b7280",
+              },
+              "& .MuiTabs-indicator": {
+                backgroundColor: "#6b7280",
+                height: 3,
+              },
+            }}
+          >
+            <Tab label="Current Stock" {...a11yProps(0)} />
+            <Tab label="Stock In" {...a11yProps(1)} />
+            <Tab label="Stock Out" {...a11yProps(2)} />
+            <Tab label="Stock History" {...a11yProps(3)} />
+          </Tabs>
+
+          <CustomTabPanel value={tabValue} index={0}>
+            <InventoryTable />
+          </CustomTabPanel>
+
+          <CustomTabPanel value={tabValue} index={1}>
+            <StockInForm />
+          </CustomTabPanel>
+
+          <CustomTabPanel value={tabValue} index={2}>
+            <Box sx={{ p: 4, textAlign: "center" }}>
+              <Typography color="text.secondary">
+                Stock Out form will be implemented here
+              </Typography>
+            </Box>
+          </CustomTabPanel>
+
+          <CustomTabPanel value={tabValue} index={3}>
+            <Box sx={{ p: 4, textAlign: "center" }}>
+              <Typography color="text.secondary">
+                Stock history table will be implemented here
+              </Typography>
+            </Box>
+          </CustomTabPanel>
+        </Paper>
+      </Container>
+    </ContentContainer>
   );
 }
