@@ -57,7 +57,8 @@ export default function Sidebar() {
   const router = useRouter();
 
   const handleLogout = () => {
-    router.push("/login");
+    localStorage.removeItem("token");
+    router.replace("/login");
   };
 
   return (
