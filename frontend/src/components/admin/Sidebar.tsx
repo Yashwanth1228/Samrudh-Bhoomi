@@ -86,20 +86,29 @@ export default function Sidebar() {
         </LogoSection>
 
         <MenuSection>
-          {menus.map((menu, index) => (
-            <MenuItemWrapper key={menu.label} active={index === 0}>
-              {menu.icon}
+          {menus.map((menu) => {
+            const path = `/admin/${menu.label.toLowerCase()}`;
 
-              <Typography
-                sx={{
-                  fontSize: "14px",
-                  fontWeight: index === 0 ? 600 : 500,
-                }}
+            return (
+              <MenuItemWrapper
+                key={menu.label}
+                active={router.pathname === path}
+                onClick={() => router.push(path)}
               >
-                {menu.label}
-              </Typography>
-            </MenuItemWrapper>
-          ))}
+                {menu.icon}
+
+                <Typography
+                  sx={{
+                    fontSize: "14px",
+                    fontWeight:
+                      router.pathname === path ? 600 : 500,
+                  }}
+                >
+                  {menu.label}
+                </Typography>
+              </MenuItemWrapper>
+            );
+          })}
         </MenuSection>
       </div>
 
