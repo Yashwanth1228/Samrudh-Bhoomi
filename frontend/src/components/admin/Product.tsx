@@ -2,6 +2,7 @@ import {
   HeaderContainer,
   HeaderTitle,
   HeaderSubtitle,
+  StyledTable,
 } from "@/styles/admin/Product.styles";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -42,6 +43,7 @@ import {
   ProductTableContainer,
 } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
+import Footer from "./Footer";
 
 const products = [
   {
@@ -149,6 +151,7 @@ export default function ProductHeader() {
 <ProductTableContainer>
       <TableContainer component={Paper}>
         <Table>
+          <StyledTable>
           <TableHead>
             <TableRow>
               <TableCell>Image</TableCell>
@@ -212,6 +215,9 @@ export default function ProductHeader() {
               </StyledTableRow>
             ))}
           </TableBody>
+
+
+          </StyledTable>
         </Table>
       </TableContainer>
 
@@ -230,6 +236,8 @@ export default function ProductHeader() {
         <Pagination count={3} color="primary" />
       </Box>
     </ProductTableContainer>
+
+    <Footer/>
     
     </>
   );

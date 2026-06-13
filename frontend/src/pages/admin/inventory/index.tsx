@@ -12,6 +12,7 @@ import {
 } from "@/styles/admin/Inventory.styles";
 import { AddButton } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
+import Footer from "@/components/admin/Footer";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -50,8 +51,9 @@ export default function InventoryManagement() {
   };
 
   return (
+    <>
     <ContentContainer>
-      <Container maxWidth={false} sx={{ maxWidth: "1400px", mx: "auto" }}>
+      <Container maxWidth={false} disableGutters sx={{ maxWidth: "1400px", mx: "auto" }}>
         {/* Page Header */}
         <PageHeader>
           <Box>
@@ -135,6 +137,9 @@ export default function InventoryManagement() {
           </CustomTabPanel>
         </Paper>
       </Container>
+      <Footer/>
     </ContentContainer>
+    
+    </>
   );
 }
