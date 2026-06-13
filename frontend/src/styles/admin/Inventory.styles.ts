@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, Table } from "@mui/material";
 
 export const ContentContainer = styled(Box)(({ theme }) => ({
   flex: 1,
@@ -139,3 +139,50 @@ export const StatusBadge = styled(Box, {
     letterSpacing: "0.5px",
   };
 });
+
+export const StyledTable = styled(Table)`
+  min-width: 1000px;
+  background-color: #ffffff;
+
+  // & .MuiTableCell-head {
+  //   // background-color: #eeeee9;
+  //   font-family: "IBM Plex Sans", sans-serif;
+  //   font-size: 12px;
+  //   font-weight: 500;
+  //   line-height: 16px;
+  //   letter-spacing: 0.05em;
+  //   text-transform: uppercase;
+  //   color: #42493e;
+  //   padding: 12px 16px;
+  //   border-bottom: 1px solid #c2c9bb;
+  // }
+
+  & .MuiTableCell-head {
+    font-family: "IBM Plex Sans", sans-serif;
+    text-transform: uppercase;
+    background-color: #eeeee9;
+
+  }
+
+
+
+  & .MuiTableCell-body {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(194, 201, 187, 0.5);
+  }
+
+  & .MuiTableRow-root {
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(227, 227, 222, 0.5);
+      // background-color: rgba(227, 227, 222, 0.3);
+    }
+
+    // &.striped {
+    //   background-color: rgba(227, 227, 222, 0.5);
+    //   // background-color: rgba(238, 238, 233, 0.3);
+    // }
+  }
+`;

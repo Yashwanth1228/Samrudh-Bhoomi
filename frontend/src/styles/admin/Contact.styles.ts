@@ -16,7 +16,7 @@ import {
 
 export const PageContainer = styled(Box)`
   min-height: 100vh;
-  background-color: #eeeee9;
+  // background-color: #eeeee9;
 `;
 
 export const MainContent = styled(Box)`
@@ -34,7 +34,7 @@ export const MainContent = styled(Box)`
 export const ContentWrapper = styled(Box)`
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  // padding: 24px;
   width: 100%;
 
   @media (max-width: 768px) {
@@ -258,19 +258,29 @@ export const TableWrapper = styled(TableContainer)`
 
 export const StyledTable = styled(Table)`
   min-width: 1000px;
+  background-color: #ffffff;
+
+  // & .MuiTableCell-head {
+  //   // background-color: #eeeee9;
+  //   font-family: "IBM Plex Sans", sans-serif;
+  //   font-size: 12px;
+  //   font-weight: 500;
+  //   line-height: 16px;
+  //   letter-spacing: 0.05em;
+  //   text-transform: uppercase;
+  //   color: #42493e;
+  //   padding: 12px 16px;
+  //   border-bottom: 1px solid #c2c9bb;
+  // }
 
   & .MuiTableCell-head {
-    background-color: #eeeee9;
     font-family: "IBM Plex Sans", sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #42493e;
-    padding: 12px 16px;
-    border-bottom: 1px solid #c2c9bb;
+    background-color: #eeeee9;
+
   }
+
+
 
   & .MuiTableCell-body {
     padding: 12px 16px;
@@ -282,12 +292,14 @@ export const StyledTable = styled(Table)`
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: rgba(227, 227, 222, 0.3);
+      background-color: rgba(227, 227, 222, 0.5);
+      // background-color: rgba(227, 227, 222, 0.3);
     }
 
-    &.striped {
-      background-color: rgba(238, 238, 233, 0.3);
-    }
+    // &.striped {
+    //   background-color: rgba(227, 227, 222, 0.5);
+    //   // background-color: rgba(238, 238, 233, 0.3);
+    // }
   }
 `;
 

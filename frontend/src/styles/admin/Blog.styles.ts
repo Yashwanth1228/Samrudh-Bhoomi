@@ -18,7 +18,7 @@ import {
 
 export const PageContainer = styled(Box)`
   min-height: 100vh;
-  background-color: #fafaf4;
+  // background-color: #fafaf4;
 `;
 
 export const MainContent = styled(Box)`
@@ -34,7 +34,7 @@ export const MainContent = styled(Box)`
 export const ContentWrapper = styled(Box)`
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  // padding: 24px;
   width: 100%;
 
   @media (max-width: 768px) {
@@ -182,7 +182,7 @@ export const ActionBarRight = styled(Box)`
 `;
 
 export const SearchField = styled(TextField)`
-  width: 320px;
+  width: 300px;
 
   & .MuiOutlinedInput-root {
     background-color: #f4f4ee;
@@ -261,18 +261,26 @@ export const TableWrapper = styled(TableContainer)`
 
 export const StyledTable = styled(Table)`
   min-width: 900px;
+  background-color: #ffffff;
+
+  // & .MuiTableCell-head {
+  //   background-color: #eeeee9;
+  //   font-family: "IBM Plex Sans", sans-serif;
+  //   font-size: 12px;
+  //   font-weight: 500;
+  //   line-height: 16px;
+  //   letter-spacing: 0.05em;
+  //   text-transform: uppercase;
+  //   color: #42493e;
+  //   padding: 16px;
+  //   border-bottom: 1px solid #c2c9bb;
+  // }
 
   & .MuiTableCell-head {
-    background-color: #eeeee9;
     font-family: "IBM Plex Sans", sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #42493e;
-    padding: 16px;
-    border-bottom: 1px solid #c2c9bb;
+    background-color: #eeeee9;
+
   }
 
   & .MuiTableCell-body {

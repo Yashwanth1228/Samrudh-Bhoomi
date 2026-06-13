@@ -56,6 +56,7 @@ import {
   ActionButtons,
   ActionIconButton,
 } from "../../styles/admin/Contact.styles";
+import Footer from "@/components/admin/Footer";
 
 // StatusChip component
 const StatusChip: React.FC<{ status: "New" | "Contacted" | "Closed" }> = ({
@@ -390,6 +391,7 @@ const ContactPage: NextPage = () => {
           </ContentWrapper>
         </MainContent>
       </PageContainer>
+      <Footer/>
     </>
   );
 };
