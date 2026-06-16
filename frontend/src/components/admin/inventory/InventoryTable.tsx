@@ -19,7 +19,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-import { TableToolbar, StatusBadge } from "@/styles/admin/Inventory.styles";
+import { TableToolbar, StatusBadge, StyledTable } from "@/styles/admin/Inventory.styles";
 
 interface InventoryItem {
   id: number;
@@ -165,15 +165,26 @@ export const InventoryTable: React.FC = () => {
 
       <TableContainer>
         <Table sx={{ minWidth: 800 }}>
+          <StyledTable>
           <TableHead>
-            <TableRow sx={{ bgcolor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: 600 }}>Product Name</TableCell>
+            {/* <TableRow sx={{ bgcolor: "action.hover" }}>
+              <TableCell >Product Name</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
               <TableCell sx={{ fontWeight: 600, textAlign: "right" }}>Available Qty</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Unit</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Last Updated</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
               <TableCell sx={{ fontWeight: 600, textAlign: "right" }}>Actions</TableCell>
+            </TableRow> */}
+
+            <TableRow >
+              <TableCell >Product Name</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Available Qty</TableCell>
+              <TableCell>Unit</TableCell>
+              <TableCell >Last Updated</TableCell>
+              <TableCell >Status</TableCell>
+              <TableCell >Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -181,7 +192,7 @@ export const InventoryTable: React.FC = () => {
               <TableRow
                 key={item.id}
                 sx={{
-                  bgcolor: index % 2 === 0 ? "background.paper" : "action.hover",
+                  bgcolor: "background.paper" ,
                   "&:hover": {
                     bgcolor: "action.selected",
                   },
@@ -203,6 +214,9 @@ export const InventoryTable: React.FC = () => {
               </TableRow>
             ))}
           </TableBody>
+
+
+          </StyledTable>
         </Table>
       </TableContainer>
 

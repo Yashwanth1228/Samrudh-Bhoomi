@@ -16,11 +16,10 @@ import {
 
 export const PageContainer = styled(Box)`
   min-height: 100vh;
-  background-color: #fafaf4;
+  // background-color: #fafaf4;
 `;
 
 export const MainContent = styled(Box)`
-  padding: 32px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -244,30 +243,39 @@ export const TableWrapper = styled(TableContainer)`
 
 export const StyledTable = styled(Table)`
   min-width: 800px;
+  background-color: #ffffff;
+
+  // & .MuiTableCell-head {
+  //   background-color: #eeeee9;
+  //   font-family: "IBM Plex Sans", sans-serif;
+  //   font-size: 12px;
+  //   font-weight: bold;
+  //   line-height: 16px;
+  //   letter-spacing: 0.05em;
+  //   text-transform: uppercase;
+  //   color: #42493e;
+  //   padding: 16px 24px;
+  //   border-bottom: 1px solid #c2c9bb;
+  // }
 
   & .MuiTableCell-head {
     background-color: #eeeee9;
     font-family: "IBM Plex Sans", sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 16px;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #42493e;
-    padding: 16px 24px;
-    border-bottom: 1px solid #c2c9bb;
+    
+
   }
 
-  & .MuiTableCell-body {
-    padding: 12px 24px;
-    border-bottom: 1px solid #c2c9bb;
-  }
+  // & .MuiTableCell-body {
+  //   padding: 12px 24px;
+  //   border-bottom: 1px solid #c2c9bb;
+  // }
 
   & .MuiTableRow-root {
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: #f4f4ee;
+      background-color: #f5f5f0;
     }
   }
 `;
