@@ -12,14 +12,14 @@ export default function useAdminAuth() {
     const user = localStorage.getItem("user");
 
     if (!token || !user) {
-      router.replace("/admin/login");
+      router.replace("/login");
       return;
     }
 
     const parsedUser = JSON.parse(user);
 
     if (parsedUser.role !== "admin") {
-      router.replace("/admin/login");
+      router.replace("/login");
       return;
     }
 

@@ -78,9 +78,9 @@ export default function LoginForm() {
         return;
       }
 
-      // localStorage.setItem("token", data.data.token);
+      localStorage.setItem("token", data.data.token);
 
-      // localStorage.setItem("user", JSON.stringify(data.data.user));
+      localStorage.setItem("user", JSON.stringify(data.data.user));
 
       setAlert({
         show: true,
