@@ -187,7 +187,7 @@ export default function Dashboard() {
 
       {/* Graph */}
 
-      {/* <ChartCard>
+      <ChartCard>
         <SectionTitle>Inventory Flow Overview</SectionTitle>
 
         <ResponsiveContainer width="100%" height={350}>
@@ -199,7 +199,7 @@ export default function Dashboard() {
             <Bar dataKey="stock" fill="#2d5a27" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard> */}
+      </ChartCard>
 
       {/* Table */}
 
