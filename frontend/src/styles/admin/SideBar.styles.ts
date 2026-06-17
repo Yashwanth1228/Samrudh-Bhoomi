@@ -31,11 +31,12 @@ export const LogoutSection = styled(Box)`
   border-top: 1px solid #e2e2dc;
 `;
 
-export const MenuItemWrapper = styled(Box)<{
+export const MenuItemWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{
   active?: boolean;
 }>`
   height: 52px;
-
   display: flex;
   align-items: center;
   gap: 14px;
@@ -44,12 +45,11 @@ export const MenuItemWrapper = styled(Box)<{
   margin-bottom: 8px;
 
   border-radius: 10px;
-
   cursor: pointer;
 
-  background: ${(props) => (props.active ? "#e7ece0" : "transparent")};
+  background: ${({ active }) => (active ? "#e7ece0" : "transparent")};
 
-  border-right: ${(props) => (props.active ? "4px solid #2d5a27" : "none")};
+  border-right: ${({ active }) => (active ? "4px solid #2d5a27" : "none")};
 
   transition: all 0.3s ease;
 

@@ -51,8 +51,6 @@ const menus = [
   },
 ];
 
-const handleLogout = () => {};
-
 export default function Sidebar() {
   const router = useRouter();
 
@@ -100,8 +98,7 @@ export default function Sidebar() {
                 <Typography
                   sx={{
                     fontSize: "14px",
-                    fontWeight:
-                      router.pathname === path ? 600 : 500,
+                    fontWeight: router.pathname === path ? 600 : 500,
                   }}
                 >
                   {menu.label}
