@@ -13,7 +13,7 @@ const app = Fastify({
 });
 
 app.register(cors, {
-  origin: "http://localhost:3000",
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
 });
 app.register(authRoutes, {
