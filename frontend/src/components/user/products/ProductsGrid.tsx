@@ -42,6 +42,7 @@ import {
   EmptyStateText,
   EmptyStateButton,
 } from "../../../styles/user/products/ProductsGrid.styles";
+import { useRouter } from "next/router";
 
 // Sample product data
 const products = [
@@ -111,6 +112,8 @@ const ProductsGrid: React.FC = () => {
   const handleSortChange = (event: any) => {
     setSortBy(event.target.value);
   };
+
+  const router = useRouter();
 
   return (
     <GridSection>
@@ -193,7 +196,9 @@ const ProductsGrid: React.FC = () => {
                 </ProductDescription>
                 <ProductFooter>
                   <ProductPrice variant="h6">{product.price}</ProductPrice>
-                  <DetailsButton>Details</DetailsButton>
+                  <DetailsButton onClick={() => router.push(`/product/1`)}>
+                    Details
+                  </DetailsButton>
                 </ProductFooter>
               </ProductContent>
             </ProductCard>
