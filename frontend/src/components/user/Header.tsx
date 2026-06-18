@@ -14,6 +14,10 @@ import {
 const Header: React.FC = () => {
   const router = useRouter();
 
+  const handleLogin = () => {
+    router.push("/login");
+  };
+
   const goTo = (path: string) => {
     router.push(path);
   };
@@ -32,7 +36,7 @@ const Header: React.FC = () => {
           onClick={() => goTo("/")}
           style={{ cursor: "pointer" }}
         >
-          Samrudh Bhoomi 
+          Samrudh Bhoomi
         </CompanyName>
       </LogoContainer>
 
@@ -66,11 +70,13 @@ const Header: React.FC = () => {
         </NavLink>
       </DesktopNav>
 
-      <LoginButton variant="contained">Login</LoginButton>
+      <LoginButton variant="contained" onClick={handleLogin}>
+        Login
+      </LoginButton>
 
-      <MobileMenuButton>
+      {/* <MobileMenuButton>
         <span className="material-symbols-outlined">menu</span>
-      </MobileMenuButton>
+      </MobileMenuButton> */}
     </StyledHeader>
   );
 };
