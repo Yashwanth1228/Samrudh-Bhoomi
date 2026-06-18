@@ -1,9 +1,21 @@
 import React from "react";
-import { Card, CardMedia, CardContent, Typography, Box, Chip, Button } from "@mui/material";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  Button,
+} from "@mui/material";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-import { BlogCardWrapper, BlogCardTag } from "@/styles/user/blog/BlogCard.styles";
+import {
+  BlogCardWrapper,
+  BlogCardTag,
+} from "@/styles/user/blog/BlogCard.styles";
+import { useRouter } from "next/router";
 
 interface BlogPost {
   id: number;
@@ -20,6 +32,7 @@ interface Props {
 }
 
 export const BlogCard: React.FC<Props> = ({ post }) => {
+  const router = useRouter();
   return (
     <BlogCardWrapper>
       <Box sx={{ position: "relative", height: 200, overflow: "hidden" }}>
@@ -39,10 +52,16 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
         <BlogCardTag label={post.category} />
       </Box>
 
-      <CardContent sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+      <CardContent
+        sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
           <ScheduleIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-          <Typography variant="caption" color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ textTransform: "uppercase", letterSpacing: "0.5px" }}
+          >
             {post.date}
           </Typography>
         </Box>
@@ -77,7 +96,14 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
           {post.excerpt}
         </Typography>
 
-        <Box sx={{ pt: 2, borderTop: "1px solid", borderColor: "divider", mt: "auto" }}>
+        <Box
+          sx={{
+            pt: 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            mt: "auto",
+          }}
+        >
           <Button
             endIcon={<ArrowForwardIcon />}
             sx={{
@@ -96,6 +122,7 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
                 transition: "transform 0.3s",
               },
             }}
+            onClick={() => router.push("/blogs/2")}
           >
             Read Article
           </Button>
