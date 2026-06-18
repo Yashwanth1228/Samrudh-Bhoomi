@@ -22,7 +22,7 @@ const Header: React.FC = () => {
     <StyledHeader>
       <LogoContainer>
         <LogoImage
-          src="/* ADD LOGO URL HERE */"
+          src="logo.jpeg"
           alt="Samrudh Bhoomi Logo"
           style={{ cursor: "pointer" }}
           onClick={() => goTo("/")}
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
           onClick={() => goTo("/")}
           style={{ cursor: "pointer" }}
         >
-          Samrudh Bhoomi Private Limited
+          Samrudh Bhoomi 
         </CompanyName>
       </LogoContainer>
 
