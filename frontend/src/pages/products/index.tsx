@@ -1,11 +1,11 @@
 import React from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { PageContainer } from "../styles/user/products/Products.styles";
-import ProductsHero from "../components/user/products/ProductsHero";
-import ProductsFilter from "../components/user/products/ProductsFilter";
-import ProductsGrid from "../components/user/products/ProductsGrid";
-import ProductsCTA from "../components/user/products/ProductsCTA";
+import { PageContainer } from "../../styles/user/products/Products.styles";
+import ProductsHero from "../../components/user/products/ProductsHero";
+import ProductsFilter from "../../components/user/products/ProductsFilter";
+import ProductsGrid from "../../components/user/products/ProductsGrid";
+import ProductsCTA from "../../components/user/products/ProductsCTA";
 
 const ProductsPage: NextPage = () => {
   return (
