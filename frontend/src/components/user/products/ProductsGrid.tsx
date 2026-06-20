@@ -86,6 +86,16 @@ const products = [
     image:
       "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
   },
+  {
+    id: 4,
+    name: "Agri-Tech Tractor X",
+    description:
+      "Autonomous ready tractor with precision mapping and integrated crop management.",
+    price: "Custom",
+    category: "Equipment",
+    image:
+      "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
+  },
 ];
 
 const ProductsGrid: React.FC = () => {
@@ -196,7 +206,7 @@ const ProductsGrid: React.FC = () => {
                 </ProductDescription>
                 <ProductFooter>
                   <ProductPrice variant="h6">{product.price}</ProductPrice>
-                  <DetailsButton onClick={() => router.push(`/product/1`)}>
+                  <DetailsButton onClick={() => router.push(`/products/1`)}>
                     Details
                   </DetailsButton>
                 </ProductFooter>

@@ -27,10 +27,10 @@ const Footer: React.FC = () => {
         <div>
           <FooterHeading variant="overline">Company</FooterHeading>
           <FooterLinkList>
-            <FooterLink href="#">Home</FooterLink>
-            <FooterLink href="#">About Us</FooterLink>
-            <FooterLink href="#">Contact Us</FooterLink>
-            <FooterLink href="#">Blogs</FooterLink>
+            <FooterLink href="/">Home</FooterLink>
+            <FooterLink href="/about">About Us</FooterLink>
+            <FooterLink href="/contact">Contact Us</FooterLink>
+            <FooterLink href="/blogs">Blogs</FooterLink>
           </FooterLinkList>
         </div>
 
