@@ -1,107 +1,6 @@
 import styled from "@emotion/styled";
 import { Box, Typography, TextField, Button, Alert, Link } from "@mui/material";
 
-export const SignupContainer = styled(Box)`
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-  }
-`;
-
-export const LeftSection = styled(Box)`
-  display: none;
-  position: relative;
-  width: 50%;
-  height: 100%;
-  background-color: #154212;
-  overflow: hidden;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-
-  @media (min-width: 768px) {
-    display: flex;
-  }
-`;
-
-export const LeftContent = styled(Box)`
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 512px;
-  color: #ffffff;
-`;
-
-export const BrandTitle = styled(Typography)`
-  font-family: "Inter", sans-serif;
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 40px;
-  margin-bottom: 8px;
-  color: #ffffff;
-`;
-
-export const BrandSubtitle = styled(Typography)`
-  font-family: "Inter", sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 28px;
-  opacity: 0.9;
-  color: #ffffff;
-`;
-
-export const CommitmentTitle = styled(Typography)`
-  font-family: "Inter", sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(188, 240, 174, 0.2);
-  padding-bottom: 16px;
-`;
-
-export const CommitmentList = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-export const CommitmentItem = styled(Box)`
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-`;
-
-export const CommitmentIcon = styled(Box)`
-  margin-top: 4px;
-  color: #bcf0ae;
-
-  & .MuiSvgIcon-root {
-    font-size: 24px;
-  }
-`;
-
-export const CommitmentText = styled(Box)`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const CommitmentLabel = styled(Typography)`
-  font-family: "IBM Plex Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  opacity: 0.8;
-  color: #ffffff;
-`;
-
 export const RightSection = styled(Box)`
   width: 100%;
   height: 100%;
@@ -114,12 +13,13 @@ export const RightSection = styled(Box)`
 
   @media (min-width: 768px) {
     width: 50%;
-    padding: 48px 96px;
+    padding: 48px 48px;
   }
 `;
 
 export const FormContainer = styled(Box)`
-  max-width: 448px;
+  padding-top: 40px;
+  max-width: 560px; /* Increased from 448px to 560px */
   width: 100%;
   margin: 0 auto;
 `;
@@ -243,5 +143,5 @@ export const SecondaryAction = styled(Typography)`
   font-weight: 400;
   color: #42493e;
   text-align: center;
-  margin-top: 16px;
+  // margin-top: 5px;
 `;
