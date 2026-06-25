@@ -8,31 +8,16 @@ import {
   FormControlLabel,
   Link,
   Alert,
-  LinearProgress,
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import {
-  Agriculture as AgricultureIcon,
-  Compost as CompostIcon,
-  Grass as GrassIcon,
-  Shield as ShieldIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import {
-  SignupContainer,
-  LeftSection,
-  LeftContent,
-  BrandTitle,
-  BrandSubtitle,
-  CommitmentTitle,
-  CommitmentList,
-  CommitmentItem,
-  CommitmentIcon,
-  CommitmentText,
-  CommitmentLabel,
   RightSection,
   FormContainer,
   FormHeader,
@@ -47,6 +32,8 @@ import {
   SuccessAlert,
   SecondaryAction,
 } from "../../styles/signup/SignupForm.styles";
+import BrandPanel from "../auth/BrandPanel";
+import { useRouter } from "next/router";
 
 const SignupForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -98,24 +85,47 @@ const SignupForm: React.FC = () => {
     setPasswordMatch(value === formData.password);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
       setPasswordMatch(false);
       return;
     }
 
-    setIsSubmitting(true);
+    try {
+      setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        Alert(data.message);
+        return;
+      }
+
       setIsSuccess(true);
-      // Redirect after 2 seconds
+
       setTimeout(() => {
-        window.location.href = "/login";
+        router.push("/login");
       }, 2000);
-    }, 1800);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getStrengthColor = () => {
@@ -134,60 +144,19 @@ const SignupForm: React.FC = () => {
     return passwordStrength === 4 ? "#154212" : "#42493e";
   };
 
-  const commitmentItems = [
-    {
-      icon: <AgricultureIcon />,
-      title: "Premium Agricultural Products",
-      label: "Top-Tier Quality Control",
-    },
-    {
-      icon: <CompostIcon />,
-      title: "Quality Fertilizers",
-      label: "Engineered for Yield",
-    },
-    {
-      icon: <GrassIcon />,
-      title: "Organic Solutions",
-      label: "Environmentally Conscious",
-    },
-    {
-      icon: <ShieldIcon />,
-      title: "Seeds & Crop Protection",
-      label: "Future-Proof Resilience",
-    },
-  ];
+  const router = useRouter();
 
   return (
-    <SignupContainer>
-      {/* Left Section - Brand Visual */}
-      <LeftSection>
-        <LeftContent>
-          <Box sx={{ mb: 12 }}>
-            <BrandTitle variant="h4">Samrudh Bhoomi</BrandTitle>
-            <BrandSubtitle variant="h6">
-              Sustaining Earth, Empowering Farmers.
-            </BrandSubtitle>
-          </Box>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <CommitmentTitle variant="h5">Our Commitment</CommitmentTitle>
-            <CommitmentList>
-              {commitmentItems.map((item, index) => (
-                <CommitmentItem key={index}>
-                  <CommitmentIcon>{item.icon}</CommitmentIcon>
-                  <CommitmentText>
-                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                      {item.title}
-                    </Typography>
-                    <CommitmentLabel variant="caption">
-                      {item.label}
-                    </CommitmentLabel>
-                  </CommitmentText>
-                </CommitmentItem>
-              ))}
-            </CommitmentList>
-          </Box>
-        </LeftContent>
-      </LeftSection>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
+      {/* Left Section - Brand Panel */}
+      <BrandPanel />
 
       {/* Right Section - Signup Form */}
       <RightSection>
@@ -251,137 +220,121 @@ const SignupForm: React.FC = () => {
                 />
               </FormField>
 
-              <FormField>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontFamily: "IBM Plex Sans",
-                    fontWeight: 500,
-                    letterSpacing: "0.05em",
-                    color: "#42493e",
-                  }}
-                >
-                  Password
-                </Typography>
-                <StyledTextField
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Min. 8 characters"
-                  value={formData.password}
-                  onChange={handlePasswordChange}
-                  required
-                  fullWidth
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? (
-                              <VisibilityOffIcon />
-                            ) : (
-                              <VisibilityIcon />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-                <PasswordStrengthBar>
-                  <Box
-                    sx={{
-                      height: "100%",
-                      width: `${(passwordStrength / 4) * 100}%`,
-                      backgroundColor: getStrengthColor(),
-                      transition: "all 0.3s",
-                      borderRadius: "9999px",
-                    }}
-                  />
-                </PasswordStrengthBar>
-                <StrengthText color={getStrengthTextColor()}>
-                  {getStrengthLabel()}
-                </StrengthText>
-              </FormField>
-
-              <FormField>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontFamily: "IBM Plex Sans",
-                    fontWeight: 500,
-                    letterSpacing: "0.05em",
-                    color: "#42493e",
-                  }}
-                >
-                  Confirm Password
-                </Typography>
-                <StyledTextField
-                  name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Repeat password"
-                  value={formData.confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  required
-                  fullWidth
-                  error={!passwordMatch && !!formData.confirmPassword}
-                  helperText={
-                    !passwordMatch && formData.confirmPassword
-                      ? "Passwords do not match"
-                      : ""
-                  }
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() =>
-                              setShowConfirmPassword(!showConfirmPassword)
-                            }
-                            edge="end"
-                          >
-                            {showConfirmPassword ? (
-                              <VisibilityOffIcon />
-                            ) : (
-                              <VisibilityIcon />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-              </FormField>
-
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="terms"
-                    checked={formData.terms}
-                    onChange={handleChange}
-                    required
-                    sx={{
-                      color: "#c2c9bb",
-                      "&.Mui-checked": { color: "#154212" },
-                    }}
-                  />
-                }
-                label={
-                  <Typography variant="body2" sx={{ color: "#42493e" }}>
-                    I agree to the{" "}
-                    <Link href="#" sx={{ color: "#154212", fontWeight: 700 }}>
-                      Terms &amp; Conditions
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="#" sx={{ color: "#154212", fontWeight: 700 }}>
-                      Privacy Policy
-                    </Link>
-                    .
-                  </Typography>
-                }
-              />
+              {/* Password and Confirm Password - Side by Side */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 2,
+                }}
+              >
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <FormField>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: "IBM Plex Sans",
+                        fontWeight: 500,
+                        letterSpacing: "0.05em",
+                        color: "#42493e",
+                      }}
+                    >
+                      Password
+                    </Typography>
+                    <StyledTextField
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Min. 8 characters"
+                      value={formData.password}
+                      onChange={handlePasswordChange}
+                      required
+                      fullWidth
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                              >
+                                {showPassword ? (
+                                  <VisibilityOffIcon />
+                                ) : (
+                                  <VisibilityIcon />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                    <PasswordStrengthBar>
+                      <Box
+                        sx={{
+                          height: "100%",
+                          width: `${(passwordStrength / 4) * 100}%`,
+                          backgroundColor: getStrengthColor(),
+                          transition: "all 0.3s",
+                          borderRadius: "9999px",
+                        }}
+                      />
+                    </PasswordStrengthBar>
+                    <StrengthText color={getStrengthTextColor()}>
+                      {getStrengthLabel()}
+                    </StrengthText>
+                  </FormField>
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <FormField>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontFamily: "IBM Plex Sans",
+                        fontWeight: 500,
+                        letterSpacing: "0.05em",
+                        color: "#42493e",
+                      }}
+                    >
+                      Confirm Password
+                    </Typography>
+                    <StyledTextField
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Repeat password"
+                      value={formData.confirmPassword}
+                      onChange={handleConfirmPasswordChange}
+                      required
+                      fullWidth
+                      error={!passwordMatch && !!formData.confirmPassword}
+                      helperText={
+                        !passwordMatch && formData.confirmPassword
+                          ? "Passwords do not match"
+                          : ""
+                      }
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
+                                edge="end"
+                              >
+                                {showConfirmPassword ? (
+                                  <VisibilityOffIcon />
+                                ) : (
+                                  <VisibilityIcon />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                  </FormField>
+                </Box>
+              </Box>
 
               <SubmitButton type="submit" disabled={isSubmitting} fullWidth>
                 {isSubmitting ? (
@@ -417,7 +370,7 @@ const SignupForm: React.FC = () => {
           )}
         </FormContainer>
       </RightSection>
-    </SignupContainer>
+    </Box>
   );
 };
 

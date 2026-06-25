@@ -9,11 +9,11 @@ import {
   FormControlLabel,
   IconButton,
   InputAdornment,
-  Link,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
+import Link from "next/link";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -265,6 +265,24 @@ export default function LoginForm() {
           )}
         </Box>
       </Paper>
+      <Box sx={{ mt: 3, textAlign: "center" }}>
+        <Typography variant="body2" sx={{ color: "#42493e" }}>
+          Don't have an account?{" "}
+          <Link href="/register" passHref>
+            <Typography
+              component="span"
+              sx={{
+                color: "#154212",
+                fontWeight: 700,
+                cursor: "pointer",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              Create Account
+            </Typography>
+          </Link>
+        </Typography>
+      </Box>
     </Box>
   );
 }

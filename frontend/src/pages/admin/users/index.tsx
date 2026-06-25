@@ -1,5 +1,5 @@
 // src/pages/admin/users.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import {
@@ -78,43 +78,43 @@ interface User {
 }
 
 // Mock data
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Rajesh Kumar",
-    userId: "USR-1042",
-    email: "rajesh.k@samrudh.in",
-    phone: "+91 98765 43210",
-    role: "Admin",
-    status: "Active",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAHMGK3WJWTC5Lt5wXMnZT1n_QQiz4y3biHDTFIl8c88NZt6nOXJhe7pjglQn5A7pC3QrYiueqt2J0fs1dq14sL_MhaaJgBNgaa_r6QDzE9gL5Kh4pJWxeSmIoAPhdYhkqdY5KLaJO4xK5wVvDu0gYYk1IzUDJsvPnN4ilkVe82yVad8YNFfBz1Wion-gQGSvjsH7sHOpYM6qpAeiQP5O00-QasWQ_j0NmBenNKI6BpF_qHEJ6cGzgucEXeBBnCHaZCLg3xZeQI_i3t",
-  },
-  {
-    id: "2",
-    name: "Anita Sharma",
-    userId: "USR-1088",
-    email: "anita.s@samrudh.in",
-    phone: "+91 91234 56789",
-    role: "User",
-    status: "Active",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBpFK1nysZu1FtjY4jxRqwZjIfsD15IGGg8HlvtskMzpMkH4veskw4bgdFMGDTy8-Udip4emgitWiHYh3OWibkWoxOiY4EZH5Y6sLR4D48SOfQ3SZoy5fc1xDzR0OXnm0gSJgrnHobnCTrttH4P7tL8zeEhgVqp7IgzVOA5VA2TKOHzgjfvzJjfDI0kumgtFIv2f0p0MG2Mp6Ie28fVwElwTJeB0-qigC0dR07YhoROPQ2xXkJURVlJ8YSyB03k5Mpcmv7mWab1QE6g",
-  },
-  {
-    id: "3",
-    name: "Vikram Singh",
-    userId: "USR-1102",
-    email: "vikram.singh@samrudh.in",
-    phone: "+91 99887 76655",
-    role: "User",
-    status: "Inactive",
-    avatar: "",
-  },
-];
+// const mockUsers: User[] = [
+//   {
+//     id: "1",
+//     name: "Rajesh Kumar",
+//     userId: "USR-1042",
+//     email: "rajesh.k@samrudh.in",
+//     phone: "+91 98765 43210",
+//     role: "Admin",
+//     status: "Active",
+//     avatar:
+//       "https://lh3.googleusercontent.com/aida-public/AB6AXuAHMGK3WJWTC5Lt5wXMnZT1n_QQiz4y3biHDTFIl8c88NZt6nOXJhe7pjglQn5A7pC3QrYiueqt2J0fs1dq14sL_MhaaJgBNgaa_r6QDzE9gL5Kh4pJWxeSmIoAPhdYhkqdY5KLaJO4xK5wVvDu0gYYk1IzUDJsvPnN4ilkVe82yVad8YNFfBz1Wion-gQGSvjsH7sHOpYM6qpAeiQP5O00-QasWQ_j0NmBenNKI6BpF_qHEJ6cGzgucEXeBBnCHaZCLg3xZeQI_i3t",
+//   },
+//   {
+//     id: "2",
+//     name: "Anita Sharma",
+//     userId: "USR-1088",
+//     email: "anita.s@samrudh.in",
+//     phone: "+91 91234 56789",
+//     role: "User",
+//     status: "Active",
+//     avatar:
+//       "https://lh3.googleusercontent.com/aida-public/AB6AXuBpFK1nysZu1FtjY4jxRqwZjIfsD15IGGg8HlvtskMzpMkH4veskw4bgdFMGDTy8-Udip4emgitWiHYh3OWibkWoxOiY4EZH5Y6sLR4D48SOfQ3SZoy5fc1xDzR0OXnm0gSJgrnHobnCTrttH4P7tL8zeEhgVqp7IgzVOA5VA2TKOHzgjfvzJjfDI0kumgtFIv2f0p0MG2Mp6Ie28fVwElwTJeB0-qigC0dR07YhoROPQ2xXkJURVlJ8YSyB03k5Mpcmv7mWab1QE6g",
+//   },
+//   {
+//     id: "3",
+//     name: "Vikram Singh",
+//     userId: "USR-1102",
+//     email: "vikram.singh@samrudh.in",
+//     phone: "+91 99887 76655",
+//     role: "User",
+//     status: "Inactive",
+//     avatar: "",
+//   },
+// ];
 
 const UsersPage: NextPage = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -154,6 +154,35 @@ const UsersPage: NextPage = () => {
     inactiveUsers: 68,
     adminUsers: 12,
   };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/users");
+
+      const data = await response.json();
+
+      if (data.success) {
+        const formattedUsers: User[] = data.data.map((user: any) => ({
+          id: user._id,
+          name: user.name,
+          userId: user._id.slice(-6).toUpperCase(), // temporary display ID
+          email: user.email,
+          phone: user.phone || "-",
+          role: user.role === "admin" ? "Admin" : "User",
+          status: user.isActive ? "Active" : "Inactive",
+          avatar: "",
+        }));
+
+        setUsers(formattedUsers);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const router = useRouter();
 
