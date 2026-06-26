@@ -8,13 +8,23 @@ export const register = async (
 ) => {
   try {
     console.log("BODY =>", request.body);
-    const user = await registerUser(
-      request.body as {
-        name: string;
-        email: string;
-        password: string;
-      },
-    );
+
+    const payload = request.body as {
+      name: string;
+      email: string;
+      password: string;
+    };
+
+    // 👇 ADD THIS HERE
+    if (!payload.password || payload.password.trim() === "") {
+      return reply.status(400).send({
+        success: false,
+        message: "Password is required",
+      });
+    }
+
+    const user = await registerUser(payload);
+
     return reply.status(201).send({
       success: true,
       message: "User registered successfully",
@@ -96,6 +106,81 @@ export const updateUserRole = async (
     return reply.send({
       success: true,
       message: "Role updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
+export const getUserById = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params as { id: string };
+
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      return reply.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
+export const updateUser = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params as { id: string };
+
+    const { name, email, phone, role, isActive } = request.body as {
+      name: string;
+      email: string;
+      phone?: string;
+      role: "admin" | "user";
+      isActive: boolean;
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        name,
+        email,
+        phone,
+        role,
+        isActive,
+      },
+      { new: true },
+    ).select("-password");
+
+    if (!updatedUser) {
+      return reply.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      message: "User updated successfully",
       data: updatedUser,
     });
   } catch (error) {
