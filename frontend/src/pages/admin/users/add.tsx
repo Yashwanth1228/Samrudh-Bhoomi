@@ -1,5 +1,5 @@
 // src/pages/admin/users/add.tsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import {
@@ -70,6 +70,8 @@ import {
   BreadcrumbLink,
 } from "../../../styles/admin/AddUser.styles";
 
+import { useRouter } from "next/router";
+
 interface FormData {
   fullName: string;
   email: string;
@@ -128,56 +130,145 @@ const AddUserPage: NextPage = () => {
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
+    // Full Name
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required";
     }
 
+    // Email
     if (!formData.email.trim()) {
       newErrors.email = "Email address is required";
     } else if (!formData.email.includes("@")) {
       newErrors.email = "Please enter a valid email address";
     }
 
+    // Phone
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    if (!isEditMode) {
+      // ADD USER → Password is mandatory
+      if (!formData.password) {
+        newErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = "Please confirm your password";
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+    } else {
+      // EDIT USER → Validate only if password is entered
+      if (formData.password) {
+        if (formData.password.length < 6) {
+          newErrors.password = "Password must be at least 6 characters";
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          newErrors.confirmPassword = "Passwords do not match";
+        }
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (validateForm()) {
-      // Simulate API call
-      console.log("Form data submitted:", { ...formData, profileImage });
-      setShowSuccess(true);
+    // Stop if validation fails
+    if (!validateForm()) {
+      return;
+    }
 
-      // Reset form after success (optional)
-      setTimeout(() => {
-        setShowSuccess(false);
-        // In real app: router.push('/admin/users');
-      }, 3000);
+    try {
+      const url = isEditMode
+        ? `http://localhost:5000/api/auth/users/${id}`
+        : "http://localhost:5000/api/auth/register";
+
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          isActive: formData.status === "active",
+          phone: formData.phone,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          router.push("/admin/users");
+        }, 1500);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleCancel = () => {
-    // router.push('/admin/users');
+    router.push("/admin/users");
     console.log("Cancel clicked");
   };
+
+  const router = useRouter();
+  const { id } = router.query;
+  const isEditMode = Boolean(id);
+
+  console.log("id:", id);
+  console.log("isEditMode:", isEditMode);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/auth/users/${id}`,
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          const user = data.data;
+
+          setFormData((prev) => ({
+            ...prev,
+            fullName: user.name || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            role: user.role || "user",
+            status: user.isActive ? "active" : "inactive",
+
+            // Don't prefill passwords
+            password: "",
+            confirmPassword: "",
+          }));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
 
   return (
     <>
@@ -207,9 +298,13 @@ const AddUserPage: NextPage = () => {
                   </Typography>
                 </StyledBreadcrumbs>
               </BreadcrumbNav>
-              <PageTitle variant="h2">Add New User</PageTitle>
+              <PageTitle variant="h2">
+                {isEditMode ? "Edit User" : "Add New User"}
+              </PageTitle>
               <PageSubtitle variant="body1">
-                Create a new user account for the system
+                {isEditMode
+                  ? "Update user information"
+                  : "Create a new user account for the system"}
               </PageSubtitle>
             </PageHeader>
 
@@ -487,7 +582,7 @@ const AddUserPage: NextPage = () => {
                       fullWidth
                       startIcon={<PersonAddIcon />}
                     >
-                      Create User
+                      {isEditMode ? "Update User" : "Create User"}
                     </SubmitButton>
                     <CancelButton fullWidth onClick={handleCancel}>
                       Cancel
