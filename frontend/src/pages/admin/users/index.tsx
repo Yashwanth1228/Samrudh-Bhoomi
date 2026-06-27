@@ -28,6 +28,7 @@ import {
   Edit as EditIcon,
   Notifications as NotificationsIcon,
   HelpOutlined as HelpOutlineIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import {
   PageContainer,
@@ -148,6 +149,43 @@ const UsersPage: NextPage = () => {
           }),
         },
       );
+
+      const data = await response.json();
+
+      if (data.success) {
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this user?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/auth/users/${userId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        fetchUsers(); // Refresh the table
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
       const data = await response.json();
 
@@ -393,6 +431,14 @@ const UsersPage: NextPage = () => {
                           }
                         >
                           <EditIcon />
+                        </ActionIconButton>
+
+                        <ActionIconButton
+                          size="small"
+                          title="Delete User"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <DeleteIcon />
                         </ActionIconButton>
                       </ActionButtons>
                     </TableCell>

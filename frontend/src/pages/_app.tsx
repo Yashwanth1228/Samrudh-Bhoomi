@@ -10,6 +10,8 @@ import AdminLayout from "@/layouts/AdminLayout";
 import UserLayout from "@/layouts/UserLayout";
 import "@/styles/globals.css";
 import { useRouter } from "next/router";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
 
 // Client-side cache, shared for the whole session
 const clientSideEmotionCache = createEmotionCache();
@@ -52,11 +54,13 @@ export default function App({
   };
 
   return (
-    <CacheProvider value={emotionCache}>
+    <Provider store={store}>
+       <CacheProvider value={emotionCache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {getLayout()}
       </ThemeProvider>
     </CacheProvider>
+    </Provider>
   );
 }

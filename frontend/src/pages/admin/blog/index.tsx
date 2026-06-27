@@ -121,53 +121,93 @@ import {
   PreviewTitle,
   PreviewImagePlaceholder,
   PreviewContent,
+  CenterBox,
+  StatusCard,
+  Spinner,
+  StatusTitle,
+  StatusText,
 } from "../../../styles/admin/Blog.styles";
+import { useDeleteBlogMutation, useGetBlogsQuery } from "@/store/api/apiSlice";
 
 // Types
 interface BlogPost {
-  id: string;
-  image: string;
+  _id: string;
+  id?: string;
+
   title: string;
+  slug: string;
   category: string;
-  status: "published" | "draft";
-  date: string;
-  imageUrl?: string;
+
+  featuredImages: string[];
+
+  excerpt: string;
+  content: string;
+
+  readTime: string;
+
+  author: {
+    name: string;
+    title: string;
+    bio: string;
+    image: string;
+  };
+
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+
+  status: "draft" | "published";
+
+  featured?: boolean;
+
+  publishedAt?: string;
+
+  views: number;
+
+  relatedPosts: string[];
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Mock data
-const mockBlogs: BlogPost[] = [
-  {
-    id: "1",
-    image: "blog1",
-    title: "The Future of Sustainable Farming",
-    category: "Sustainable Farming",
-    status: "published",
-    date: "Oct 12, 2023",
-    imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC5zRFzTNjzpIW5sQeekip-qrDP0mw5k3GKtp3aG2yee-swF5_svf-Ssq1JIkQETf5upqeGHY68g7428UU_-JNhI7Ddsvoxj7HdTGpjeKgEmxObR8eu0Uc0rgH4hajnnU5w4RTFJq3B4IpAFCt6X42quTrrIkpQbX7NXmgT_MRQDH3XD0-7g_PAzehPRmEdAk3hczZm-loC8l6TmsGum7ridx5vdRs1V8Cb1lEyAg5ga7CmSoeUA3RDShNgxuuEhm7Nql1A7dD9KThz",
-  },
-  {
-    id: "2",
-    image: "blog2",
-    title: "New Organic Fertilizer Launch",
-    category: "Product Updates",
-    status: "published",
-    date: "Oct 05, 2023",
-    imageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCpM5GL6jI8lU_GMPmu16tEJGBV7M2oIsbAjSXmxm0iuYZYdzmfFCsihXYTWJiZfmCnXqqYLI6y4D6cGOWDdnUL-zNZ-ohzLDrapRvAvx7cUhN_PpcuL7HdnsLw46qMRWJOUggTpCQYpodXy0R3KSOZ-Q4hX16583o9PFqwKRTfXfoCA95EDTKx02_It0Dyx2giHPw1zHzteyaAZPDdXnynYtEIUy7O_fOrgHij2rEmV4sYdEV6AIwxkcGpCT6SSN2LO4-_hkd_u1-7",
-  },
-  {
-    id: "3",
-    image: "",
-    title: "Maximizing Crop Yield in Monsoon",
-    category: "Best Practices",
-    status: "draft",
-    date: "-",
-  },
-];
+// const mockBlogs: BlogPost[] = [
+//   {
+//     id: "1",
+//     image: "blog1",
+//     title: "The Future of Sustainable Farming",
+//     category: "Sustainable Farming",
+//     status: "published",
+//     date: "Oct 12, 2023",
+//     createdAt: "jwsconwc"
+//     featuredImages:
+//       "https://lh3.googleusercontent.com/aida-public/AB6AXuC5zRFzTNjzpIW5sQeekip-qrDP0mw5k3GKtp3aG2yee-swF5_svf-Ssq1JIkQETf5upqeGHY68g7428UU_-JNhI7Ddsvoxj7HdTGpjeKgEmxObR8eu0Uc0rgH4hajnnU5w4RTFJq3B4IpAFCt6X42quTrrIkpQbX7NXmgT_MRQDH3XD0-7g_PAzehPRmEdAk3hczZm-loC8l6TmsGum7ridx5vdRs1V8Cb1lEyAg5ga7CmSoeUA3RDShNgxuuEhm7Nql1A7dD9KThz",
+//   },
+//   {
+//     id: "2",
+//     image: "blog2",
+//     title: "New Organic Fertilizer Launch",
+//     category: "Product Updates",
+//     status: "published",
+//     date: "Oct 05, 2023",
+//     featuredImages:
+//       "https://lh3.googleusercontent.com/aida-public/AB6AXuCpM5GL6jI8lU_GMPmu16tEJGBV7M2oIsbAjSXmxm0iuYZYdzmfFCsihXYTWJiZfmCnXqqYLI6y4D6cGOWDdnUL-zNZ-ohzLDrapRvAvx7cUhN_PpcuL7HdnsLw46qMRWJOUggTpCQYpodXy0R3KSOZ-Q4hX16583o9PFqwKRTfXfoCA95EDTKx02_It0Dyx2giHPw1zHzteyaAZPDdXnynYtEIUy7O_fOrgHij2rEmV4sYdEV6AIwxkcGpCT6SSN2LO4-_hkd_u1-7",
+//   },
+//   {
+//     id: "3",
+//     image: "",
+//     title: "Maximizing Crop Yield in Monsoon",
+//     category: "Best Practices",
+//     status: "draft",
+//     date: "-",
+//   },
+// ];
 
 const BlogPage: NextPage = () => {
-  const [blogs, setBlogs] = useState<BlogPost[]>(mockBlogs);
+  // const [blogs, setBlogs] = useState<BlogPost[]>(mockBlogs);
+  // const [realblogs , setrealBlogs] = useState();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(0);
@@ -177,15 +217,31 @@ const BlogPage: NextPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
 
+  const { data : blogs, error, isLoading: blogloading} = useGetBlogsQuery();
+  console.log(" the data from server", blogs);
+  // setrealBlogs(data.data);
+  // console.log("this is blog data",realblogs)
+
+  const [deleteBlog] = useDeleteBlogMutation();
+
   // Form state
   const [formTitle, setFormTitle] = useState("");
   const [formSlug, setFormSlug] = useState("");
   const [formCategory, setFormCategory] = useState("");
   const [formStatus, setFormStatus] = useState(true);
+  const [featuredstatus , setfeaturedstatus] = useState(false);
   const [formDescription, setFormDescription] = useState("");
   const [formContent, setFormContent] = useState("");
   const [formMetaTitle, setFormMetaTitle] = useState("");
+  const [formMetaDescription, setFormMetaDescription] = useState("");
   const [formMetaKeywords, setFormMetaKeywords] = useState("");
+
+  const [formAuthorName, setFormAuthorName] = useState("");
+const [formAuthorTitle, setFormAuthorTitle] = useState("");
+const [formAuthorBio, setFormAuthorBio] = useState("");
+const [formAuthorImage, setFormAuthorImage] = useState<File | null>(null);
+
+const authorImageInputRef = useRef<HTMLInputElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -228,6 +284,16 @@ const BlogPage: NextPage = () => {
       setFormCategory(blog.category);
       setFormStatus(blog.status === "published");
       handleTitleChange({ target: { value: blog.title } } as any);
+      setFormDescription(blog.excerpt || "");
+      setFormContent(blog.content || "");
+      setFormMetaTitle(blog.seo?.metaTitle || "");
+      setFormMetaDescription(blog.seo?.metaDescription || "");
+      setFormMetaKeywords(blog.seo?.metaKeywords?.join(",") || "");
+      setFormAuthorName(blog.author?.name || "");
+      setFormAuthorTitle(blog.author?.title || "");
+      setFormAuthorBio(blog.author?.bio || "");
+      
+
     } else {
       resetForm();
     }
@@ -260,6 +326,21 @@ const BlogPage: NextPage = () => {
   };
 
   const handleSave = () => {
+    const formData = new FormData();
+
+formData.append("title", formTitle);
+formData.append("slug", formSlug);
+formData.append("category", formCategory);
+formData.append("excerpt", formDescription);
+formData.append("content", formContent);
+
+formData.append("authorName", formAuthorName);
+formData.append("authorTitle", formAuthorTitle);
+formData.append("authorBio", formAuthorBio);
+
+if (formAuthorImage) {
+  formData.append("authorImage", formAuthorImage);
+}
     handleCloseDrawer();
     alert("Blog saved successfully!");
   };
@@ -268,13 +349,43 @@ const BlogPage: NextPage = () => {
     handleOpenDrawer(true, blog);
   };
 
-  const handleDelete = (blog: BlogPost) => {
-    if (confirm("Are you sure you want to delete this blog?")) {
-      setBlogs(blogs.filter((b) => b.id !== blog.id));
+  const handleDelete = async (id: string) => {
+    try {
+      const deleteblog = await deleteBlog(id).unwrap();
+      console.log("the deleted blog", deleteblog);
+      if (deleteblog.success) {
+        alert("Blog deleted successfully");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const filteredBlogs = blogs.filter((blog) => {
+  const handleAuthorImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+  
+    if (file) {
+      setFormAuthorImage(file);
+    }
+  };
+
+
+  if (blogloading) {
+    return (
+      <CenterBox>
+        <StatusCard>
+          <Spinner />
+          <StatusTitle>Loading blogs...</StatusTitle>
+          <StatusText>Please wait while we fetch your data</StatusText>
+        </StatusCard>
+      </CenterBox>
+    );
+  }
+
+
+  const filteredBlogs = blogs?.filter((blog:BlogPost) => {
     const matchesSearch = blog.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
@@ -282,17 +393,30 @@ const BlogPage: NextPage = () => {
       statusFilter === "all" || blog.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+  console.log("the filtered blogs " , filteredBlogs);
 
-  const paginatedBlogs = filteredBlogs.slice(
+  const paginatedBlogs = filteredBlogs?.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
 
   const kpiData = {
-    total: 24,
-    published: 18,
-    drafts: 6,
-    featured: 3,
+    total: blogs?.length || 0,
+  
+    published:
+      blogs?.filter(
+        (blog: any) => blog.status === "published"
+      ).length || 0,
+  
+    drafts:
+      blogs?.filter(
+        (blog: any) => blog.status === "draft"
+      ).length || 0,
+  
+    featured:
+      blogs?.filter(
+        (blog: any) => blog.featured === true
+      ).length || 0,
   };
 
   return (
@@ -408,11 +532,11 @@ const BlogPage: NextPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedBlogs.map((blog) => (
+                  {paginatedBlogs?.map((blog:BlogPost) => (
                     <TableRow key={blog.id} hover>
                       <TableCell>
-                        {blog.imageUrl ? (
-                          <BlogImage src={blog.imageUrl} alt={blog.title} />
+                        {blog.featuredImages ? (
+                          <BlogImage src={blog.featuredImages[0]} alt={blog.title} />
                         ) : (
                           <BlogImagePlaceholder>
                             <ImageIcon />
@@ -436,7 +560,7 @@ const BlogPage: NextPage = () => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="textSecondary">
-                          {blog.date}
+                          {blog.createdAt}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
@@ -454,7 +578,7 @@ const BlogPage: NextPage = () => {
                           <ActionIconButton
                             size="small"
                             title="Delete"
-                            onClick={() => handleDelete(blog)}
+                            onClick={() => handleDelete(blog._id || blog.id || "")}
                           >
                             <DeleteIcon />
                           </ActionIconButton>
@@ -512,7 +636,7 @@ const BlogPage: NextPage = () => {
                 />
               </FormField>
               <FormRow>
-                <FormField>
+                {/* <FormField>
                   <FormLabel>URL Slug</FormLabel>
                   <FormInput
                     fullWidth
@@ -520,7 +644,11 @@ const BlogPage: NextPage = () => {
                     value={formSlug}
                     disabled
                   />
-                </FormField>
+                </FormField> */}
+                <FormInput
+                  value={formSlug}
+                  disabled
+                />
                 <FormField>
                   <FormLabel>Category *</FormLabel>
                   <StyledSelect
@@ -626,6 +754,16 @@ const BlogPage: NextPage = () => {
                   onChange={(e: any) => setFormMetaTitle(e.target.value)}
                 />
               </FormField>
+
+              <FormField>
+                <FormLabel>Meta Description</FormLabel>
+                <FormInput
+                  fullWidth
+                  value={formMetaDescription}
+                  onChange={(e: any) => setFormMetaDescription(e.target.value)}
+                />
+              </FormField>
+
               <FormField>
                 <FormLabel>Meta Keywords</FormLabel>
                 <FormInput
@@ -652,6 +790,86 @@ const BlogPage: NextPage = () => {
                 />
               </PublishRow>
             </FormSection>
+
+            <FormSection>
+              <SectionTitle variant="overline">6. Featured  </SectionTitle>
+              <PublishRow>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={featuredstatus}
+                      onChange={(e) => setfeaturedstatus(e.target.checked)}
+                    />
+                  }
+                  label={featuredstatus ? "featured Blog" : "Not featured Blog"}
+                />
+              </PublishRow>
+            </FormSection>
+
+            {/* Section 7: Author Information */}
+<FormSection>
+  <SectionTitle variant="overline">
+    7. Author Information
+  </SectionTitle>
+
+  <FormField>
+    <FormLabel>Author Name</FormLabel>
+    <FormInput
+      fullWidth
+      placeholder="e.g. Dr. Arvind Sharma"
+      value={formAuthorName}
+      onChange={(e: any) => setFormAuthorName(e.target.value)}
+    />
+  </FormField>
+
+  <FormField>
+    <FormLabel>Author Title</FormLabel>
+    <FormInput
+      fullWidth
+      placeholder="e.g. Senior Agricultural Scientist"
+      value={formAuthorTitle}
+      onChange={(e: any) => setFormAuthorTitle(e.target.value)}
+    />
+  </FormField>
+
+  <FormField>
+    <FormLabel>Author Bio</FormLabel>
+    <StyledTextarea
+      minRows={4}
+      placeholder="Write a short author biography..."
+      value={formAuthorBio}
+      onChange={(e: any) => setFormAuthorBio(e.target.value)}
+    />
+  </FormField>
+
+  <FormField>
+    <FormLabel>Author Image</FormLabel>
+
+    <ImageUploadArea
+      onClick={() => authorImageInputRef.current?.click()}
+    >
+      <UploadIcon>
+        <CloudUploadIcon />
+      </UploadIcon>
+
+      <UploadText variant="body1">
+        <span>Upload author image</span> or drag and drop
+      </UploadText>
+
+      <UploadSubtext variant="caption">
+        PNG, JPG, JPEG up to 5MB
+      </UploadSubtext>
+
+      <input
+        ref={authorImageInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleAuthorImageChange}
+      />
+    </ImageUploadArea>
+  </FormField>
+</FormSection>
           </DrawerBody>
 
           <DrawerFooter>

@@ -1,0 +1,68 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+import Inventory from "./inventory.model";
+
+interface InventoryBody {
+  productId: string;
+  quantity: number;
+  minStockLevel?: number;
+  maxStockLevel?: number;
+  warehouseLocation?: string;
+  supplierName?: string;
+  supplierContact?: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  status?: "in-stock" | "low-stock" | "out-stock";
+}
+
+export const addInventory = async (
+  request: FastifyRequest<{ Body: InventoryBody }>,
+  reply: FastifyReply
+) => {
+  try {
+    const data = request.body;
+
+    if (!data) {
+      return reply.status(400).send({
+        success: false,
+        message: "No data provided",
+      });
+    }
+
+    const {
+      productId,
+      quantity,
+      purchasePrice,
+      sellingPrice,
+    } = data;
+
+    if (
+      !productId ||
+      quantity === undefined ||
+      purchasePrice === undefined ||
+      sellingPrice === undefined
+    ) {
+      return reply.status(400).send({
+        success: false,
+        message:
+          "productId, quantity, purchasePrice and sellingPrice are required",
+      });
+    }
+
+    const inventory = await Inventory.create({
+      ...data,
+    });
+
+    return reply.status(201).send({
+      success: true,
+      message: "Inventory added successfully",
+      data: inventory,
+    });
+  } catch (error: any) {
+    console.error(error);
+
+    return reply.status(500).send({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
+};

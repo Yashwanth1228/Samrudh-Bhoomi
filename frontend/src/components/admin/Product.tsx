@@ -44,6 +44,8 @@ import {
 } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
 import Footer from "./Footer";
+import { useGetProductsQuery } from "@/store/api/apiSlice";
+import { useEffect } from "react";
 
 const products = [
   {
@@ -69,6 +71,18 @@ const products = [
 
 export default function ProductHeader() {
   const router = useRouter();
+  const { data, error, isLoading } = useGetProductsQuery();
+
+  // console.log("data from backend", data);
+
+  // useEffect(()=> {
+  //   const fetchallproducts = async () => {
+  //     try{
+  //       const response = await getProducts{}
+  //     }
+  //   }
+
+  // },[])
   return (
     <>
 

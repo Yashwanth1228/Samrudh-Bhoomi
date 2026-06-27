@@ -4,6 +4,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 import { FeaturedCard, FeaturedContent, FeaturedTag } from "@/styles/user/blog/BlogFeatured.styles";
+import { useRouter } from "next/router";
 
 interface BlogPost {
   id: number;
@@ -13,6 +14,8 @@ interface BlogPost {
   date: string;
   image: string;
   featured?: boolean;
+  featuredImages: string;
+  slug: string;
 }
 
 interface Props {
@@ -20,12 +23,13 @@ interface Props {
 }
 
 export const BlogFeatured: React.FC<Props> = ({ post }) => {
+  const router = useRouter();
   return (
     <FeaturedCard>
       <Box sx={{ position: "relative", width: { xs: "100%", md: "60%" }, height: { xs: 300, md: "auto" } }}>
         <CardMedia
           component="img"
-          image={post.image}
+          image={post.featuredImages[1] || post.image}
           alt={post.title}
           sx={{
             width: "100%",
@@ -83,6 +87,7 @@ export const BlogFeatured: React.FC<Props> = ({ post }) => {
               transition: "transform 0.3s",
             },
           }}
+          onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
         >
           Read More
         </Button>

@@ -25,6 +25,8 @@ interface Post {
   image: string;
   content: string;
   relatedPosts: any[];
+  featuredImages: string;
+  excerpt:string;
 }
 
 interface Props {
@@ -40,7 +42,8 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
       <ImageWrapper>
         <Box
           component="img"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgG6Ypk0OIVDkcqG_gOGgdbOM7M-VfCABlSOMBX8-ZW_AJD7xUiaRsW9tQ_fEVik2CAo4fDc-8QxOk_6_f4jw690jZxFoH4Z7ajpFgnVU04gsyZkkXhIfGhk-3TphsognkZ1ZcVYMqtAy1u2OlVaH_fVT7xi53yz3I8ezRhSLebal4kGj94vptH9veGxH5ejRaWlk4Z_85J_3k8jklLXeGGDu8WZsBAC9ppElLqxHA2hpsCX3JZBpuephejiiLug4fanYrGktjosDL"
+          // src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgG6Ypk0OIVDkcqG_gOGgdbOM7M-VfCABlSOMBX8-ZW_AJD7xUiaRsW9tQ_fEVik2CAo4fDc-8QxOk_6_f4jw690jZxFoH4Z7ajpFgnVU04gsyZkkXhIfGhk-3TphsognkZ1ZcVYMqtAy1u2OlVaH_fVT7xi53yz3I8ezRhSLebal4kGj94vptH9veGxH5ejRaWlk4Z_85J_3k8jklLXeGGDu8WZsBAC9ppElLqxHA2hpsCX3JZBpuephejiiLug4fanYrGktjosDL"
+          src={post.featuredImages[1]}
           alt="IoT sensors providing real-time moisture and nutrient data"
           sx={{ width: "100%", height: "auto", display: "block" }}
         />
@@ -57,7 +60,8 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
             fontWeight: 500,
           }}
         >
-          IoT sensors providing real-time moisture and nutrient data.
+          {/* IoT sensors providing real-time moisture and nutrient data. */}
+          {post.excerpt}
         </Typography>
       </ImageWrapper>
 

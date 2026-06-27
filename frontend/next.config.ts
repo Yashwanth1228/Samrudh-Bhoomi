@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     domains: ["lh3.googleusercontent.com"],
     formats: ["image/avif", "image/webp"],
   },
+  
 };
 
 export default nextConfig;
