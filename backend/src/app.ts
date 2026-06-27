@@ -24,6 +24,7 @@ const app = Fastify({
 app.register(cors, {
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  origin: true,
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
 });
