@@ -6,6 +6,7 @@ import {
   updateUserRole,
   getUserById,
   updateUser,
+  deleteUser,
 } from "./auth.controller";
 
 const authRoutes = async (fastify: FastifyInstance) => {
@@ -15,6 +16,7 @@ const authRoutes = async (fastify: FastifyInstance) => {
   fastify.patch("/users/:id/role", updateUserRole);
   fastify.get("/users/:id", getUserById);
   fastify.put("/users/:id", updateUser);
+  fastify.delete("/users/:id", deleteUser);
 };
 
 export default authRoutes;

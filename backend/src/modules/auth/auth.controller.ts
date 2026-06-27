@@ -190,3 +190,31 @@ export const updateUser = async (
     });
   }
 };
+
+export const deleteUser = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params as { id: string };
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return reply.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
