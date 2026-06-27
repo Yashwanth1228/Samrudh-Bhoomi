@@ -16,10 +16,16 @@ const app = Fastify({
   logger: true,
 });
 
+// app.register(cors, {
+//   origin: process.env.FRONTEND_URL || "http://localhost:3000",
+//   credentials: true,
+// });
+
 app.register(cors, {
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   credentials: true,
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
 });
 
 app.register(multipart);

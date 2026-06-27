@@ -72,7 +72,7 @@ interface User {
   userId: string;
   email: string;
   phone: string;
-  role: "Admin" | "User";
+  role: "admin" | "user";
   status: "Active" | "Inactive";
   avatar?: string;
 }
@@ -123,22 +123,41 @@ const UsersPage: NextPage = () => {
     setSearchQuery(event.target.value);
   };
 
-  const handleRoleFilterChange = (event: SelectChangeEvent) => {
+  const handleRoleFilterChange = (event: any) => {
     setRoleFilter(event.target.value);
   };
 
-  const handleStatusFilterChange = (event: SelectChangeEvent) => {
+  const handleStatusFilterChange = (event: any) => {
     setStatusFilter(event.target.value);
   };
 
-  const handleRoleChange = (userId: string, newRole: "Admin" | "User") => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId ? { ...user, role: newRole } : user,
-      ),
-    );
-  };
+  const handleRoleChange = async (
+    userId: string,
+    newRole: "admin" | "user",
+  ) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/auth/users/${userId}/role`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            role: newRole,
+          }),
+        },
+      );
 
+      const data = await response.json();
+
+      if (data.success) {
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,12 +167,23 @@ const UsersPage: NextPage = () => {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
+  // const kpiData = {
+  //   totalUsers: 1248,
+  //   activeUsers: 1180,
+  //   inactiveUsers: 68,
+  //   adminUsers: 12,
+  // };
+
   const kpiData = {
-    totalUsers: 1248,
-    activeUsers: 1180,
-    inactiveUsers: 68,
-    adminUsers: 12,
+    totalUsers: users.length,
+    activeUsers: users.filter((user) => user.status === "Active").length,
+    inactiveUsers: users.filter((user) => user.status === "Inactive").length,
+    adminUsers: users.filter((user) => user.role === "admin").length,
   };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -168,7 +198,7 @@ const UsersPage: NextPage = () => {
           userId: user._id.slice(-6).toUpperCase(), // temporary display ID
           email: user.email,
           phone: user.phone || "-",
-          role: user.role === "admin" ? "Admin" : "User",
+          role: user.role,
           status: user.isActive ? "Active" : "Inactive",
           avatar: "",
         }));
@@ -180,11 +210,9 @@ const UsersPage: NextPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const router = useRouter();
+
+  console.log(users);
 
   return (
     <>
@@ -254,16 +282,16 @@ const UsersPage: NextPage = () => {
               />
               <StyledSelect
                 value={roleFilter}
-                onChange={() => handleRoleFilterChange}
+                onChange={handleRoleFilterChange}
                 displayEmpty
               >
                 <MenuItem value="">All Roles</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-                <MenuItem value="User">User</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="user">User</MenuItem>
               </StyledSelect>
               <StyledSelect
                 value={statusFilter}
-                onChange={() => handleStatusFilterChange}
+                onChange={handleStatusFilterChange}
                 displayEmpty
               >
                 <MenuItem value="">All Statuses</MenuItem>
@@ -329,15 +357,15 @@ const UsersPage: NextPage = () => {
                     <TableCell>
                       <StyledSelectCell
                         value={user.role}
-                        onChange={() => (e: SelectChangeEvent) =>
+                        onChange={(e) =>
                           handleRoleChange(
                             user.id,
-                            e.target.value as "Admin" | "User",
+                            e.target.value as "admin" | "user",
                           )
                         }
                       >
-                        <MenuItem value="Admin">Admin</MenuItem>
-                        <MenuItem value="User">User</MenuItem>
+                        <MenuItem value="admin">Admin</MenuItem>
+                        <MenuItem value="user">User</MenuItem>
                       </StyledSelectCell>
                     </TableCell>
                     <TableCell>
@@ -350,10 +378,20 @@ const UsersPage: NextPage = () => {
                     </TableCell>
                     <TableCell align="right">
                       <ActionButtons>
-                        <ActionIconButton size="small" title="View Details">
+                        <ActionIconButton
+                          size="small"
+                          title="View Details"
+                          onClick={() => router.push(`/admin/users/${user.id}`)}
+                        >
                           <VisibilityIcon />
                         </ActionIconButton>
-                        <ActionIconButton size="small" title="Edit User">
+                        <ActionIconButton
+                          size="small"
+                          title="Edit User"
+                          onClick={() =>
+                            router.push(`/admin/users/edit/${user.id}`)
+                          }
+                        >
                           <EditIcon />
                         </ActionIconButton>
                       </ActionButtons>
