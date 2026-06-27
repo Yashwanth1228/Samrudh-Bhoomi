@@ -6,6 +6,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { AddInventoryForm } from "@/components/admin/inventory/AddInventoryForm";
 import { PageContainer, PageHeader } from "@/styles/admin/AddInventory.styles";
 
+
+// {
+//   "productId": "686abc1234567890abcdef12",
+//   "quantity": 500,
+//   "minStockLevel": 50,
+//   "maxStockLevel": 1000,
+//   "warehouseLocation": "Bangalore Warehouse",
+//   "supplierName": "ABC Agro Suppliers",
+//   "supplierContact": "9876543210",
+//   "purchasePrice": 1800,             data need to send to backend for adding inventory
+//   "sellingPrice": 2450,
+//   "status": "in-stock"
+// }                  
+
+
 export default function AddInventoryPage() {
   return (
     <PageContainer>

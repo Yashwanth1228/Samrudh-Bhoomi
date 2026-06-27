@@ -18,13 +18,16 @@ import {
 import { useRouter } from "next/router";
 
 interface BlogPost {
+  _id: string,
   id: number;
+  slug: string,
   title: string;
   excerpt: string;
   category: string;
   date: string;
   image: string;
   featured?: boolean;
+  featuredImages: string
 }
 
 interface Props {
@@ -38,7 +41,7 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
       <Box sx={{ position: "relative", height: 200, overflow: "hidden" }}>
         <CardMedia
           component="img"
-          image={post.image}
+          image={post.featuredImages[0] || post.image}
           alt={post.title}
           sx={{
             height: "100%",
@@ -122,7 +125,7 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
                 transition: "transform 0.3s",
               },
             }}
-            onClick={() => router.push("/blogs/2")}
+            onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
           >
             Read Article
           </Button>

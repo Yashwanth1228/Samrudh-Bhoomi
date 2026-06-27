@@ -48,6 +48,36 @@ import {
     AddBenefitSection,
   } from "@/styles/admin/Product.styles";
 
+
+  // {
+  //   "name": "All Natural Granular Fertilizer",
+  //   "category": "Fertilizers",
+  //   "status": "active",
+  //   "price": 2450,
+  //   "originalPrice": 2800,
+  //   "taxRate": 18,
+  //   "shortDescription": "Premium organic fertilizer",
+  //   "description": "Suitable for all crops",
+  //   "images": [
+  //     "image1.jpg",
+  //     "image2.jpg"
+  //   ],
+  //   "features": [
+  //     "Organic",
+  //     "Eco Friendly"
+  //   ],
+  //   "specifications": [
+  //     {
+  //       "label": "Weight",          sample data to send to backend
+  //       "value": "50 KG"
+  //     }
+  //   ],
+  //   "usageInstructions": [
+  //     "Apply 250kg per acre"
+  //   ]
+  // }
+  
+
 function index() {
     return (
         <>

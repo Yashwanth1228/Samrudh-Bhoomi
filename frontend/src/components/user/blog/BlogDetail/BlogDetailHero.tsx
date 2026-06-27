@@ -22,6 +22,7 @@ interface Post {
   image: string;
   content: string;
   relatedPosts: any[];
+  featuredImages: string;
 }
 
 interface Props {
@@ -63,7 +64,7 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
         {/* Hero Image */}
         <HeroWrapper>
         <HeroImage
-  image={post.image}
+  image={post.featuredImages[0]}
   title={post.title}
 />
         </HeroWrapper>
@@ -75,7 +76,7 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
               label={post.category}
               sx={{
                 bgcolor: "primary.light",
-                color: "#fffafa",
+                color: "#fffafa",   
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
