@@ -184,7 +184,7 @@ import SpaIcon from "@mui/icons-material/Spa";
             <FeatureBox>
               <FeatureIconBox>
                 {/* <EcoIcon /> */}
-                <SpaIcon/>
+                <SpaIcon/>  
               </FeatureIconBox>
   
               <Box

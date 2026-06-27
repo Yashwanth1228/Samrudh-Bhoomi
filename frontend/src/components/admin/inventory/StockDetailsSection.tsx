@@ -25,7 +25,7 @@ export const StockDetailsSection: React.FC<Props> = ({ data, updateData }) => {
       <SectionHeader>
         <InventoryIcon />
         <h3>Stock Details</h3>
-      </SectionHeader>
+      </SectionHeader>  
 
       <Grid container spacing={3}>
       <Grid size={{ xs: 6 }}>

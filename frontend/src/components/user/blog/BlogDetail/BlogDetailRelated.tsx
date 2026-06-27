@@ -1,7 +1,9 @@
 import React from "react";
-import { Box, Grid, Typography, Card, CardMedia, CardContent, Chip } from "@mui/material";
+import { Box, Grid, Typography, Card, CardMedia, CardContent, Chip, Button } from "@mui/material";
 
 import { RelatedSection, RelatedCard } from "@/styles/user/blog/BlogDetail/BlogDetailRelated.styles";
+import { useRouter } from "next/router";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface RelatedPost {
   id: number;
@@ -9,6 +11,9 @@ interface RelatedPost {
   category: string;
   image: string;
   description: string;
+  featuredImages: string;
+  excerpt: string;
+  slug:string;
 }
 
 interface Props {
@@ -16,6 +21,7 @@ interface Props {
 }
 
 export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
+  const router = useRouter();
   return (
     <RelatedSection>
       <Typography
@@ -35,7 +41,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
         <Box sx={{ overflow: "hidden", height: 190 }}>
           <CardMedia
             component="img"
-            image={post.image}
+            image={post.featuredImages[0]}
             alt={post.title}
             sx={{
               width: "100%",
@@ -84,8 +90,40 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
             color="text.secondary"
             sx={{ m: "auto" }}
           >
-            {post.description}
+            {post.excerpt}
           </Typography>
+
+          <Box
+          sx={{
+            pt: 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            mt: "auto",
+          }}
+        >
+          <Button
+            endIcon={<ArrowForwardIcon />}
+            sx={{
+              textTransform: "uppercase",
+              fontWeight: 600,
+              letterSpacing: "0.5px",
+              color: "primary.main",
+              p: 0,
+              "&:hover": {
+                color: "primary.dark",
+                "& .MuiButton-endIcon": {
+                  transform: "translateX(4px)",
+                },
+              },
+              "& .MuiButton-endIcon": {
+                transition: "transform 0.3s",
+              },
+            }}
+            onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
+          >
+            Read more
+          </Button>
+        </Box>
         </CardContent>
       </RelatedCard>
     </Grid>

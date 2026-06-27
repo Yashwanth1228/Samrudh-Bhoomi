@@ -22,7 +22,17 @@ export const HeroSection = styled(Box)(({ theme }) => ({
 export const HeroOverlay = styled(Box)(({ theme }) => ({
   position: "absolute",
   inset: 0,
-  background: "linear-gradient(180deg, rgba(21,66,18,0.7) 0%, rgba(21,66,18,0.4) 100%)",
+  // background: "linear-gradient(180deg, rgba(21,66,18,0.7) 0%, rgba(21,66,18,0.4) 100%)",
+ backgroundImage: `
+    linear-gradient(
+      rgba(0,0,0,0.55),
+      rgba(0,0,0,0.55)
+    ),
+    url("https://blog.plantwise.org/wp-content/uploads/sites/7/2020/05/sdas20121108-plantclinic_pondicherry-0268-1.jpg")
+  `,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
 }));
 
 export const HeroContent = styled(Box)(({ theme }) => ({
