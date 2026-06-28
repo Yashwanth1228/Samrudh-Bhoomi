@@ -187,15 +187,6 @@ const UsersPage: NextPage = () => {
     }
   };
 
-      const data = await response.json();
-
-      if (data.success) {
-        fetchUsers();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

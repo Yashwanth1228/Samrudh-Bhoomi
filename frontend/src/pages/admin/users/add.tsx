@@ -214,7 +214,7 @@ const AddUserPage: NextPage = () => {
 
         setTimeout(() => {
           router.push("/admin/users");
-        }, 1500);
+        }, 1200);
       } else {
         alert(data.message);
       }
@@ -613,9 +613,13 @@ const AddUserPage: NextPage = () => {
             },
           }}
         >
-          <strong>User Created</strong>
+          <strong>{isEditMode ? "User Updated" : "User Created"}</strong>
+
           <br />
-          The user account has been successfully generated.
+
+          {isEditMode
+            ? "User updated successfully."
+            : "The user account has been successfully created."}
         </Alert>
       </Snackbar>
     </>
