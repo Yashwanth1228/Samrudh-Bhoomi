@@ -20,6 +20,13 @@ import {
   Chip,
   InputAdornment,
   SelectChangeEvent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+  TablePagination,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -119,6 +126,11 @@ const UsersPage: NextPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -161,11 +173,11 @@ const UsersPage: NextPage = () => {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this user?",
-    );
+    // const confirmed = window.confirm(
+    //   "Are you sure you want to delete this user?",
+    // );
 
-    if (!confirmed) return;
+    // if (!confirmed) return;
 
     try {
       const response = await fetch(
@@ -179,6 +191,7 @@ const UsersPage: NextPage = () => {
 
       if (data.success) {
         fetchUsers(); // Refresh the table
+        setDeleteSuccess(true);
       } else {
         alert(data.message);
       }
@@ -229,7 +242,7 @@ const UsersPage: NextPage = () => {
           phone: user.phone || "-",
           role: user.role,
           status: user.isActive ? "Active" : "Inactive",
-          avatar: "",
+          avatar: user.avatar,
         }));
 
         setUsers(formattedUsers);
@@ -237,6 +250,14 @@ const UsersPage: NextPage = () => {
     } catch (error) {
       console.error("Failed to fetch users:", error);
     }
+  };
+
+  const confirmDelete = async () => {
+    await handleDeleteUser(selectedUserId);
+
+    setDeleteDialogOpen(false);
+
+    setSelectedUserId("");
   };
 
   const router = useRouter();
@@ -351,95 +372,145 @@ const UsersPage: NextPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id} hover className="group">
-                    <TableCell>
-                      <UserCell>
-                        <UserAvatar>
-                          {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} />
-                          ) : (
-                            <Box className="initials">
-                              {user.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </Box>
-                          )}
-                        </UserAvatar>
-                        <UserInfo>
-                          <UserName variant="body1">{user.name}</UserName>
-                          <UserID variant="caption">ID: {user.userId}</UserID>
-                        </UserInfo>
-                      </UserCell>
-                    </TableCell>
-                    <TableCell>
-                      <ContactInfo>
-                        <ContactEmail variant="body2">
-                          {user.email}
-                        </ContactEmail>
-                        <ContactPhone variant="caption">
-                          {user.phone}
-                        </ContactPhone>
-                      </ContactInfo>
-                    </TableCell>
-                    <TableCell>
-                      <StyledSelectCell
-                        value={user.role}
-                        onChange={(e) =>
-                          handleRoleChange(
-                            user.id,
-                            e.target.value as "admin" | "user",
-                          )
-                        }
-                      >
-                        <MenuItem value="admin">Admin</MenuItem>
-                        <MenuItem value="user">User</MenuItem>
-                      </StyledSelectCell>
-                    </TableCell>
-                    <TableCell>
-                      <StatusChip
-                        label={user.status}
-                        statusColor={
-                          user.status === "Active" ? "active" : "inactive"
-                        }
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <ActionButtons>
-                        <ActionIconButton
-                          size="small"
-                          title="View Details"
-                          onClick={() => router.push(`/admin/users/${user.id}`)}
-                        >
-                          <VisibilityIcon />
-                        </ActionIconButton>
-                        <ActionIconButton
-                          size="small"
-                          title="Edit User"
-                          onClick={() =>
-                            router.push(`/admin/users/edit/${user.id}`)
+                {filteredUsers
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((user) => (
+                    <TableRow key={user.id} hover className="group">
+                      <TableCell>
+                        <UserCell>
+                          <UserAvatar>
+                            {user.avatar ? (
+                              <img src={user.avatar} alt={user.name} />
+                            ) : (
+                              <Box className="initials">
+                                {user.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
+                              </Box>
+                            )}
+                          </UserAvatar>
+                          <UserInfo>
+                            <UserName variant="body1">{user.name}</UserName>
+                            <UserID variant="caption">ID: {user.userId}</UserID>
+                          </UserInfo>
+                        </UserCell>
+                      </TableCell>
+                      <TableCell>
+                        <ContactInfo>
+                          <ContactEmail variant="body2">
+                            {user.email}
+                          </ContactEmail>
+                          <ContactPhone variant="caption">
+                            {user.phone}
+                          </ContactPhone>
+                        </ContactInfo>
+                      </TableCell>
+                      <TableCell>
+                        <StyledSelectCell
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(
+                              user.id,
+                              e.target.value as "admin" | "user",
+                            )
                           }
                         >
-                          <EditIcon />
-                        </ActionIconButton>
+                          <MenuItem value="admin">Admin</MenuItem>
+                          <MenuItem value="user">User</MenuItem>
+                        </StyledSelectCell>
+                      </TableCell>
+                      <TableCell>
+                        <StatusChip
+                          label={user.status}
+                          statusColor={
+                            user.status === "Active" ? "active" : "inactive"
+                          }
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <ActionButtons>
+                          <ActionIconButton
+                            size="small"
+                            title="View Details"
+                            onClick={() =>
+                              router.push(`/admin/users/${user.id}`)
+                            }
+                          >
+                            <VisibilityIcon />
+                          </ActionIconButton>
+                          <ActionIconButton
+                            size="small"
+                            title="Edit User"
+                            onClick={() =>
+                              router.push(`/admin/users/edit/${user.id}`)
+                            }
+                          >
+                            <EditIcon />
+                          </ActionIconButton>
 
-                        <ActionIconButton
-                          size="small"
-                          title="Delete User"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <DeleteIcon />
-                        </ActionIconButton>
-                      </ActionButtons>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          <ActionIconButton
+                            size="small"
+                            title="Delete User"
+                            onClick={() => {
+                              // handleDeleteUser(user.id);
+                              setSelectedUserId(user.id);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <DeleteIcon />
+                          </ActionIconButton>
+                        </ActionButtons>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </StyledTable>
           </TableWrapper>
+          <TablePagination
+            component="div"
+            count={users.length}
+            page={page}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(event) => {
+              setRowsPerPage(parseInt(event.target.value, 10));
+              setPage(0);
+            }}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+          />
         </MainContent>
       </PageContainer>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete User</DialogTitle>
+
+        <DialogContent>
+          Are you sure you want to delete this user?
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+
+          <Button color="error" variant="contained" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={deleteSuccess}
+        autoHideDuration={3000}
+        onClose={() => setDeleteSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success" onClose={() => setDeleteSuccess(false)}>
+          User deleted successfully.
+        </Alert>
+      </Snackbar>
     </>
   );
 };

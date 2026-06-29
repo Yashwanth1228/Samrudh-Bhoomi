@@ -94,10 +94,12 @@ const AddUserPage: NextPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null); // Preview
+  const [avatarUrl, setAvatarUrl] = useState<string>(""); // Cloudinary URL
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
@@ -116,14 +118,45 @@ const AddUserPage: NextPage = () => {
     setFormData((prev) => ({ ...prev, [name]: event.target.value }));
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) return;
+
+    // Preview image immediately
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      setProfileImage(e.target?.result as string);
+    };
+
+    reader.readAsDataURL(file);
+
+    // Upload to Cloudinary
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/upload/image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log("Uploaded URL:", data.imageUrl);
+
+        // Save Cloudinary URL
+        setAvatarUrl(data.imageUrl);
+        console.log("Cloudinary URL:", data.imageUrl);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -185,12 +218,16 @@ const AddUserPage: NextPage = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const url = isEditMode
         ? `http://localhost:5000/api/auth/users/${id}`
         : "http://localhost:5000/api/auth/register";
 
       const method = isEditMode ? "PUT" : "POST";
+
+      console.log("Avatar being sent:", avatarUrl);
 
       const response = await fetch(url, {
         method,
@@ -204,8 +241,11 @@ const AddUserPage: NextPage = () => {
           role: formData.role,
           isActive: formData.status === "active",
           phone: formData.phone,
+          avatar: avatarUrl,
         }),
       });
+
+      console.log("Avatar being sent:", avatarUrl);
 
       const data = await response.json();
 
@@ -216,6 +256,7 @@ const AddUserPage: NextPage = () => {
           router.push("/admin/users");
         }, 1200);
       } else {
+        setLoading(false);
         alert(data.message);
       }
     } catch (error) {
@@ -261,6 +302,7 @@ const AddUserPage: NextPage = () => {
             password: "",
             confirmPassword: "",
           }));
+          setProfileImage(user.avatar || null);
         }
       } catch (error) {
         console.error(error);
@@ -581,8 +623,15 @@ const AddUserPage: NextPage = () => {
                       type="submit"
                       fullWidth
                       startIcon={<PersonAddIcon />}
+                      disabled={loading}
                     >
-                      {isEditMode ? "Update User" : "Create User"}
+                      {loading
+                        ? isEditMode
+                          ? "Updating..."
+                          : "Creating..."
+                        : isEditMode
+                          ? "Update User"
+                          : "Create User"}
                     </SubmitButton>
                     <CancelButton fullWidth onClick={handleCancel}>
                       Cancel
