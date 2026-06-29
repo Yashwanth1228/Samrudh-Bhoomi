@@ -7,6 +7,7 @@ export interface IUser {
   role: "admin" | "user";
   isActive: boolean;
   phone?: string;
+  avatar?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -43,6 +44,10 @@ const userSchema = new Schema<IUser>(
     },
 
     phone: {
+      type: String,
+      default: "",
+    },
+    avatar: {
       type: String,
       default: "",
     },

@@ -9,8 +9,23 @@ import productRoutes from "./modules/products/product.route";
 import multipart from "@fastify/multipart";
 import inventoryRoutes from "./modules/inventory/inventory.route";
 import blogRoutes from "./modules/blogs/blog.route";
+import uploadRoutes from "./modules/upload/upload.route";
+import cloudinary from "./config/cloudinary";
 
 dotenv.config();
+
+(async () => {
+  try {
+    const result = await cloudinary.api.ping();
+    console.log("Cloudinary Connected:", result);
+  } catch (err) {
+    console.error("Cloudinary Error:", err);
+  }
+})();
+
+console.log("Cloud:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("Key:", process.env.CLOUDINARY_API_KEY);
+console.log("Secret:", process.env.CLOUDINARY_API_SECRET);
 
 const app = Fastify({
   logger: true,
@@ -27,7 +42,11 @@ app.register(cors, {
   credentials: true,
 });
 
-app.register(multipart);
+app.register(multipart, {
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB
+  },
+});
 
 app.register(authRoutes, {
   prefix: "/api/auth",
@@ -51,6 +70,10 @@ app.register(inventoryRoutes, {
 
 app.register(blogRoutes, {
   prefix: "/api/blog",
+});
+
+app.register(uploadRoutes, {
+  prefix: "/api/upload",
 });
 
 app.get("/", async () => {
