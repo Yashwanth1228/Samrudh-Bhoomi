@@ -6,6 +6,10 @@ interface RegisterUserPayload {
   name: string;
   email: string;
   password: string;
+  phone?: string;
+  role?: "admin" | "user";
+  isActive?: boolean;
+  avatar?: string;
 }
 
 export const registerUser = async (payload: RegisterUserPayload) => {
@@ -20,8 +24,10 @@ export const registerUser = async (payload: RegisterUserPayload) => {
   const user = await User.create({
     ...payload,
     password: hashedPassword,
-    role: "user",
+    role: payload.role || "user",
+    avatar: payload.avatar || "",
   });
+
   const userObject = user.toObject();
 
   const { password, ...userWithoutPassword } = userObject;

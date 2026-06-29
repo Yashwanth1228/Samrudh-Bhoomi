@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { registerUser, loginUser } from "./auth.service";
 import User from "./auth.model";
+import cloudinary from "../../config/cloudinary";
 
 export const register = async (
   request: FastifyRequest,
@@ -13,7 +14,14 @@ export const register = async (
       name: string;
       email: string;
       password: string;
+      phone?: string;
+      role?: "admin" | "user";
+      isActive?: boolean;
+      avatar?: string;
     };
+
+    console.log("REGISTER PAYLOAD:", payload);
+    console.log("REGISTER AVATAR:", payload.avatar);
 
     // 👇 ADD THIS HERE
     if (!payload.password || payload.password.trim() === "") {
@@ -151,12 +159,13 @@ export const updateUser = async (
   try {
     const { id } = request.params as { id: string };
 
-    const { name, email, phone, role, isActive } = request.body as {
+    const { name, email, phone, role, isActive, avatar } = request.body as {
       name: string;
       email: string;
       phone?: string;
       role: "admin" | "user";
       isActive: boolean;
+      avatar?: string;
     };
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -167,6 +176,7 @@ export const updateUser = async (
         phone,
         role,
         isActive,
+        avatar,
       },
       { new: true },
     ).select("-password");
@@ -198,14 +208,37 @@ export const deleteUser = async (
   try {
     const { id } = request.params as { id: string };
 
-    const deletedUser = await User.findByIdAndDelete(id);
+    // Find the user first
+    const user = await User.findById(id);
 
-    if (!deletedUser) {
+    if (!user) {
       return reply.status(404).send({
         success: false,
         message: "User not found",
       });
     }
+
+    // Delete Cloudinary image if it exists
+    if (user.avatar) {
+      console.log("Avatar URL:", user.avatar);
+
+      const publicId = user.avatar
+        .split("/upload/")[1]
+        .replace(/^v\d+\//, "")
+        .replace(/\.[^/.]+$/, "");
+
+      console.log("Public ID:", publicId);
+
+      const result = await cloudinary.uploader.destroy(publicId);
+
+      console.log("Cloudinary Delete Result:", result);
+
+      console.log("Avatar:", user.avatar);
+      console.log("Split Result:", user.avatar.split("/upload/"));
+    }
+
+    // Delete user from MongoDB
+    await User.findByIdAndDelete(id);
 
     return reply.send({
       success: true,
