@@ -103,50 +103,50 @@ interface Inquiry {
 
 // Mock data
 const mockInquiries: Inquiry[] = [
-  {
-    id: "1",
-    inquiryId: "SB-2024-101",
-    name: "Rajesh Kumar",
-    phone: "+91 98765 43210",
-    email: "rajesh.k@example.com",
-    interest: "Organic Fertilizers",
-    source: "Product Inquiry",
-    status: "New",
-    date: "Oct 24, 2024",
-  },
-  {
-    id: "2",
-    inquiryId: "SB-2024-098",
-    name: "Sunita Patel",
-    phone: "+91 87654 32109",
-    email: "sunita.p@farm.com",
-    interest: "Hybrid Seeds",
-    source: "Contact Form",
-    status: "Contacted",
-    date: "Oct 23, 2024",
-  },
-  {
-    id: "3",
-    inquiryId: "SB-2024-085",
-    name: "Amit Singh",
-    phone: "+91 76543 21098",
-    email: "amit.s@gmail.com",
-    interest: "Pesticides Bulk",
-    source: "General Inquiry",
-    status: "Closed",
-    date: "Oct 20, 2024",
-  },
-  {
-    id: "4",
-    inquiryId: "SB-2024-102",
-    name: "Vikram Reddy",
-    phone: "+91 99887 76655",
-    email: "-",
-    interest: "Tractors",
-    source: "Product Inquiry",
-    status: "New",
-    date: "Oct 24, 2024",
-  },
+  // {
+  //   id: "1",
+  //   inquiryId: "SB-2024-101",
+  //   name: "Rajesh Kumar",
+  //   phone: "+91 98765 43210",
+  //   email: "rajesh.k@example.com",
+  //   interest: "Organic Fertilizers",
+  //   source: "Product Inquiry",
+  //   status: "New",
+  //   date: "Oct 24, 2024",
+  // },
+  // {
+  //   id: "2",
+  //   inquiryId: "SB-2024-098",
+  //   name: "Sunita Patel",
+  //   phone: "+91 87654 32109",
+  //   email: "sunita.p@farm.com",
+  //   interest: "Hybrid Seeds",
+  //   source: "Contact Form",
+  //   status: "Contacted",
+  //   date: "Oct 23, 2024",
+  // },
+  // {
+  //   id: "3",
+  //   inquiryId: "SB-2024-085",
+  //   name: "Amit Singh",
+  //   phone: "+91 76543 21098",
+  //   email: "amit.s@gmail.com",
+  //   interest: "Pesticides Bulk",
+  //   source: "General Inquiry",
+  //   status: "Closed",
+  //   date: "Oct 20, 2024",
+  // },
+  // {
+  //   id: "4",
+  //   inquiryId: "SB-2024-102",
+  //   name: "Vikram Reddy",
+  //   phone: "+91 99887 76655",
+  //   email: "-",
+  //   interest: "Tractors",
+  //   source: "Product Inquiry",
+  //   status: "New",
+  //   date: "Oct 24, 2024",
+  // },
 ];
 
 const ContactPage: NextPage = () => {
@@ -391,7 +391,7 @@ const ContactPage: NextPage = () => {
           </ContentWrapper>
         </MainContent>
       </PageContainer>
-      <Footer/>
+      <Footer />
     </>
   );
 };
