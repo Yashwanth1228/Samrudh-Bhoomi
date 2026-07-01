@@ -15,10 +15,10 @@ export interface CreateUserRequest {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api',
+    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: 'include', // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog'],
+  tagTypes: ['User','equipment','product','blog','upload'],
 
 
   endpoints: (builder) => ({
@@ -77,6 +77,15 @@ export const apiSlice = createApi({
         transformResponse: (response: any ) => response.data,
       }),
 
+      uploadimage: builder.mutation<{ success: boolean; message: string, imageUrls : string},{folder: string,data: FormData;}> ({
+        query: ({ folder, data }) => ({
+          url: `/upload/${folder}`,
+          method: "POST",
+          body: data,
+        }),
+        invalidatesTags: ["upload"],
+        }),
+
 
     
   }),
@@ -92,5 +101,6 @@ export const {
   useGetBlogsQuery,
   useDeleteBlogMutation,
   useGetBlogbyslugQuery,
+  useUploadimageMutation,
  
 } = apiSlice

@@ -28,6 +28,7 @@ import {
   FormControlLabel,
   TextareaAutosize,
   SelectChangeEvent,
+  Avatar,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -128,6 +129,8 @@ import {
   StatusText,
 } from "../../../styles/admin/Blog.styles";
 import { useDeleteBlogMutation, useGetBlogsQuery } from "@/store/api/apiSlice";
+import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
+
 
 // Types
 interface BlogPost {
@@ -235,11 +238,12 @@ const BlogPage: NextPage = () => {
   const [formMetaTitle, setFormMetaTitle] = useState("");
   const [formMetaDescription, setFormMetaDescription] = useState("");
   const [formMetaKeywords, setFormMetaKeywords] = useState("");
+  const [formImage , setformImage] = useState<File | string | null>(null);
 
   const [formAuthorName, setFormAuthorName] = useState("");
 const [formAuthorTitle, setFormAuthorTitle] = useState("");
 const [formAuthorBio, setFormAuthorBio] = useState("");
-const [formAuthorImage, setFormAuthorImage] = useState<File | null>(null);
+const [formAuthorImage, setFormAuthorImage] = useState<File | string | null>(null);
 
 const authorImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -317,11 +321,30 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
     setSelectedBlog(null);
   };
 
-  const handlePreview = () => {
+  const handlePreview = (blog:BlogPost) => {
+    setFormCategory(blog.category);
+    setFormTitle(blog.title);
+    setFormDescription(blog.excerpt);
+    setFormContent(blog.content);
+    setFormAuthorName(blog.author.name);
+    setFormAuthorTitle(blog.author.title);
+    setFormAuthorBio(blog.author.bio);
+    setFormAuthorImage(blog.author.image);
+    setformImage(blog.featuredImages[0] || null)
+
     setPreviewOpen(true);
   };
 
   const handleClosePreview = () => {
+    setFormCategory("");
+    setFormTitle("");
+    setFormDescription("");
+    setFormContent("");
+    setFormAuthorName("");
+    setFormAuthorTitle("");
+    setFormAuthorBio("");
+    setFormAuthorImage("");
+    setformImage("")
     setPreviewOpen(false);
   };
 
@@ -566,7 +589,7 @@ if (formAuthorImage) {
                       <TableCell align="right">
                         <ActionButtons>
                           <ActionIconButton size="small" title="View">
-                            <VisibilityIcon />
+                            <VisibilityIcon onClick={()=>{handlePreview(blog)}} />
                           </ActionIconButton>
                           <ActionIconButton
                             size="small"
@@ -636,7 +659,7 @@ if (formAuthorImage) {
                 />
               </FormField>
               <FormRow>
-                {/* <FormField>
+                <FormField>
                   <FormLabel>URL Slug</FormLabel>
                   <FormInput
                     fullWidth
@@ -644,11 +667,11 @@ if (formAuthorImage) {
                     value={formSlug}
                     disabled
                   />
-                </FormField> */}
-                <FormInput
+                </FormField>
+                {/* <FormInput
                   value={formSlug}
-                  disabled
-                />
+                  // disabled
+                /> */}
                 <FormField>
                   <FormLabel>Category *</FormLabel>
                   <StyledSelect
@@ -663,8 +686,16 @@ if (formAuthorImage) {
                     <MenuItem value="Sustainable Farming">
                       Sustainable Farming
                     </MenuItem>
-                    <MenuItem value="Product Updates">Product Updates</MenuItem>
-                    <MenuItem value="Best Practices">Best Practices</MenuItem>
+                    {/* <MenuItem value="Product Updates">Product Updates</MenuItem>
+                    <MenuItem value="Best Practices">Best Practices</MenuItem> */}
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Farming Tips">Farming Tips</MenuItem>
+                    <MenuItem value="Fertilizers">Fertilizers</MenuItem>
+                    <MenuItem value="Organic Product">Organic Product</MenuItem>
+                    <MenuItem value="Seeds">Seeds</MenuItem>
+                    <MenuItem value="Pesticides">Pesticides</MenuItem>
+                    <MenuItem value="Agriculture Technology">Agriculture Technology</MenuItem>
+                    <MenuItem value="Company Updates">Company Updates</MenuItem>
                   </StyledSelect>
                 </FormField>
               </FormRow>
@@ -873,7 +904,7 @@ if (formAuthorImage) {
           </DrawerBody>
 
           <DrawerFooter>
-            <PreviewButton onClick={handlePreview}>Preview</PreviewButton>
+            <PreviewButton onClick={()=>{handlePreview}}>Preview</PreviewButton>
             <FooterButtons>
               <CancelButton onClick={handleCloseDrawer}>Cancel</CancelButton>
               <SaveButton onClick={handleSave} startIcon={<SaveIcon />}>
@@ -916,18 +947,55 @@ if (formAuthorImage) {
             <PreviewTitle variant="h1">
               {formTitle || "Blog Title Preview"}
             </PreviewTitle>
-            <PreviewImagePlaceholder>
-              <ImageIcon />
-            </PreviewImagePlaceholder>
+            {/* <PreviewImagePlaceholder> */}
+              {/* <ImageIcon /> */}
+              {
+              formImage ? (
+                <img
+                  src={formImage}
+                  alt="Featured"
+                  style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+                  // width={600}
+                  // height={400}
+
+                />
+              ) : (
+                <>
+                <ImageIcon />
+                <PreviewImagePlaceholder>
+                  <Typography variant="body2" color="textSecondary">
+                  Featured image preview will appear here.
+                </Typography>
+                </PreviewImagePlaceholder>
+                </>
+              )
+              }
+            {/* </PreviewImagePlaceholder> */}
             <PreviewContent>
               <Typography variant="body1" color="textSecondary">
-                This is a simulated preview of the blog content. The rich text
-                editor content would render here, showcasing the typography,
-                spacing, and layout as it would appear on the public-facing
-                blog.
+                {formDescription || "This is a simulated preview of the blog content. The rich text editor content would render here, showcasing the typography,spacing, and layout as it would appear on the public-facing blog."}
               </Typography>
             </PreviewContent>
           </Box>
+
+          <AuthorCard>
+      <Avatar
+        src={typeof formAuthorImage === "string" ? formAuthorImage : undefined}
+        alt={formAuthorName || "Author name"}
+        sx={{ width: 80, height: 80, border: "2px solid", borderColor: "background.paper", flexShrink: 0 }}
+      />
+      <Box>
+        <Typography variant="caption" sx={{ fontWeight: 600, color: "primary.main", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          About the Author
+        </Typography>
+        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+          {formAuthorName || "Author Name"}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {formAuthorBio || "This is a simulated preview of the author's biography. It provides a brief overview of the author's background, expertise, and contributions to the field."}
+        </Typography>
+      </Box>
+    </AuthorCard>
         </ModalBody>
       </Dialog>
     </>

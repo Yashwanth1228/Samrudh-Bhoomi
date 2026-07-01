@@ -11,6 +11,7 @@ import { BlogNewsletter } from "@/components/user/blog/BlogNewsletter";
 import { BlogPageContainer } from "@/styles/user/blog/Blog.styles";
 import { useGetBlogsQuery } from "@/store/api/apiSlice";
 import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
+import CTASection from "@/components/user/home/CTASection";
 
 // Sample blog data
 // const blogPosts = [
@@ -221,7 +222,8 @@ export default function BlogsPage() {
           )}
 
           {/* Newsletter */}
-          <BlogNewsletter />
+          {/* <BlogNewsletter /> */}
+          <CTASection />
         </Box>
       </Container>
     </BlogPageContainer>

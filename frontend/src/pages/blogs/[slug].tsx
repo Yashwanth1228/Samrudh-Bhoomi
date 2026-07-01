@@ -12,6 +12,7 @@ import { BlogDetailCTA } from "@/components/user/blog/BlogDetail/BlogDetailCTA";
 import { BlogDetailContainer } from "@/styles/user/blog/BlogDetail/BlogDetail.styles";
 import { useGetBlogbyslugQuery } from "@/store/api/apiSlice";
 import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
+import CTASection from "@/components/user/home/CTASection";
 
 // Sample blog data - In a real app, this would come from an API
 // const blogData = {
@@ -96,22 +97,20 @@ export default function BlogDetailPage() {
         <Box sx={{ position: "relative", py: 4 }}>
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                lg: "1fr 8fr 1fr",
-              },
-              gap: 3,
+              display: "flex",
+              justifyContent: "center",
             }}
           >
             {/* Left Sidebar - Social Share */}
-            <BlogDetailSidebar />
+            {/* <BlogDetailSidebar /> */}
 
             {/* Main Content */}
-            <BlogDetailContent post={post} />
+            <Box sx={{ width: "100%", maxWidth: "900px" }}>
+        <BlogDetailContent post={post} />
+      </Box>
 
             {/* Right Sidebar - Empty for spacing */}
-            <Box sx={{ display: { xs: "none", lg: "block" } }} />
+            {/* <Box sx={{ display: { xs: "none", lg: "block" } }} /> */}
           </Box>
         </Box>
 
@@ -119,7 +118,8 @@ export default function BlogDetailPage() {
         <BlogDetailRelated posts={post?.relatedPosts} />
 
         {/* CTA Section */}
-        <BlogDetailCTA />
+        {/* <BlogDetailCTA /> */}
+        <CTASection />
       </Container>
     </BlogDetailContainer>
   );

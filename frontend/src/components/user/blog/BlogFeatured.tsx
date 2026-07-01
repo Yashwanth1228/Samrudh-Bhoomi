@@ -16,6 +16,7 @@ interface BlogPost {
   featured?: boolean;
   featuredImages: string;
   slug: string;
+  createdAt : string;
 }
 
 interface Props {
@@ -24,8 +25,17 @@ interface Props {
 
 export const BlogFeatured: React.FC<Props> = ({ post }) => {
   const router = useRouter();
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
-    <FeaturedCard>
+    <FeaturedCard onClick={() => router.push("/blogs/".concat(post.slug.toString()))}>
       <Box sx={{ position: "relative", width: { xs: "100%", md: "60%" }, height: { xs: 300, md: "auto" } }}>
         <CardMedia
           component="img"
@@ -48,7 +58,7 @@ export const BlogFeatured: React.FC<Props> = ({ post }) => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
           <CalendarTodayIcon sx={{ fontSize: 16, color: "text.secondary" }} />
           <Typography variant="caption" color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: "0.5px" }}>
-            {post.date}
+            {formatDate(post.createdAt)}
           </Typography>
         </Box>
 
@@ -87,7 +97,7 @@ export const BlogFeatured: React.FC<Props> = ({ post }) => {
               transition: "transform 0.3s",
             },
           }}
-          onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
+          // onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
         >
           Read More
         </Button>

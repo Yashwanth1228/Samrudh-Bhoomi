@@ -816,8 +816,8 @@ export const Spinner = styled.div`
   width: 40px;
   height: 40px;
   margin: 0 auto 15px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #2563eb;
+  border: 4px solid #154212;
+  border-top: 4px solid #154212;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 

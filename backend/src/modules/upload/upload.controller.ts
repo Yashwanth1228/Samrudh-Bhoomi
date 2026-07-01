@@ -1,46 +1,80 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import cloudinary from "../../config/cloudinary";
 
+interface UploadParams {
+  folder: string;
+}
+
 export const uploadImage = async (
-  request: FastifyRequest,
-  reply: FastifyReply,
+  request: FastifyRequest<{
+    Params: UploadParams;
+  }>,
+  reply: FastifyReply
 ) => {
   try {
-    const data = await request.file();
+    const { folder } = request.params;
 
-    if (!data) {
+    // Allow only valid folders
+    const allowedFolders = [
+      "users",
+      "blogs",
+      "products",
+      "inventory",
+      "categories",
+    ];
+
+    if (!allowedFolders.includes(folder)) {
       return reply.status(400).send({
         success: false,
-        message: "No file uploaded",
+        message: "Invalid upload folder",
       });
     }
 
-    const buffer = await data.toBuffer();
+    const parts = request.files();
 
-    console.log("Cloudinary Config:", cloudinary.config());
+    const imageUrls: string[] = [];
 
-    const result = await new Promise<any>((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "samrudh-bhoomi/users",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        )
-        .end(buffer);
-    });
+    for await (const file of parts) {
+      if (file.type !== "file") continue;
+
+      const buffer = await file.toBuffer();
+
+      const result: any = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              folder: `samrudh-bhoomi/${folder}`,
+            },
+            (err, result) => {
+              if (err) return reject(err);
+              resolve(result);
+            }
+          )
+          .end(buffer);
+      });
+
+      imageUrls.push(result.secure_url);
+    }
+
+    if (imageUrls.length === 0) {
+      return reply.status(400).send({
+        success: false,
+        message: "No images uploaded",
+      });
+    }
 
     return reply.send({
       success: true,
-      imageUrl: result.secure_url,
+      message: "Images uploaded successfully",
+      imageUrls,
     });
   } catch (error) {
+    console.error(error);
+
     return reply.status(500).send({
       success: false,
-      message: error instanceof Error ? error.message : "Upload failed",
+      message:
+        error instanceof Error ? error.message : "Image upload failed",
     });
   }
 };

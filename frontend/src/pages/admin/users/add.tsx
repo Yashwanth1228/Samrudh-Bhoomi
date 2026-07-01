@@ -139,7 +139,7 @@ const AddUserPage: NextPage = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:5000/api/upload/image", {
+      const response = await fetch("http://localhost:5000/api/upload/users", {
         method: "POST",
         body: formData,
       });
