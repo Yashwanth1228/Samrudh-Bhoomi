@@ -73,7 +73,7 @@ app.register(blogRoutes, {
 });
 
 app.register(uploadRoutes, {
-  prefix: "/api/upload",
+  prefix: "/api",
 });
 
 app.get("/", async () => {

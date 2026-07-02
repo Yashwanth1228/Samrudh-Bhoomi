@@ -86,6 +86,15 @@ export const apiSlice = createApi({
         invalidatesTags: ["upload"],
         }),
 
+        createBlog: builder.mutation<any,object>({
+          query: ( data ) => ({
+            url: `/blog/add-blog`,
+            method: "POST",
+            body: data
+          }),
+          invalidatesTags: ["blog"],
+          }),
+
 
     
   }),
@@ -102,5 +111,6 @@ export const {
   useDeleteBlogMutation,
   useGetBlogbyslugQuery,
   useUploadimageMutation,
+  useCreateBlogMutation,
  
 } = apiSlice

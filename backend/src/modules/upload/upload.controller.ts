@@ -3,6 +3,8 @@ import cloudinary from "../../config/cloudinary";
 
 interface UploadParams {
   folder: string;
+  module: string;
+  type: string;
 }
 
 export const uploadImage = async (
@@ -12,21 +14,22 @@ export const uploadImage = async (
   reply: FastifyReply
 ) => {
   try {
-    const { folder } = request.params;
-
-    // Allow only valid folders
+    const { module, type } = request.params
+    
+    const folder = `${module}/${type}`;
+    
     const allowedFolders = [
-      "users",
-      "blogs",
-      "products",
-      "inventory",
-      "categories",
+      "blogs/featured",
+      "blogs/authors",
+      "products/images",
+      "inventory/images",
+      "users/profile",
     ];
-
+    
     if (!allowedFolders.includes(folder)) {
       return reply.status(400).send({
         success: false,
-        message: "Invalid upload folder",
+        message: "Invalid folder",
       });
     }
 

@@ -128,7 +128,7 @@ import {
   StatusTitle,
   StatusText,
 } from "../../../styles/admin/Blog.styles";
-import { useDeleteBlogMutation, useGetBlogsQuery } from "@/store/api/apiSlice";
+import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUploadimageMutation } from "@/store/api/apiSlice";
 import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
 
 
@@ -226,6 +226,8 @@ const BlogPage: NextPage = () => {
   // console.log("this is blog data",realblogs)
 
   const [deleteBlog] = useDeleteBlogMutation();
+  const [uploadImage] = useUploadimageMutation();
+  const [createBlog] = useCreateBlogMutation();
 
   // Form state
   const [formTitle, setFormTitle] = useState("");
@@ -245,9 +247,46 @@ const [formAuthorTitle, setFormAuthorTitle] = useState("");
 const [formAuthorBio, setFormAuthorBio] = useState("");
 const [formAuthorImage, setFormAuthorImage] = useState<File | string | null>(null);
 
+const [featuredImages, setFeaturedImages] = useState<File[]>([]);
+const [authorImage, setAuthorImage] = useState<File | null>(null);
+
 const authorImageInputRef = useRef<HTMLInputElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFeaturedImages = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files) return;
+  
+    setFeaturedImages(Array.from(e.target.files));
+  };
+
+  const handleAuthorImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+) => {
+    if (!e.target.files?.length) return;
+
+    setAuthorImage(e.target.files[0]);
+};
+
+const uploadImages = async (
+  files: File[],
+  folder: string
+) => {
+  const formData = new FormData();
+
+  files.forEach(file => {
+      formData.append("files", file);
+  });
+
+  const res = await uploadImage({
+      folder,
+      data: formData,
+  }).unwrap();
+
+  return res.imageUrls;
+};
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -348,25 +387,91 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
     setPreviewOpen(false);
   };
 
-  const handleSave = () => {
-    const formData = new FormData();
+  const handleSave = async () => {
+    try {
 
-formData.append("title", formTitle);
-formData.append("slug", formSlug);
-formData.append("category", formCategory);
-formData.append("excerpt", formDescription);
-formData.append("content", formContent);
+        let featuredImageUrls;
+        let authorImageUrl = "";
 
-formData.append("authorName", formAuthorName);
-formData.append("authorTitle", formAuthorTitle);
-formData.append("authorBio", formAuthorBio);
+        // Upload both simultaneously
+        const uploads = [];
 
-if (formAuthorImage) {
-  formData.append("authorImage", formAuthorImage);
-}
-    handleCloseDrawer();
-    alert("Blog saved successfully!");
-  };
+        if (featuredImages.length) {
+            uploads.push(
+                uploadImages(featuredImages, "blogs/featured")
+            );
+        } else {
+            uploads.push(Promise.resolve([]));
+        }
+
+        if (authorImage) {
+            uploads.push(
+                uploadImages([authorImage], "blogs/authors")
+            );
+        } else {
+            uploads.push(Promise.resolve([]));
+        }
+
+        const [
+            uploadedFeaturedImages,
+            uploadedAuthorImage
+        ] = await Promise.all(uploads);
+
+        featuredImageUrls = uploadedFeaturedImages;
+
+        authorImageUrl = uploadedAuthorImage[0] || "";
+
+        //---------------------------------------
+        // Create blog
+        //---------------------------------------
+
+        const addblog = await createBlog({
+            title: formTitle,
+            slug: formSlug,
+            category: formCategory,
+
+            featuredImages: featuredImageUrls,
+
+            excerpt: formDescription,
+
+            content: formContent,
+
+            author: {
+                name: formAuthorName,
+                title: formAuthorTitle,
+                bio: formAuthorBio,
+                image: authorImageUrl,
+            },
+
+            seo: {
+                metaTitle: formMetaTitle,
+                metaDescription: formMetaDescription,
+                metaKeywords: formMetaKeywords
+                    .split(",")
+                    .map(x => x.trim()),
+            },
+
+            featured: featuredstatus,
+
+            status: formStatus
+                ? "published"
+                : "draft",
+        }).unwrap();
+
+        if(addblog.success) {
+          alert("Blog created successfully");
+
+        }
+        else {
+          alert("Failed to create blog");
+        }
+
+        handleCloseDrawer();
+
+    } catch (err) {
+        console.log(err);
+    }
+};
 
   const handleEdit = (blog: BlogPost) => {
     handleOpenDrawer(true, blog);
@@ -383,17 +488,6 @@ if (formAuthorImage) {
       console.error(error);
     }
   };
-
-  const handleAuthorImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-  
-    if (file) {
-      setFormAuthorImage(file);
-    }
-  };
-
 
   if (blogloading) {
     return (
@@ -717,11 +811,13 @@ if (formAuthorImage) {
                     PNG, JPG, GIF up to 10MB
                   </UploadSubtext>
                   <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                  />
+    ref={fileInputRef}
+    type="file"
+    multiple
+    accept="image/*"
+    onChange={handleFeaturedImages}
+    hidden
+/>
                 </ImageUploadArea>
               </FormField>
             </FormSection>
