@@ -29,6 +29,8 @@ import {
   TextareaAutosize,
   SelectChangeEvent,
   Avatar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -128,7 +130,7 @@ import {
   StatusTitle,
   StatusText,
 } from "../../../styles/admin/Blog.styles";
-import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUploadimageMutation } from "@/store/api/apiSlice";
+import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUpdateBlogMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
 
 
@@ -228,6 +230,7 @@ const BlogPage: NextPage = () => {
   const [deleteBlog] = useDeleteBlogMutation();
   const [uploadImage] = useUploadimageMutation();
   const [createBlog] = useCreateBlogMutation();
+  const [updateBlog] = useUpdateBlogMutation();
 
   // Form state
   const [formTitle, setFormTitle] = useState("");
@@ -249,6 +252,8 @@ const [formAuthorImage, setFormAuthorImage] = useState<File | string | null>(nul
 
 const [featuredImages, setFeaturedImages] = useState<File[]>([]);
 const [authorImage, setAuthorImage] = useState<File | null>(null);
+
+const [showSuccess, setShowSuccess] = useState(false);
 
 const authorImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -293,7 +298,7 @@ const uploadImages = async (
     setPage(0);
   };
 
-  const handleStatusFilterChange = (event: SelectChangeEvent) => {
+  const handleStatusFilterChange = (event: any) => {
     setStatusFilter(event.target.value);
     setPage(0);
   };
@@ -336,6 +341,7 @@ const uploadImages = async (
       setFormAuthorTitle(blog.author?.title || "");
       setFormAuthorBio(blog.author?.bio || "");
       
+      
 
     } else {
       resetForm();
@@ -358,6 +364,10 @@ const uploadImages = async (
     setFormMetaTitle("");
     setFormMetaKeywords("");
     setSelectedBlog(null);
+    setFormMetaDescription("");
+    setFormAuthorName("");
+    setFormAuthorTitle("");
+    setFormAuthorBio("");
   };
 
   const handlePreview = (blog:BlogPost) => {
@@ -389,89 +399,76 @@ const uploadImages = async (
 
   const handleSave = async () => {
     try {
-
-        let featuredImageUrls;
-        let authorImageUrl = "";
-
-        // Upload both simultaneously
-        const uploads = [];
-
-        if (featuredImages.length) {
-            uploads.push(
-                uploadImages(featuredImages, "blogs/featured")
-            );
-        } else {
-            uploads.push(Promise.resolve([]));
-        }
-
-        if (authorImage) {
-            uploads.push(
-                uploadImages([authorImage], "blogs/authors")
-            );
-        } else {
-            uploads.push(Promise.resolve([]));
-        }
-
-        const [
-            uploadedFeaturedImages,
-            uploadedAuthorImage
-        ] = await Promise.all(uploads);
-
-        featuredImageUrls = uploadedFeaturedImages;
-
-        authorImageUrl = uploadedAuthorImage[0] || "";
-
-        //---------------------------------------
-        // Create blog
-        //---------------------------------------
-
-        const addblog = await createBlog({
-            title: formTitle,
-            slug: formSlug,
-            category: formCategory,
-
-            featuredImages: featuredImageUrls,
-
-            excerpt: formDescription,
-
-            content: formContent,
-
-            author: {
-                name: formAuthorName,
-                title: formAuthorTitle,
-                bio: formAuthorBio,
-                image: authorImageUrl,
-            },
-
-            seo: {
-                metaTitle: formMetaTitle,
-                metaDescription: formMetaDescription,
-                metaKeywords: formMetaKeywords
-                    .split(",")
-                    .map(x => x.trim()),
-            },
-
-            featured: featuredstatus,
-
-            status: formStatus
-                ? "published"
-                : "draft",
+      // Use existing images in edit mode, otherwise start empty
+      let featuredImageUrls =
+        isEdit && selectedBlog ? selectedBlog.featuredImages : [];
+  
+      let authorImageUrl =
+        isEdit && selectedBlog ? selectedBlog.author.image : "";
+  
+      // Upload featured images only if new ones are selected
+      if (featuredImages.length > 0) {
+        featuredImageUrls = await uploadImages(
+          featuredImages,
+          "blogs/featured"
+        );
+      }
+  
+      // Upload author image only if a new one is selected
+      if (authorImage instanceof File) {
+        const uploaded = await uploadImages(
+          [authorImage],
+          "blogs/authors"
+        );
+  
+        authorImageUrl = uploaded[0];
+      }
+  
+      const payload = {
+        title: formTitle,
+        slug: formSlug,
+        category: formCategory,
+  
+        featuredImages: featuredImageUrls,
+  
+        excerpt: formDescription,
+        content: formContent,
+  
+        author: {
+          name: formAuthorName,
+          title: formAuthorTitle,
+          bio: formAuthorBio,
+          image: authorImageUrl,
+        },
+  
+        seo: {
+          metaTitle: formMetaTitle,
+          metaDescription: formMetaDescription,
+          metaKeywords: formMetaKeywords
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean),
+        },
+  
+        featured: featuredstatus,
+        status: formStatus ? "published" : "draft",
+      };
+  
+      if (isEdit && selectedBlog) {
+        await updateBlog({
+          id: selectedBlog._id,
+          ...payload,
         }).unwrap();
-
-        if(addblog.success) {
-          alert("Blog created successfully");
-
-        }
-        else {
-          alert("Failed to create blog");
-        }
-
-        handleCloseDrawer();
-
+      } else {
+        await createBlog(payload).unwrap();
+      }
+  
+      setShowSuccess(true);
+      handleCloseDrawer();
     } catch (err) {
-        console.log(err);
+      console.error(err);
     }
-};
+  };
 
   const handleEdit = (blog: BlogPost) => {
     handleOpenDrawer(true, blog);
@@ -617,7 +614,7 @@ const uploadImages = async (
                 />
                 <StyledSelect
                   value={statusFilter}
-                  onChange={() => handleStatusFilterChange}
+                  onChange={(event) => handleStatusFilterChange(event)}
                   displayEmpty
                 >
                   <MenuItem value="all">All Status</MenuItem>
@@ -1000,13 +997,13 @@ const uploadImages = async (
           </DrawerBody>
 
           <DrawerFooter>
-            <PreviewButton onClick={()=>{handlePreview}}>Preview</PreviewButton>
-            <FooterButtons>
+            {/* <PreviewButton onClick={()=>{handlePreview}}>Preview</PreviewButton> */}
+            {/* <FooterButtons> */}
               <CancelButton onClick={handleCloseDrawer}>Cancel</CancelButton>
               <SaveButton onClick={handleSave} startIcon={<SaveIcon />}>
                 Save Blog
               </SaveButton>
-            </FooterButtons>
+            {/* </FooterButtons> */}
           </DrawerFooter>
         </DrawerContainer>
       </Drawer>
@@ -1094,6 +1091,35 @@ const uploadImages = async (
     </AuthorCard>
         </ModalBody>
       </Dialog>
+
+
+      {/* Success Toast */}
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          severity="success"
+          icon={<CheckCircleIcon />}
+          sx={{
+            backgroundColor: "#2d5a27",
+            color: "#ffffff",
+            "& .MuiAlert-icon": {
+              color: "#ffffff",
+            },
+          }}
+        >
+          <strong>{isEdit ? "Blog Updated" : "Blog Created"}</strong>
+
+          <br />
+
+          {isEdit
+            ? "Blog updated successfully."
+            : "The Blog has been successfully created."}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

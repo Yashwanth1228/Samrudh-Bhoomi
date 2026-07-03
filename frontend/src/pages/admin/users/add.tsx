@@ -71,6 +71,8 @@ import {
 } from "../../../styles/admin/AddUser.styles";
 
 import { useRouter } from "next/router";
+import { useCreateUserMutation, useGetUserByIdQuery, useUpdateUserMutation, useUploadimageMutation } from "@/store/api/apiSlice";
+import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
 
 interface FormData {
   fullName: string;
@@ -100,6 +102,60 @@ const AddUserPage: NextPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadToast, setUploadToast] = useState({
+    open: false,
+    severity: "success" as "success" | "error",
+    message: "",
+  });
+
+  const router = useRouter();
+  const { id , name } = router.query;
+  const isEditMode = Boolean(id);
+
+  const [uploadImage] = useUploadimageMutation();
+
+const [createUser] = useCreateUserMutation();
+
+const [updateUser] = useUpdateUserMutation();
+
+const { data: user, isLoading : userloading} = useGetUserByIdQuery(id as string, {
+  skip: !id,
+});
+
+
+console.log("id:", id);
+console.log("name",name);
+  console.log("isEditMode:", isEditMode);
+
+ useEffect(() => {
+  if (!user) return;
+
+  setFormData({
+    fullName: user.name || "",
+    email: user.email || "",
+    phone: user.phone || "",
+    role: user.role || "user",
+    status: user.isActive ? "active" : "inactive",
+    password: "",
+    confirmPassword: "",
+  });
+
+  setProfileImage(user.avatar || null);
+  setAvatarUrl(user.avatar || "");
+}, [user]);
+
+
+if (userloading) {
+  return (
+    <CenterBox>
+      <StatusCard>
+        <Spinner />
+        <StatusTitle>Loading {name} data ...</StatusTitle>
+        <StatusText>Please wait while we fetch your data</StatusText>
+      </StatusCard>
+    </CenterBox>
+  );
+}
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
@@ -119,44 +175,48 @@ const AddUserPage: NextPage = () => {
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-
+  
     if (!file) return;
-
-    // Preview image immediately
+  
+    // Preview immediately
     const reader = new FileReader();
-
+  
     reader.onload = (e) => {
       setProfileImage(e.target?.result as string);
     };
-
+  
     reader.readAsDataURL(file);
-
-    // Upload to Cloudinary
+  
     const formData = new FormData();
-    formData.append("file", file);
-
+    formData.append("files", file);
+  
     try {
-      const response = await fetch("http://localhost:5000/api/upload/users", {
-        method: "POST",
-        body: formData,
+      const res = await uploadImage({
+        folder: "users/profile",
+        data: formData,
+      }).unwrap();
+
+      console.log("Upload response:", res);
+  
+      setAvatarUrl(res.imageUrls[0]);
+      console.log("Uploaded avatar URL:", res.imageUrls[0]);
+
+      setUploadToast({
+        open: true,
+        severity: "success",
+        message: "Profile image uploaded successfully.",
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("Uploaded URL:", data.imageUrl);
-
-        // Save Cloudinary URL
-        setAvatarUrl(data.imageUrl);
-        console.log("Cloudinary URL:", data.imageUrl);
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      setUploadToast({
+        open: true,
+        severity: "error",
+        message: "Failed to upload image.",
+      });
     }
   };
 
@@ -212,55 +272,43 @@ const AddUserPage: NextPage = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // Stop if validation fails
-    if (!validateForm()) {
-      return;
-    }
-
+  
+    if (!validateForm()) return;
+  
     setLoading(true);
-
+  
     try {
-      const url = isEditMode
-        ? `http://localhost:5000/api/auth/users/${id}`
-        : "http://localhost:5000/api/auth/register";
+      const payload = {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        isActive: formData.status === "active",
+        phone: formData.phone,
+        avatar: avatarUrl,
+      };
 
-      const method = isEditMode ? "PUT" : "POST";
-
-      console.log("Avatar being sent:", avatarUrl);
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          isActive: formData.status === "active",
-          phone: formData.phone,
-          avatar: avatarUrl,
-        }),
-      });
-
-      console.log("Avatar being sent:", avatarUrl);
-
-      const data = await response.json();
-
-      if (data.success) {
-        setShowSuccess(true);
-
-        setTimeout(() => {
-          router.push("/admin/users");
-        }, 1200);
+      console.log("avatar before", avatarUrl);
+  
+      if (isEditMode) {
+        let update = await updateUser({
+          id: id as string,
+          ...payload,
+        }).unwrap();
+        console.log("update", update);
       } else {
-        setLoading(false);
-        alert(data.message);
+        await createUser(payload).unwrap();
       }
-    } catch (error) {
-      console.error(error);
+      
+      console.log("avatar after", avatarUrl);
+      setShowSuccess(true);
+  
+      setTimeout(() => {
+        router.push("/admin/users");
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
     }
   };
 
@@ -269,49 +317,11 @@ const AddUserPage: NextPage = () => {
     console.log("Cancel clicked");
   };
 
-  const router = useRouter();
-  const { id } = router.query;
-  const isEditMode = Boolean(id);
+  // const router = useRouter();
+  // const { id } = router.query;
+  // const isEditMode = Boolean(id);
 
-  console.log("id:", id);
-  console.log("isEditMode:", isEditMode);
-
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/auth/users/${id}`,
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-          const user = data.data;
-
-          setFormData((prev) => ({
-            ...prev,
-            fullName: user.name || "",
-            email: user.email || "",
-            phone: user.phone || "",
-            role: user.role || "user",
-            status: user.isActive ? "active" : "inactive",
-
-            // Don't prefill passwords
-            password: "",
-            confirmPassword: "",
-          }));
-          setProfileImage(user.avatar || null);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUser();
-  }, [id]);
-
+  
   return (
     <>
       <Head>
@@ -671,6 +681,33 @@ const AddUserPage: NextPage = () => {
             : "The user account has been successfully created."}
         </Alert>
       </Snackbar>
+
+      <Snackbar
+  open={uploadToast.open}
+  autoHideDuration={2500}
+  onClose={() =>
+    setUploadToast((prev) => ({
+      ...prev,
+      open: false,
+    }))
+  }
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+>
+  <Alert
+    severity={uploadToast.severity}
+    variant="filled"
+    icon={
+      uploadToast.severity === "success" ? (
+        <CheckCircleIcon />
+      ) : undefined
+    }
+  >
+    {uploadToast.message}
+  </Alert>
+</Snackbar>
     </>
   );
 };
