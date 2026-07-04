@@ -10,6 +10,7 @@ export interface User {
   isActive: boolean;
   avatar: string;
   createdAt: string;
+  length: number;
 }
 
 export interface CreateUserRequest {
@@ -23,7 +24,7 @@ export const apiSlice = createApi({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: 'include', // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog','upload','users'],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries'],
 
 
   endpoints: (builder) => ({
@@ -163,6 +164,16 @@ export const apiSlice = createApi({
   invalidatesTags: ["users"],
 }),
 
+        // Contact us page routes
+
+        getInquiries: builder.query<any, void>({
+          query: () => "/inquiries",
+          providesTags: ["inquiries"],
+          transformResponse: (response: any) => response.data,
+        }),
+
+
+
 
     
   }),
@@ -187,5 +198,6 @@ export const {
   useGetUserByIdQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
+  useGetInquiriesQuery,
  
 } = apiSlice

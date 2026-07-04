@@ -11,8 +11,10 @@ import { BlogDetailCTA } from "@/components/user/blog/BlogDetail/BlogDetailCTA";
 
 import { BlogDetailContainer } from "@/styles/user/blog/BlogDetail/BlogDetail.styles";
 import { useGetBlogbyslugQuery } from "@/store/api/apiSlice";
-import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
 import CTASection from "@/components/user/home/CTASection";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
 
 // Sample blog data - In a real app, this would come from an API
 // const blogData = {
@@ -70,23 +72,32 @@ import CTASection from "@/components/user/home/CTASection";
 export default function BlogDetailPage() {
   const router = useRouter();
   const { slug } = router.query;
-  const { data: blogData, isLoading: blogloading, error } = useGetBlogbyslugQuery(slug as string);
+  const { data: blogData, isLoading: blogloading, error , isFetching,refetch } = useGetBlogbyslugQuery(slug as string);
 
   // In a real app, fetch blog data based on slug
   const post = blogData;
-  console.log("the related posts are : ", post);
+  console.log("the blog data are : ", post);
 
-  if (blogloading) {
-    return (
-      <CenterBox>
-        <StatusCard>
-          <Spinner />
-          <StatusTitle>Loading blogs...</StatusTitle>
-          <StatusText>Please wait while we fetch your data</StatusText>
-        </StatusCard>
-      </CenterBox>
-    );
-  }
+  if (blogloading)
+  return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load Blogs"
+  message="Unable to fetch blogs."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!post)
+  return (
+    <EmptyState
+      title="No blogs Found"
+      message="Create your first blog to get started."
+    />
+  );
 
   return (
     <BlogDetailContainer>

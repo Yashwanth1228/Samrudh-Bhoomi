@@ -17,6 +17,7 @@ import {
   Snackbar,
   Link as MuiLink,
   Breadcrumbs,
+  CircularProgress,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -72,7 +73,9 @@ import {
 
 import { useRouter } from "next/router";
 import { useCreateUserMutation, useGetUserByIdQuery, useUpdateUserMutation, useUploadimageMutation } from "@/store/api/apiSlice";
-import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
 
 interface FormData {
   fullName: string;
@@ -112,13 +115,14 @@ const AddUserPage: NextPage = () => {
   const { id , name } = router.query;
   const isEditMode = Boolean(id);
 
-  const [uploadImage] = useUploadimageMutation();
+  const [uploadImage, { isLoading: isUploading }] =
+  useUploadimageMutation();
 
 const [createUser] = useCreateUserMutation();
 
 const [updateUser] = useUpdateUserMutation();
 
-const { data: user, isLoading : userloading} = useGetUserByIdQuery(id as string, {
+const { data: user, isLoading : userloading , isFetching , error , refetch} = useGetUserByIdQuery(id as string, {
   skip: !id,
 });
 
@@ -126,6 +130,7 @@ const { data: user, isLoading : userloading} = useGetUserByIdQuery(id as string,
 console.log("id:", id);
 console.log("name",name);
   console.log("isEditMode:", isEditMode);
+  console.log("user data:", user);
 
  useEffect(() => {
   if (!user) return;
@@ -145,17 +150,17 @@ console.log("name",name);
 }, [user]);
 
 
-if (userloading) {
-  return (
-    <CenterBox>
-      <StatusCard>
-        <Spinner />
-        <StatusTitle>Loading {name} data ...</StatusTitle>
-        <StatusText>Please wait while we fetch your data</StatusText>
-      </StatusCard>
-    </CenterBox>
-  );
-}
+// if (userloading) {
+//   return (
+//     <CenterBox>
+//       <StatusCard>
+//         <Spinner />
+//         <StatusTitle>Loading {name} data ...</StatusTitle>
+//         <StatusText>Please wait while we fetch your data</StatusText>
+//       </StatusCard>
+//     </CenterBox>
+//   );
+// }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
@@ -320,6 +325,27 @@ if (userloading) {
   // const router = useRouter();
   // const { id } = router.query;
   // const isEditMode = Boolean(id);
+
+  if (userloading)
+  return <LoadingState title={`Loading ${name} data...`} message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load user"
+  message="Unable to fetch user."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!user)
+  return (
+    <EmptyState
+      title="No user Found"
+      message="Create your first user to get started."
+    />
+  );
 
   
   return (
@@ -579,7 +605,9 @@ if (userloading) {
                     </CardTitle>
                     <ProfileImageWrapper>
                       <ProfileImage
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() =>
+                          !isUploading && fileInputRef.current?.click()
+                        }
                       >
                         {profileImage ? (
                           <img src={profileImage} alt="Profile preview" />
@@ -590,6 +618,22 @@ if (userloading) {
                             />
                           </ProfileImagePlaceholder>
                         )}
+
+{isUploading && (
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        bgcolor: "rgba(255,255,255,.6)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: "50%",
+      }}
+    >
+      <CircularProgress size={32} />
+    </Box>
+  )}
                       </ProfileImage>
                       <EditIconButton
                         size="small"
@@ -604,7 +648,11 @@ if (userloading) {
                       accept="image/*"
                       onChange={handleFileChange}
                     />
-                    <UploadText variant="body1">Upload Avatar</UploadText>
+                    <UploadText>
+  {isUploading
+    ? "Uploading..."
+    : "Upload Avatar"}
+</UploadText>
                     <UploadSubtext variant="caption">
                       PNG, JPG up to 5MB
                     </UploadSubtext>

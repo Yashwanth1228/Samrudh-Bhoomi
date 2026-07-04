@@ -52,6 +52,7 @@ import {
   EditDocument as EditDocumentIcon,
   Star as StarIcon,
   CloudUpload as CloudUploadIcon,
+  ErrorOutlined as ErrorOutlineIcon,
 } from "@mui/icons-material";
 import {
   PageContainer,
@@ -124,14 +125,12 @@ import {
   PreviewTitle,
   PreviewImagePlaceholder,
   PreviewContent,
-  CenterBox,
-  StatusCard,
-  Spinner,
-  StatusTitle,
-  StatusText,
 } from "../../../styles/admin/Blog.styles";
 import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUpdateBlogMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
 
 
 // Types
@@ -222,7 +221,7 @@ const BlogPage: NextPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
 
-  const { data : blogs, error, isLoading: blogloading} = useGetBlogsQuery();
+  const { data : blogs, error, isLoading: blogloading ,isFetching,refetch} = useGetBlogsQuery();
   console.log(" the data from server", blogs);
   // setrealBlogs(data.data);
   // console.log("this is blog data",realblogs)
@@ -486,17 +485,36 @@ const uploadImages = async (
     }
   };
 
-  if (blogloading) {
-    return (
-      <CenterBox>
-        <StatusCard>
-          <Spinner />
-          <StatusTitle>Loading blogs...</StatusTitle>
-          <StatusText>Please wait while we fetch your data</StatusText>
-        </StatusCard>
-      </CenterBox>
-    );
-  }
+  // if (blogloading) {
+  //   return (
+  //     <LoadingState
+  //       title="Loading Blogs..."
+  //       message="Please wait while we fetch your data."
+  //     />
+  //   );
+  // }
+
+
+  if (blogloading)
+  return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load Blogs"
+  message="Unable to fetch blogs."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!blogs.length)
+  return (
+    <EmptyState
+      title="No blogs Found"
+      message="Create your first blog to get started."
+    />
+  );
 
 
   const filteredBlogs = blogs?.filter((blog:BlogPost) => {

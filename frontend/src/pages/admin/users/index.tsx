@@ -88,8 +88,6 @@ import {
 
 import { useRouter } from "next/router";
 import { useDeleteUserMutation, useGetUserByIdQuery, useGetUsersQuery, useUpdateUserRoleMutation } from "@/store/api/apiSlice";
-import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
-
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 // import EditIcon from "@mui/icons-material/Edit";
 // import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -103,6 +101,9 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeIcon from "@mui/icons-material/Badge";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
 
 
 // Types
@@ -169,24 +170,45 @@ const UsersPage: NextPage = () => {
   const [openViewDialog, setOpenViewDialog] = useState(false);
 // const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const { data : userdata, error, isLoading: userloading} = useGetUsersQuery();
+  const { data : userdata, error, isLoading: userloading , isFetching,refetch} = useGetUsersQuery();
   const [updateUserRole] = useUpdateUserRoleMutation();
   const [deleteUser] = useDeleteUserMutation();
   const {data: selectedUser,isLoading: userLoading} = useGetUserByIdQuery(selectedUserId!, {
     skip: !selectedUserId,
   });
 
-  if (userloading) {
-    return (
-      <CenterBox>
-        <StatusCard>
-          <Spinner />
-          <StatusTitle>Loading users...</StatusTitle>
-          <StatusText>Please wait while we fetch your data</StatusText>
-        </StatusCard>
-      </CenterBox>
-    );
-  }
+  // if (userloading) {
+  //   return (
+  //     <CenterBox>
+  //       <StatusCard>
+  //         <Spinner />
+  //         <StatusTitle>Loading users...</StatusTitle>
+  //         <StatusText>Please wait while we fetch your data</StatusText>
+  //       </StatusCard>
+  //     </CenterBox>
+  //   );
+  // }
+
+  if (userloading)
+  return <LoadingState title="Loading users..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load users"
+  message="Unable to fetch users."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!userdata?.length)
+  return (
+    <EmptyState
+      title="No user Found"
+      message="Create your first user to get started."
+    />
+  );
 
   const formattedUsers: User[] = userdata?.map((user: any) => ({
     id: user._id,
@@ -1014,7 +1036,7 @@ const UsersPage: NextPage = () => {
   <Divider />
 
   {/* Footer Actions */}
-  <DialogActions
+  {/* <DialogActions
     sx={{
       justifyContent: "space-between",
       p: 2,
@@ -1042,7 +1064,7 @@ const UsersPage: NextPage = () => {
     >
       Edit User
     </Button>
-  </DialogActions>
+  </DialogActions> */}
 </Dialog>
 
 
