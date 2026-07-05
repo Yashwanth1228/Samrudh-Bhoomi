@@ -10,7 +10,10 @@ import { BlogNewsletter } from "@/components/user/blog/BlogNewsletter";
 
 import { BlogPageContainer } from "@/styles/user/blog/Blog.styles";
 import { useGetBlogsQuery } from "@/store/api/apiSlice";
-import { CenterBox, Spinner, StatusCard, StatusText, StatusTitle } from "@/styles/admin/Blog.styles";
+import CTASection from "@/components/user/home/CTASection";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
 
 // Sample blog data
 // const blogPosts = [
@@ -121,7 +124,7 @@ export default function BlogsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 4;
 
-  const { data : blogPosts, error, isLoading: blogloading} = useGetBlogsQuery();
+  const { data : blogPosts, error, isLoading: blogloading,isFetching,refetch} = useGetBlogsQuery();
   console.log(" the data from server", blogPosts);
 
   const featuredPost = blogPosts?.find((post:BlogPost) => post.featured);
@@ -160,17 +163,26 @@ export default function BlogsPage() {
     setCurrentPage(page);
   };
 
-  if (blogloading) {
-    return (
-      <CenterBox>
-        <StatusCard>
-          <Spinner />
-          <StatusTitle>Loading blogs...</StatusTitle>
-          <StatusText>Please wait while we fetch your data</StatusText>
-        </StatusCard>
-      </CenterBox>
-    );
-  }
+  if (blogloading)
+  return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load Blogs"
+  message="Unable to fetch blogs."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!blogPosts.length)
+  return (
+    <EmptyState
+      title="No blogs Found"
+      message="Create your first blog to get started."
+    />
+  );
 
   return (
     <BlogPageContainer>
@@ -221,7 +233,8 @@ export default function BlogsPage() {
           )}
 
           {/* Newsletter */}
-          <BlogNewsletter />
+          {/* <BlogNewsletter /> */}
+          <CTASection />
         </Box>
       </Container>
     </BlogPageContainer>

@@ -23,6 +23,7 @@ interface Post {
   content: string;
   relatedPosts: any[];
   featuredImages: string;
+  createdAt: string;
 }
 
 interface Props {
@@ -30,6 +31,15 @@ interface Props {
 }
 
 export const BlogDetailHero: React.FC<Props> = ({ post }) => {
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
     <Box sx={{ pt: 4 }}>
       <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 } }}>
@@ -57,15 +67,15 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
             Agriculture Technology
           </Link>
           <Typography sx={{ color: "text.primary", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {post.title}
+            {post?.title}
           </Typography>
         </Breadcrumbs>
 
         {/* Hero Image */}
         <HeroWrapper>
         <HeroImage
-  image={post.featuredImages[0]}
-  title={post.title}
+  image={post?.featuredImages[0]}
+  title={post?.title}
 />
         </HeroWrapper>
 
@@ -101,7 +111,7 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
               textAlign: { xs: "center", md: "left" },
             }}
           >
-            {post.title}
+            {post?.title}
           </Typography>
 
           <Box
@@ -118,16 +128,16 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
             }}
           >
             <Avatar
-              src={post.author.image}
-              alt={post.author.name}
+              src={post?.author.image}
+              alt={post?.author.name}
               sx={{ width: 56, height: 56, border: "2px solid", borderColor: "divider" }}
             />
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {post.author.name}
+                {post?.author.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {post.author.title} • {post.date}
+                {post?.author?.title} • {formatDate(post?.createdAt)}
               </Typography>
             </Box>
           </Box>

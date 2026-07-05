@@ -66,7 +66,7 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
       </ImageWrapper>
 
       {/* Mobile Social Share */}
-      <Box
+      {/* <Box
         sx={{
           display: { xs: "flex", lg: "none" },
           alignItems: "center",
@@ -96,7 +96,7 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
             {icon}
           </Box>
         ))}
-      </Box>
+      </Box> */}
 
       {/* Author Bio */}
       <BlogDetailAuthor author={post.author} />

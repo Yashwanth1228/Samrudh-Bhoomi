@@ -33,7 +33,7 @@ export const BlogDetailAuthor: React.FC<Props> = ({ author }) => {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {author.bio}
         </Typography>
-        <Button
+        {/* <Button
           endIcon={<ArrowForwardIcon />}
           sx={{
             textTransform: "none",
@@ -43,7 +43,7 @@ export const BlogDetailAuthor: React.FC<Props> = ({ author }) => {
           }}
         >
           View all articles
-        </Button>
+        </Button> */}
       </Box>
     </AuthorCard>
   );

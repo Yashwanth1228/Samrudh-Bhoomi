@@ -190,3 +190,82 @@ export const getBlogBySlug = async (
     });
   }
 };
+
+interface IBlogUpdateInput {
+  title?: string;
+  slug?: string;
+  category?: string;
+  featuredImages?: string[];
+  excerpt?: string;
+  content?: string;
+
+  author?: {
+    name?: string;
+    title?: string;
+    bio?: string;
+    image?: string;
+  };
+
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    metaKeywords?: string[];
+  };
+
+  featured?: boolean;
+
+  status?: "draft" | "published";
+
+  relatedPosts?: string[];
+}
+
+export const updateBlog = async (
+  request: FastifyRequest<{
+    Params: { id: string };
+    Body: IBlogUpdateInput;
+  }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = request.params;
+    const body = request.body;
+
+    // Check if another blog already has this slug
+    if (body.slug) {
+      const existing = await Blog.findOne({
+        slug: body.slug,
+        _id: { $ne: id },
+      });
+
+      if (existing) {
+        return reply.status(400).send({
+          success: false,
+          message: "Slug already exists",
+        });
+      }
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedBlog) {
+      return reply.status(404).send({
+        success: false,
+        message: "Blog not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      message: "Blog updated successfully",
+      data: updatedBlog,
+    });
+  } catch (err: any) {
+    return reply.status(500).send({
+      success: false,
+      message: err.message || "Internal Server Error",
+    });
+  }
+};

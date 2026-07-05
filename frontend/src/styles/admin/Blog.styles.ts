@@ -783,47 +783,120 @@ export const PreviewContent = styled(Box)`
   }
 `;
 
-//loading styling styles 
-
-export const CenterBox = styled.div`
-  height: 80vh;
+export const ImagePreviewGrid = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
 `;
 
-export const StatusCard = styled.div`
-  padding: 30px 40px;
+export const PreviewCard = styled.div`
+  width: 140px;
+  height: 140px;
+  position: relative;
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  min-width: 280px;
-`;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
 
-export const StatusTitle = styled.h3`
-  margin-bottom: 10px;
-  font-size: 20px;
-  font-weight: 600;
-`;
-
-export const StatusText = styled.p`
-  color: #6b7280;
-  font-size: 14px;
-`;
-
-export const Spinner = styled.div`
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 15px;
-  border: 4px solid #e5e7eb;
-  border-top: 4px solid #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
+
+export const RemoveButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  width: 28px;
+  height: 28px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0,0,0,.6);
+  color: white;
+
+  cursor: pointer;
+
+  &:hover{
+    background:#ef4444;
+  }
+`;
+
+export const AddMoreCard = styled.div`
+  width: 140px;
+  height: 140px;
+
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  cursor:pointer;
+
+  color:#6b7280;
+
+  transition:.2s;
+
+  &:hover{
+    border-color:#154212;
+    color:#154212;
+    background:#f6fbf5;
+  }
+
+  span{
+    margin-top:8px;
+    font-size:14px;
+    font-weight:500;
+  }
+`;
+
+//loading styling styles 
+
+// export const CenterBox = styled.div`
+//   height: 80vh;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// `;
+
+// export const StatusCard = styled.div`
+//   padding: 30px 40px;
+//   border-radius: 12px;
+//   background: #ffffff;
+//   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+//   text-align: center;
+//   min-width: 280px;
+// `;
+
+// export const StatusTitle = styled.h3`
+//   margin-bottom: 10px;
+//   font-size: 20px;
+//   font-weight: 600;
+// `;
+
+// export const StatusText = styled.p`
+//   color: #6b7280;
+//   font-size: 14px;
+// `;
+
+// export const Spinner = styled.div`
+//   width: 40px;
+//   height: 40px;
+//   margin: 0 auto 15px;
+//   border: 4px solid rgba(21,66,18,0.1);
+//   border-top: 4px solid #154212;
+//   border-radius: 50%;
+//   animation: spin 0.8s linear infinite;
+
+//   @keyframes spin {
+//     to {
+//       transform: rotate(360deg);
+//     }
+//   }
+// `;

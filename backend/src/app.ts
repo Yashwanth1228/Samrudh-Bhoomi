@@ -11,6 +11,7 @@ import inventoryRoutes from "./modules/inventory/inventory.route";
 import blogRoutes from "./modules/blogs/blog.route";
 import uploadRoutes from "./modules/upload/upload.route";
 import cloudinary from "./config/cloudinary";
+import inquiryRoutes from "./modules/contact/inquiry.route";
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ const app = Fastify({
 
 app.register(cors, {
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE" ,"PATCH", "OPTIONS"],
   credentials: true,
 });
 
@@ -73,7 +74,11 @@ app.register(blogRoutes, {
 });
 
 app.register(uploadRoutes, {
-  prefix: "/api/upload",
+  prefix: "/api",
+});
+
+app.register(inquiryRoutes, {
+  prefix: "/api",
 });
 
 app.get("/", async () => {
