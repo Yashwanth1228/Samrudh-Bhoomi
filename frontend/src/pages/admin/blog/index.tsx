@@ -538,13 +538,13 @@ if (error)
 />
   );
 
-if (!blogs.length)
-  return (
-    <EmptyState
-      title="No blogs Found"
-      message="Create your first blog to get started."
-    />
-  );
+// if (!blogs.length)
+//   return (
+//     <EmptyState
+//       title="No blogs Found"
+//       message="Create your first blog to get started."
+//     />
+//   );
 
 
   const filteredBlogs = blogs?.filter((blog:BlogPost) => {
