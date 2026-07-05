@@ -57,11 +57,12 @@ import {
   ActionIconButton,
 } from "../../styles/admin/Contact.styles";
 import Footer from "@/components/admin/Footer";
-import { useGetInquiriesQuery } from "@/store/api/apiSlice";
+import { useGetInquiriesQuery, useUpdateInquiryMutation } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import EmptyState from "@/components/common/EmptyState";
 import InquiryDrawer from "@/components/admin/InquiryDrawer";
+import toast from "react-hot-toast";
 
 // StatusChip component
 const StatusChip: React.FC<{ status: "New" | "Contacted" | "Closed" }> = ({
@@ -167,15 +168,21 @@ const ContactPage: NextPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 const [mode, setMode] = useState<"view" | "edit">("view");
 const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
-// const [updateInquiry] = useUpdateInquiryMutation();
+const [updateInquiry] = useUpdateInquiryMutation();
 
 const handleSave = async (status: string) => {
-  // await updateInquiry({  
-  //   id: selectedInquiry._id,
-  //   status,
-  // });
+  try {
+    await updateInquiry({
+      id: selectedInquiry._id,
+      status,
+    }).unwrap();
 
-  setOpenDrawer(false);
+    toast.success("Status updated successfully!");
+
+    setOpenDrawer(false);
+  } catch (error) {
+    toast.error("Failed to update status.");
+  }
 };
 
 const handleView = (inquiry: any) => {

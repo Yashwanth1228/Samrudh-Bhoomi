@@ -125,12 +125,17 @@ import {
   PreviewTitle,
   PreviewImagePlaceholder,
   PreviewContent,
+  ImagePreviewGrid,
+  PreviewCard,
+  RemoveButton,
+  AddMoreCard,
 } from "../../../styles/admin/Blog.styles";
 import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUpdateBlogMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import EmptyState from "@/components/common/EmptyState";
+import toast from "react-hot-toast";
 
 
 // Types
@@ -258,13 +263,24 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFeaturedImages = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!e.target.files) return;
-  
-    setFeaturedImages(Array.from(e.target.files));
-  };
+  // const [featuredImages, setFeaturedImages] = useState<File[]>([]);
+const [featuredPreview, setFeaturedPreview] = useState<string[]>([]);
+
+const handleFeaturedImages = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  if (!e.target.files) return;
+
+  const files = Array.from(e.target.files);
+
+  setFeaturedImages(files);
+
+  const previews = files.map((file) =>
+    URL.createObjectURL(file)
+  );
+
+  setFeaturedPreview(previews);
+};
 
   const handleAuthorImageChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -367,6 +383,11 @@ const uploadImages = async (
     setFormAuthorName("");
     setFormAuthorTitle("");
     setFormAuthorBio("");
+    setFormAuthorImage("");
+    setFeaturedImages([]);
+    setFeaturedPreview([]);
+    setAuthorImage(null);
+
   };
 
   const handlePreview = (blog:BlogPost) => {
@@ -478,7 +499,16 @@ const uploadImages = async (
       const deleteblog = await deleteBlog(id).unwrap();
       console.log("the deleted blog", deleteblog);
       if (deleteblog.success) {
-        alert("Blog deleted successfully");
+        toast.success("Blog deleted successfully!", {
+          icon: "✅",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        });
       }
     } catch (error) {
       console.error(error);
@@ -814,27 +844,70 @@ if (!blogs.length)
             <FormSection>
               <SectionTitle variant="overline">2. Media</SectionTitle>
               <FormField>
-                <FormLabel>Featured Image</FormLabel>
-                <ImageUploadArea onClick={() => fileInputRef.current?.click()}>
-                  <UploadIcon>
-                    <CloudUploadIcon />
-                  </UploadIcon>
-                  <UploadText variant="body1">
-                    <span>Upload a file</span> or drag and drop
-                  </UploadText>
-                  <UploadSubtext variant="caption">
-                    PNG, JPG, GIF up to 10MB
-                  </UploadSubtext>
-                  <input
+  <FormLabel>Featured Images</FormLabel>
+
+  {featuredPreview.length === 0 ? (
+    <ImageUploadArea
+      onClick={() => fileInputRef.current?.click()}
+    >
+      <UploadIcon>
+        <CloudUploadIcon />
+      </UploadIcon>
+
+      <UploadText variant="body1">
+        <span>Upload files</span> or drag & drop
+      </UploadText>
+
+      <UploadSubtext variant="caption">
+        PNG, JPG up to 10MB
+      </UploadSubtext>
+    </ImageUploadArea>
+  ) : (
+    <ImagePreviewGrid>
+
+      {featuredPreview.map((image, index) => (
+        <PreviewCard key={index}>
+
+          <img src={image} alt="" />
+
+          <RemoveButton
+            onClick={(e) => {
+              e.stopPropagation();
+
+              setFeaturedImages((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+
+              setFeaturedPreview((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+          >
+            ✕
+          </RemoveButton>
+
+        </PreviewCard>
+      ))}
+
+      <AddMoreCard
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <CloudUploadIcon />
+        <span>Add More</span>
+      </AddMoreCard>
+
+    </ImagePreviewGrid>
+  )}  
+
+  <input
     ref={fileInputRef}
     type="file"
+    hidden
     multiple
     accept="image/*"
     onChange={handleFeaturedImages}
-    hidden
-/>
-                </ImageUploadArea>
-              </FormField>
+  />
+</FormField>
             </FormSection>
 
             {/* Section 3: Content */}
@@ -985,32 +1058,82 @@ if (!blogs.length)
   </FormField>
 
   <FormField>
-    <FormLabel>Author Image</FormLabel>
+  <FormLabel>Author Image</FormLabel>
 
-    <ImageUploadArea
-      onClick={() => authorImageInputRef.current?.click()}
-    >
-      <UploadIcon>
-        <CloudUploadIcon />
-      </UploadIcon>
+  <ImageUploadArea
+    onClick={() => authorImageInputRef.current?.click()}
+    sx={{
+      p: 2,
+      cursor: "pointer",
+    }}
+  >
+    {authorImage ? (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          width: "100%",
+        }}
+      >
+        <Avatar
+          src={
+            authorImage instanceof File
+              ? URL.createObjectURL(authorImage)
+              : (authorImage as string)
+          }
+          sx={{
+            width: 72,
+            height: 72,
+          }}
+        />
 
-      <UploadText variant="body1">
-        <span>Upload author image</span> or drag and drop
-      </UploadText>
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{fontWeight:600}}>
+            {authorImage instanceof File
+              ? authorImage.name
+              : "Current Author Image"}
+          </Typography>
 
-      <UploadSubtext variant="caption">
-        PNG, JPG, JPEG up to 5MB
-      </UploadSubtext>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Click to replace image
+          </Typography>
+        </Box>
 
-      <input
-        ref={authorImageInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleAuthorImageChange}
-      />
-    </ImageUploadArea>
-  </FormField>
+        <Chip
+          label="Selected"
+          color="success"
+          size="small"
+        />
+      </Box>
+    ) : (
+      <>
+        <UploadIcon>
+          <CloudUploadIcon />
+        </UploadIcon>
+
+        <UploadText variant="body1">
+          <span>Upload author image</span> or drag & drop
+        </UploadText>
+
+        <UploadSubtext variant="caption">
+          PNG, JPG, JPEG up to 5MB
+        </UploadSubtext>
+      </>
+    )}
+
+    <input
+      ref={authorImageInputRef}
+      type="file"
+      accept="image/*"
+      hidden
+      onChange={handleAuthorImageChange}
+    />
+  </ImageUploadArea>
+</FormField>
 </FormSection>
           </DrawerBody>
 

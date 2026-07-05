@@ -12,6 +12,7 @@ import "@/styles/globals.css";
 import { useRouter } from "next/router";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
+import { Toaster } from "react-hot-toast";
 
 // Client-side cache, shared for the whole session
 const clientSideEmotionCache = createEmotionCache();
@@ -54,6 +55,14 @@ export default function App({
   };
 
   return (
+    <>
+     <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 4000,
+        }}
+      />
     <Provider store={store}>
        <CacheProvider value={emotionCache}>
       <ThemeProvider theme={theme}>
@@ -62,5 +71,7 @@ export default function App({
       </ThemeProvider>
     </CacheProvider>
     </Provider>
+    
+    </>
   );
 }

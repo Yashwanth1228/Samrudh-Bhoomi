@@ -172,6 +172,24 @@ export const apiSlice = createApi({
           transformResponse: (response: any) => response.data,
         }),
 
+        createInquiries: builder.mutation<any, any>({
+          query: ( data) => ({
+            url: "/inquiry",
+            method: "POST",
+            body: data,
+          }),
+          invalidatesTags: ["inquiries"],
+        }),
+
+        updateInquiry: builder.mutation<any, { id: string; status: string }>({
+          query: ({ id, status }) => ({
+            url: `/inquiry/${id}`,
+            method: "PATCH",
+            body: { status },
+          }),
+          invalidatesTags: ["inquiries"],
+        }),
+
 
 
 
@@ -199,5 +217,7 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useGetInquiriesQuery,
+  useCreateInquiriesMutation,
+  useUpdateInquiryMutation,
  
 } = apiSlice

@@ -6,6 +6,7 @@ import {
   Mail as MailIcon,
   Send as SendIcon,
   ExpandMore as ExpandMoreIcon,
+  TonalitySharp,
 } from "@mui/icons-material";
 import {
   ContentSection,
@@ -31,15 +32,19 @@ import {
   SubmitButton,
   ResetButton,
 } from "../../../styles/user/contact/ContactFormSection.styles";
+import { useCreateInquiriesMutation } from "@/store/api/apiSlice";
+import toast from "react-hot-toast";
 
 const ContactFormSection: React.FC = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     phone: "",
     email: "",
-    product: "",
+    interest: "",
     message: "",
   });
+
+  const [createInquiries , {isSuccess}] = useCreateInquiriesMutation()
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -53,17 +58,40 @@ const ContactFormSection: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+  
+    try {
+      await createInquiries(formData).unwrap();
+  
+      toast.success("Inquiry submitted successfully!", {
+        icon: "✅",
+        style: {
+          borderRadius: "12px",
+          background: "#fff",
+          color: "#1f2937",
+          border: "1px solid #e5e7eb",
+          padding: "14px 18px",
+        },
+      });
+  
+      handleReset();
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.", {
+        icon: "❌",
+        style: {
+          borderRadius: "12px",
+        },
+      });
+    }
   };
 
   const handleReset = () => {
     setFormData({
-      fullName: "",
+      name: "",
       phone: "",
       email: "",
-      product: "",
+      interest: "",
       message: "",
     });
   };
@@ -124,9 +152,9 @@ const ContactFormSection: React.FC = () => {
                     <label htmlFor="fullName">Full Name *</label>
                     <StyledTextField
                       id="fullName"
-                      name="fullName"
+                      name="name"
                       placeholder="Enter your full name"
-                      value={formData.fullName}
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
                       fullWidth
@@ -163,8 +191,8 @@ const ContactFormSection: React.FC = () => {
                   <label htmlFor="product">Product Interest *</label>
                   <StyledSelect
                     id="product"
-                    name="product"
-                    value={formData.product}
+                    name="interest"
+                    value={formData.interest}
                     onChange={handleSelectChange}
                     displayEmpty
                     fullWidth

@@ -783,6 +783,79 @@ export const PreviewContent = styled(Box)`
   }
 `;
 
+export const ImagePreviewGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+`;
+
+export const PreviewCard = styled.div`
+  width: 140px;
+  height: 140px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const RemoveButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  width: 28px;
+  height: 28px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0,0,0,.6);
+  color: white;
+
+  cursor: pointer;
+
+  &:hover{
+    background:#ef4444;
+  }
+`;
+
+export const AddMoreCard = styled.div`
+  width: 140px;
+  height: 140px;
+
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  cursor:pointer;
+
+  color:#6b7280;
+
+  transition:.2s;
+
+  &:hover{
+    border-color:#154212;
+    color:#154212;
+    background:#f6fbf5;
+  }
+
+  span{
+    margin-top:8px;
+    font-size:14px;
+    font-weight:500;
+  }
+`;
+
 //loading styling styles 
 
 // export const CenterBox = styled.div`

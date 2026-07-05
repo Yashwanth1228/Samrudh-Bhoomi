@@ -40,6 +40,13 @@ export const getAllInquiries = async (
   ) => {
     try {
       const { name, phone, email, interest, status , message} = request.body;
+
+      if(!name || !phone || !email || !interest || !message){
+        return reply.status(400).send({
+          success: false,
+          message: "All fields are required",
+        });
+      }
   
       // Get current year
       const year = new Date().getFullYear();
@@ -82,3 +89,53 @@ export const getAllInquiries = async (
       });
     }
   };
+
+  interface UpdateInquiryParams {
+    id: string;
+  }
+  
+  interface UpdateInquiryBody {
+    status: "New" | "Contacted" | "Completed" | "Rejected";
+  }
+  
+  export const updateInquiryStatus = async (
+  request: FastifyRequest<{
+    Params: { id: string };
+    Body: { status: "New" | "Contacted" | "Completed" | "Rejected" };
+  }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = request.params;
+    const { status } = request.body;
+
+    const inquiry = await Inquiry.findByIdAndUpdate(
+      id,
+      { status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!inquiry) {
+      return reply.status(404).send({
+        success: false,
+        message: "Inquiry not found",
+      });
+    }
+
+    return reply.status(200).send({
+      success: true,
+      message: "Inquiry status updated successfully",
+      data: inquiry,
+    });
+  } catch (error) {
+    request.log.error(error);
+
+    return reply.status(500).send({
+      success: false,
+      message: "Failed to update inquiry status",
+    });
+  }
+};
