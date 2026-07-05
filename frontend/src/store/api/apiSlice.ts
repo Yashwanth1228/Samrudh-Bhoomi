@@ -2,9 +2,15 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 // ✅ Define types
 export interface User {
-  _id: string
-  name: string
-  email: string
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "admin" | "user";
+  isActive: boolean;
+  avatar: string;
+  createdAt: string;
+  length: number;
 }
 
 export interface CreateUserRequest {
@@ -15,10 +21,10 @@ export interface CreateUserRequest {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api',
+    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: 'include', // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog'],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries'],
 
 
   endpoints: (builder) => ({
@@ -57,6 +63,7 @@ export const apiSlice = createApi({
         providesTags: ['product'],
       }),
 
+      // blogs routes
       getBlogs: builder.query<any,void>({
         query: () => '/blog/all',
         providesTags: ['blog'],
@@ -77,6 +84,114 @@ export const apiSlice = createApi({
         transformResponse: (response: any ) => response.data,
       }),
 
+      uploadimage: builder.mutation<{ success: boolean; message: string, imageUrls : string[]},{folder: string,data: FormData;}> ({
+        query: ({ folder, data }) => ({
+          url: `/upload/${folder}`,
+          method: "POST",
+          body: data,
+        }),
+        invalidatesTags: ["upload"],
+        }),
+
+        createBlog: builder.mutation<any,object>({
+          query: ( data ) => ({
+            url: `/blog/add-blog`,
+            method: "POST",
+            body: data
+          }),
+          invalidatesTags: ["blog"],
+          }),
+
+          updateBlog: builder.mutation({
+            query: ({ id, ...body }) => ({
+              url: `/blog/${id}`,
+              method: "PUT",
+              body,
+            }),
+            invalidatesTags: ["blog"],
+          }),
+
+
+          // users routes
+
+          getUsers: builder.query<any, void>({
+            query: () => "/auth/users",
+            providesTags: ["users"],
+            transformResponse: (response: any) => response.data,
+          }),
+          
+          updateUserRole: builder.mutation<
+            any,
+            { userId: string; role: "admin" | "user" }
+          >({
+            query: ({ userId, role }) => ({
+              url: `/auth/users/${userId}/role`,
+              method: "PATCH",
+              body: { role },
+            }),
+            invalidatesTags: ["users"],
+          }),
+          
+          deleteUser: builder.mutation<any, string>({
+            query: (userId) => ({
+              url: `/auth/users/${userId}`,
+              method: "DELETE",
+            }),
+            invalidatesTags: ["users"],
+          }),
+
+          getUserById: builder.query<User, string>({
+            query: (id) => `/auth/users/${id}`,
+            transformResponse: (response: any) => response.data,
+            providesTags: ["users"],
+          }),
+
+          createUser: builder.mutation<any, any>({
+            query: (body) => ({
+              url: "/auth/register",
+              method: "POST",
+              body,
+            }),
+            invalidatesTags: ["users"],
+          }),
+
+          updateUser: builder.mutation<any,{id: string;name: string;email: string;password?: string;role: string;isActive: boolean;phone: string;avatar: string;}>({
+  query: ({ id, ...body }) => ({
+    url: `/auth/users/${id}`,
+    method: "PUT",
+    body,
+  }),
+  invalidatesTags: ["users"],
+}),
+
+        // Contact us page routes
+
+        getInquiries: builder.query<any, void>({
+          query: () => "/inquiries",
+          providesTags: ["inquiries"],
+          transformResponse: (response: any) => response.data,
+        }),
+
+        createInquiries: builder.mutation<any, any>({
+          query: ( data) => ({
+            url: "/inquiry",
+            method: "POST",
+            body: data,
+          }),
+          invalidatesTags: ["inquiries"],
+        }),
+
+        updateInquiry: builder.mutation<any, { id: string; status: string }>({
+          query: ({ id, status }) => ({
+            url: `/inquiry/${id}`,
+            method: "PATCH",
+            body: { status },
+          }),
+          invalidatesTags: ["inquiries"],
+        }),
+
+
+
 
     
   }),
@@ -92,5 +207,17 @@ export const {
   useGetBlogsQuery,
   useDeleteBlogMutation,
   useGetBlogbyslugQuery,
+  useUploadimageMutation,
+  useCreateBlogMutation,
+  useUpdateBlogMutation,
+  useGetUsersQuery,
+  useUpdateUserRoleMutation,
+  useDeleteUserMutation,
+  useGetUserByIdQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useGetInquiriesQuery,
+  useCreateInquiriesMutation,
+  useUpdateInquiryMutation,
  
 } = apiSlice

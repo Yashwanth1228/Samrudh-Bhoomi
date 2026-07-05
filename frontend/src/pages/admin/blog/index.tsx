@@ -28,6 +28,9 @@ import {
   FormControlLabel,
   TextareaAutosize,
   SelectChangeEvent,
+  Avatar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -49,6 +52,7 @@ import {
   EditDocument as EditDocumentIcon,
   Star as StarIcon,
   CloudUpload as CloudUploadIcon,
+  ErrorOutlined as ErrorOutlineIcon,
 } from "@mui/icons-material";
 import {
   PageContainer,
@@ -121,13 +125,18 @@ import {
   PreviewTitle,
   PreviewImagePlaceholder,
   PreviewContent,
-  CenterBox,
-  StatusCard,
-  Spinner,
-  StatusTitle,
-  StatusText,
+  ImagePreviewGrid,
+  PreviewCard,
+  RemoveButton,
+  AddMoreCard,
 } from "../../../styles/admin/Blog.styles";
-import { useDeleteBlogMutation, useGetBlogsQuery } from "@/store/api/apiSlice";
+import { useCreateBlogMutation, useDeleteBlogMutation, useGetBlogsQuery, useUpdateBlogMutation, useUploadimageMutation } from "@/store/api/apiSlice";
+import { AuthorCard } from "@/styles/user/blog/BlogDetail/BlogDetailAuthor.styles";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
+import toast from "react-hot-toast";
+
 
 // Types
 interface BlogPost {
@@ -217,12 +226,15 @@ const BlogPage: NextPage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
 
-  const { data : blogs, error, isLoading: blogloading} = useGetBlogsQuery();
+  const { data : blogs, error, isLoading: blogloading ,isFetching,refetch} = useGetBlogsQuery();
   console.log(" the data from server", blogs);
   // setrealBlogs(data.data);
   // console.log("this is blog data",realblogs)
 
   const [deleteBlog] = useDeleteBlogMutation();
+  const [uploadImage] = useUploadimageMutation();
+  const [createBlog] = useCreateBlogMutation();
+  const [updateBlog] = useUpdateBlogMutation();
 
   // Form state
   const [formTitle, setFormTitle] = useState("");
@@ -235,22 +247,73 @@ const BlogPage: NextPage = () => {
   const [formMetaTitle, setFormMetaTitle] = useState("");
   const [formMetaDescription, setFormMetaDescription] = useState("");
   const [formMetaKeywords, setFormMetaKeywords] = useState("");
+  const [formImage , setformImage] = useState<File | string | null>(null);
 
   const [formAuthorName, setFormAuthorName] = useState("");
 const [formAuthorTitle, setFormAuthorTitle] = useState("");
 const [formAuthorBio, setFormAuthorBio] = useState("");
-const [formAuthorImage, setFormAuthorImage] = useState<File | null>(null);
+const [formAuthorImage, setFormAuthorImage] = useState<File | string | null>(null);
+
+const [featuredImages, setFeaturedImages] = useState<File[]>([]);
+const [authorImage, setAuthorImage] = useState<File | null>(null);
+
+const [showSuccess, setShowSuccess] = useState(false);
 
 const authorImageInputRef = useRef<HTMLInputElement>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // const [featuredImages, setFeaturedImages] = useState<File[]>([]);
+const [featuredPreview, setFeaturedPreview] = useState<string[]>([]);
+
+const handleFeaturedImages = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  if (!e.target.files) return;
+
+  const files = Array.from(e.target.files);
+
+  setFeaturedImages(files);
+
+  const previews = files.map((file) =>
+    URL.createObjectURL(file)
+  );
+
+  setFeaturedPreview(previews);
+};
+
+  const handleAuthorImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+) => {
+    if (!e.target.files?.length) return;
+
+    setAuthorImage(e.target.files[0]);
+};
+
+const uploadImages = async (
+  files: File[],
+  folder: string
+) => {
+  const formData = new FormData();
+
+  files.forEach(file => {
+      formData.append("files", file);
+  });
+
+  const res = await uploadImage({
+      folder,
+      data: formData,
+  }).unwrap();
+
+  return res.imageUrls;
+};
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
     setPage(0);
   };
 
-  const handleStatusFilterChange = (event: SelectChangeEvent) => {
+  const handleStatusFilterChange = (event: any) => {
     setStatusFilter(event.target.value);
     setPage(0);
   };
@@ -293,6 +356,7 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
       setFormAuthorTitle(blog.author?.title || "");
       setFormAuthorBio(blog.author?.bio || "");
       
+      
 
     } else {
       resetForm();
@@ -315,34 +379,115 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
     setFormMetaTitle("");
     setFormMetaKeywords("");
     setSelectedBlog(null);
+    setFormMetaDescription("");
+    setFormAuthorName("");
+    setFormAuthorTitle("");
+    setFormAuthorBio("");
+    setFormAuthorImage("");
+    setFeaturedImages([]);
+    setFeaturedPreview([]);
+    setAuthorImage(null);
+
   };
 
-  const handlePreview = () => {
+  const handlePreview = (blog:BlogPost) => {
+    setFormCategory(blog.category);
+    setFormTitle(blog.title);
+    setFormDescription(blog.excerpt);
+    setFormContent(blog.content);
+    setFormAuthorName(blog.author.name);
+    setFormAuthorTitle(blog.author.title);
+    setFormAuthorBio(blog.author.bio);
+    setFormAuthorImage(blog.author.image);
+    setformImage(blog.featuredImages[0] || null)
+
     setPreviewOpen(true);
   };
 
   const handleClosePreview = () => {
+    setFormCategory("");
+    setFormTitle("");
+    setFormDescription("");
+    setFormContent("");
+    setFormAuthorName("");
+    setFormAuthorTitle("");
+    setFormAuthorBio("");
+    setFormAuthorImage("");
+    setformImage("")
     setPreviewOpen(false);
   };
 
-  const handleSave = () => {
-    const formData = new FormData();
-
-formData.append("title", formTitle);
-formData.append("slug", formSlug);
-formData.append("category", formCategory);
-formData.append("excerpt", formDescription);
-formData.append("content", formContent);
-
-formData.append("authorName", formAuthorName);
-formData.append("authorTitle", formAuthorTitle);
-formData.append("authorBio", formAuthorBio);
-
-if (formAuthorImage) {
-  formData.append("authorImage", formAuthorImage);
-}
-    handleCloseDrawer();
-    alert("Blog saved successfully!");
+  const handleSave = async () => {
+    try {
+      // Use existing images in edit mode, otherwise start empty
+      let featuredImageUrls =
+        isEdit && selectedBlog ? selectedBlog.featuredImages : [];
+  
+      let authorImageUrl =
+        isEdit && selectedBlog ? selectedBlog.author.image : "";
+  
+      // Upload featured images only if new ones are selected
+      if (featuredImages.length > 0) {
+        featuredImageUrls = await uploadImages(
+          featuredImages,
+          "blogs/featured"
+        );
+      }
+  
+      // Upload author image only if a new one is selected
+      if (authorImage instanceof File) {
+        const uploaded = await uploadImages(
+          [authorImage],
+          "blogs/authors"
+        );
+  
+        authorImageUrl = uploaded[0];
+      }
+  
+      const payload = {
+        title: formTitle,
+        slug: formSlug,
+        category: formCategory,
+  
+        featuredImages: featuredImageUrls,
+  
+        excerpt: formDescription,
+        content: formContent,
+  
+        author: {
+          name: formAuthorName,
+          title: formAuthorTitle,
+          bio: formAuthorBio,
+          image: authorImageUrl,
+        },
+  
+        seo: {
+          metaTitle: formMetaTitle,
+          metaDescription: formMetaDescription,
+          metaKeywords: formMetaKeywords
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean),
+        },
+  
+        featured: featuredstatus,
+        status: formStatus ? "published" : "draft",
+      };
+  
+      if (isEdit && selectedBlog) {
+        await updateBlog({
+          id: selectedBlog._id,
+          ...payload,
+        }).unwrap();
+      } else {
+        await createBlog(payload).unwrap();
+      }
+  
+      setShowSuccess(true);
+      handleCloseDrawer();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (blog: BlogPost) => {
@@ -354,35 +499,52 @@ if (formAuthorImage) {
       const deleteblog = await deleteBlog(id).unwrap();
       console.log("the deleted blog", deleteblog);
       if (deleteblog.success) {
-        alert("Blog deleted successfully");
+        toast.success("Blog deleted successfully!", {
+          icon: "✅",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        });
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleAuthorImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-  
-    if (file) {
-      setFormAuthorImage(file);
-    }
-  };
+  // if (blogloading) {
+  //   return (
+  //     <LoadingState
+  //       title="Loading Blogs..."
+  //       message="Please wait while we fetch your data."
+  //     />
+  //   );
+  // }
 
 
-  if (blogloading) {
-    return (
-      <CenterBox>
-        <StatusCard>
-          <Spinner />
-          <StatusTitle>Loading blogs...</StatusTitle>
-          <StatusText>Please wait while we fetch your data</StatusText>
-        </StatusCard>
-      </CenterBox>
-    );
-  }
+  if (blogloading)
+  return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load Blogs"
+  message="Unable to fetch blogs."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!blogs.length)
+  return (
+    <EmptyState
+      title="No blogs Found"
+      message="Create your first blog to get started."
+    />
+  );
 
 
   const filteredBlogs = blogs?.filter((blog:BlogPost) => {
@@ -500,7 +662,7 @@ if (formAuthorImage) {
                 />
                 <StyledSelect
                   value={statusFilter}
-                  onChange={() => handleStatusFilterChange}
+                  onChange={(event) => handleStatusFilterChange(event)}
                   displayEmpty
                 >
                   <MenuItem value="all">All Status</MenuItem>
@@ -566,7 +728,7 @@ if (formAuthorImage) {
                       <TableCell align="right">
                         <ActionButtons>
                           <ActionIconButton size="small" title="View">
-                            <VisibilityIcon />
+                            <VisibilityIcon onClick={()=>{handlePreview(blog)}} />
                           </ActionIconButton>
                           <ActionIconButton
                             size="small"
@@ -636,7 +798,7 @@ if (formAuthorImage) {
                 />
               </FormField>
               <FormRow>
-                {/* <FormField>
+                <FormField>
                   <FormLabel>URL Slug</FormLabel>
                   <FormInput
                     fullWidth
@@ -644,11 +806,11 @@ if (formAuthorImage) {
                     value={formSlug}
                     disabled
                   />
-                </FormField> */}
-                <FormInput
+                </FormField>
+                {/* <FormInput
                   value={formSlug}
-                  disabled
-                />
+                  // disabled
+                /> */}
                 <FormField>
                   <FormLabel>Category *</FormLabel>
                   <StyledSelect
@@ -663,8 +825,16 @@ if (formAuthorImage) {
                     <MenuItem value="Sustainable Farming">
                       Sustainable Farming
                     </MenuItem>
-                    <MenuItem value="Product Updates">Product Updates</MenuItem>
-                    <MenuItem value="Best Practices">Best Practices</MenuItem>
+                    {/* <MenuItem value="Product Updates">Product Updates</MenuItem>
+                    <MenuItem value="Best Practices">Best Practices</MenuItem> */}
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Farming Tips">Farming Tips</MenuItem>
+                    <MenuItem value="Fertilizers">Fertilizers</MenuItem>
+                    <MenuItem value="Organic Product">Organic Product</MenuItem>
+                    <MenuItem value="Seeds">Seeds</MenuItem>
+                    <MenuItem value="Pesticides">Pesticides</MenuItem>
+                    <MenuItem value="Agriculture Technology">Agriculture Technology</MenuItem>
+                    <MenuItem value="Company Updates">Company Updates</MenuItem>
                   </StyledSelect>
                 </FormField>
               </FormRow>
@@ -674,25 +844,70 @@ if (formAuthorImage) {
             <FormSection>
               <SectionTitle variant="overline">2. Media</SectionTitle>
               <FormField>
-                <FormLabel>Featured Image</FormLabel>
-                <ImageUploadArea onClick={() => fileInputRef.current?.click()}>
-                  <UploadIcon>
-                    <CloudUploadIcon />
-                  </UploadIcon>
-                  <UploadText variant="body1">
-                    <span>Upload a file</span> or drag and drop
-                  </UploadText>
-                  <UploadSubtext variant="caption">
-                    PNG, JPG, GIF up to 10MB
-                  </UploadSubtext>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                  />
-                </ImageUploadArea>
-              </FormField>
+  <FormLabel>Featured Images</FormLabel>
+
+  {featuredPreview.length === 0 ? (
+    <ImageUploadArea
+      onClick={() => fileInputRef.current?.click()}
+    >
+      <UploadIcon>
+        <CloudUploadIcon />
+      </UploadIcon>
+
+      <UploadText variant="body1">
+        <span>Upload files</span> or drag & drop
+      </UploadText>
+
+      <UploadSubtext variant="caption">
+        PNG, JPG up to 10MB
+      </UploadSubtext>
+    </ImageUploadArea>
+  ) : (
+    <ImagePreviewGrid>
+
+      {featuredPreview.map((image, index) => (
+        <PreviewCard key={index}>
+
+          <img src={image} alt="" />
+
+          <RemoveButton
+            onClick={(e) => {
+              e.stopPropagation();
+
+              setFeaturedImages((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+
+              setFeaturedPreview((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+          >
+            ✕
+          </RemoveButton>
+
+        </PreviewCard>
+      ))}
+
+      <AddMoreCard
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <CloudUploadIcon />
+        <span>Add More</span>
+      </AddMoreCard>
+
+    </ImagePreviewGrid>
+  )}  
+
+  <input
+    ref={fileInputRef}
+    type="file"
+    hidden
+    multiple
+    accept="image/*"
+    onChange={handleFeaturedImages}
+  />
+</FormField>
             </FormSection>
 
             {/* Section 3: Content */}
@@ -843,43 +1058,93 @@ if (formAuthorImage) {
   </FormField>
 
   <FormField>
-    <FormLabel>Author Image</FormLabel>
+  <FormLabel>Author Image</FormLabel>
 
-    <ImageUploadArea
-      onClick={() => authorImageInputRef.current?.click()}
-    >
-      <UploadIcon>
-        <CloudUploadIcon />
-      </UploadIcon>
+  <ImageUploadArea
+    onClick={() => authorImageInputRef.current?.click()}
+    sx={{
+      p: 2,
+      cursor: "pointer",
+    }}
+  >
+    {authorImage ? (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          width: "100%",
+        }}
+      >
+        <Avatar
+          src={
+            authorImage instanceof File
+              ? URL.createObjectURL(authorImage)
+              : (authorImage as string)
+          }
+          sx={{
+            width: 72,
+            height: 72,
+          }}
+        />
 
-      <UploadText variant="body1">
-        <span>Upload author image</span> or drag and drop
-      </UploadText>
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{fontWeight:600}}>
+            {authorImage instanceof File
+              ? authorImage.name
+              : "Current Author Image"}
+          </Typography>
 
-      <UploadSubtext variant="caption">
-        PNG, JPG, JPEG up to 5MB
-      </UploadSubtext>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Click to replace image
+          </Typography>
+        </Box>
 
-      <input
-        ref={authorImageInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleAuthorImageChange}
-      />
-    </ImageUploadArea>
-  </FormField>
+        <Chip
+          label="Selected"
+          color="success"
+          size="small"
+        />
+      </Box>
+    ) : (
+      <>
+        <UploadIcon>
+          <CloudUploadIcon />
+        </UploadIcon>
+
+        <UploadText variant="body1">
+          <span>Upload author image</span> or drag & drop
+        </UploadText>
+
+        <UploadSubtext variant="caption">
+          PNG, JPG, JPEG up to 5MB
+        </UploadSubtext>
+      </>
+    )}
+
+    <input
+      ref={authorImageInputRef}
+      type="file"
+      accept="image/*"
+      hidden
+      onChange={handleAuthorImageChange}
+    />
+  </ImageUploadArea>
+</FormField>
 </FormSection>
           </DrawerBody>
 
           <DrawerFooter>
-            <PreviewButton onClick={handlePreview}>Preview</PreviewButton>
-            <FooterButtons>
+            {/* <PreviewButton onClick={()=>{handlePreview}}>Preview</PreviewButton> */}
+            {/* <FooterButtons> */}
               <CancelButton onClick={handleCloseDrawer}>Cancel</CancelButton>
               <SaveButton onClick={handleSave} startIcon={<SaveIcon />}>
                 Save Blog
               </SaveButton>
-            </FooterButtons>
+            {/* </FooterButtons> */}
           </DrawerFooter>
         </DrawerContainer>
       </Drawer>
@@ -916,20 +1181,86 @@ if (formAuthorImage) {
             <PreviewTitle variant="h1">
               {formTitle || "Blog Title Preview"}
             </PreviewTitle>
-            <PreviewImagePlaceholder>
-              <ImageIcon />
-            </PreviewImagePlaceholder>
+            {/* <PreviewImagePlaceholder> */}
+              {/* <ImageIcon /> */}
+              {
+              formImage ? (
+                <img
+                  src={formImage}
+                  alt="Featured"
+                  style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+                  // width={600}
+                  // height={400}
+
+                />
+              ) : (
+                <>
+                <ImageIcon />
+                <PreviewImagePlaceholder>
+                  <Typography variant="body2" color="textSecondary">
+                  Featured image preview will appear here.
+                </Typography>
+                </PreviewImagePlaceholder>
+                </>
+              )
+              }
+            {/* </PreviewImagePlaceholder> */}
             <PreviewContent>
               <Typography variant="body1" color="textSecondary">
-                This is a simulated preview of the blog content. The rich text
-                editor content would render here, showcasing the typography,
-                spacing, and layout as it would appear on the public-facing
-                blog.
+                {formDescription || "This is a simulated preview of the blog content. The rich text editor content would render here, showcasing the typography,spacing, and layout as it would appear on the public-facing blog."}
               </Typography>
             </PreviewContent>
           </Box>
+
+          <AuthorCard>
+      <Avatar
+        src={typeof formAuthorImage === "string" ? formAuthorImage : undefined}
+        alt={formAuthorName || "Author name"}
+        sx={{ width: 80, height: 80, border: "2px solid", borderColor: "background.paper", flexShrink: 0 }}
+      />
+      <Box>
+        <Typography variant="caption" sx={{ fontWeight: 600, color: "primary.main", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          About the Author
+        </Typography>
+        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+          {formAuthorName || "Author Name"}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {formAuthorBio || "This is a simulated preview of the author's biography. It provides a brief overview of the author's background, expertise, and contributions to the field."}
+        </Typography>
+      </Box>
+    </AuthorCard>
         </ModalBody>
       </Dialog>
+
+
+      {/* Success Toast */}
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          severity="success"
+          icon={<CheckCircleIcon />}
+          sx={{
+            backgroundColor: "#2d5a27",
+            color: "#ffffff",
+            "& .MuiAlert-icon": {
+              color: "#ffffff",
+            },
+          }}
+        >
+          <strong>{isEdit ? "Blog Updated" : "Blog Created"}</strong>
+
+          <br />
+
+          {isEdit
+            ? "Blog updated successfully."
+            : "The Blog has been successfully created."}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

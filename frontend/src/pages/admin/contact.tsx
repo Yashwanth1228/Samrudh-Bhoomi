@@ -1,5 +1,5 @@
 // src/pages/admin/contact.tsx (updated)
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import {
@@ -57,6 +57,12 @@ import {
   ActionIconButton,
 } from "../../styles/admin/Contact.styles";
 import Footer from "@/components/admin/Footer";
+import { useGetInquiriesQuery, useUpdateInquiryMutation } from "@/store/api/apiSlice";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import EmptyState from "@/components/common/EmptyState";
+import InquiryDrawer from "@/components/admin/InquiryDrawer";
+import toast from "react-hot-toast";
 
 // StatusChip component
 const StatusChip: React.FC<{ status: "New" | "Contacted" | "Closed" }> = ({
@@ -102,60 +108,94 @@ interface Inquiry {
 }
 
 // Mock data
-const mockInquiries: Inquiry[] = [
-  // {
-  //   id: "1",
-  //   inquiryId: "SB-2024-101",
-  //   name: "Rajesh Kumar",
-  //   phone: "+91 98765 43210",
-  //   email: "rajesh.k@example.com",
-  //   interest: "Organic Fertilizers",
-  //   source: "Product Inquiry",
-  //   status: "New",
-  //   date: "Oct 24, 2024",
-  // },
-  // {
-  //   id: "2",
-  //   inquiryId: "SB-2024-098",
-  //   name: "Sunita Patel",
-  //   phone: "+91 87654 32109",
-  //   email: "sunita.p@farm.com",
-  //   interest: "Hybrid Seeds",
-  //   source: "Contact Form",
-  //   status: "Contacted",
-  //   date: "Oct 23, 2024",
-  // },
-  // {
-  //   id: "3",
-  //   inquiryId: "SB-2024-085",
-  //   name: "Amit Singh",
-  //   phone: "+91 76543 21098",
-  //   email: "amit.s@gmail.com",
-  //   interest: "Pesticides Bulk",
-  //   source: "General Inquiry",
-  //   status: "Closed",
-  //   date: "Oct 20, 2024",
-  // },
-  // {
-  //   id: "4",
-  //   inquiryId: "SB-2024-102",
-  //   name: "Vikram Reddy",
-  //   phone: "+91 99887 76655",
-  //   email: "-",
-  //   interest: "Tractors",
-  //   source: "Product Inquiry",
-  //   status: "New",
-  //   date: "Oct 24, 2024",
-  // },
-];
+// const mockInquiries: Inquiry[] = [
+//   {
+//     id: "1",
+//     inquiryId: "SB-2024-101",
+//     name: "Rajesh Kumar",
+//     phone: "+91 98765 43210",
+//     email: "rajesh.k@example.com",
+//     interest: "Organic Fertilizers",
+//     source: "Product Inquiry",
+//     status: "New",
+//     date: "Oct 24, 2024",
+//   },
+//   {
+//     id: "2",
+//     inquiryId: "SB-2024-098",
+//     name: "Sunita Patel",
+//     phone: "+91 87654 32109",
+//     email: "sunita.p@farm.com",
+//     interest: "Hybrid Seeds",
+//     source: "Contact Form",
+//     status: "Contacted",
+//     date: "Oct 23, 2024",
+//   },
+//   {
+//     id: "3",
+//     inquiryId: "SB-2024-085",
+//     name: "Amit Singh",
+//     phone: "+91 76543 21098",
+//     email: "amit.s@gmail.com",
+//     interest: "Pesticides Bulk",
+//     source: "General Inquiry",
+//     status: "Closed",
+//     date: "Oct 20, 2024",
+//   },
+//   {
+//     id: "4",
+//     inquiryId: "SB-2024-102",
+//     name: "Vikram Reddy",
+//     phone: "+91 99887 76655",
+//     email: "-",
+//     interest: "Tractors",
+//     source: "Product Inquiry",
+//     status: "New",
+//     date: "Oct 24, 2024",
+//   },
+// ];
 
 const ContactPage: NextPage = () => {
-  const [inquiries] = useState<Inquiry[]>(mockInquiries);
+  // const [inquiries] = useState<Inquiry[]>(mockInquiries);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [productFilter, setProductFilter] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const { data : inquiries, error, isLoading: inquiryloading , isFetching,refetch} = useGetInquiriesQuery();
+
+  const [openDrawer, setOpenDrawer] = useState(false);
+const [mode, setMode] = useState<"view" | "edit">("view");
+const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
+const [updateInquiry] = useUpdateInquiryMutation();
+
+const handleSave = async (status: string) => {
+  try {
+    await updateInquiry({
+      id: selectedInquiry._id,
+      status,
+    }).unwrap();
+
+    toast.success("Status updated successfully!");
+
+    setOpenDrawer(false);
+  } catch (error) {
+    toast.error("Failed to update status.");
+  }
+};
+
+const handleView = (inquiry: any) => {
+  setSelectedInquiry(inquiry);
+  setMode("view");
+  setOpenDrawer(true);
+};
+
+const handleEdit = (inquiry: any) => {
+  setSelectedInquiry(inquiry);
+  setMode("edit");
+  setOpenDrawer(true);
+};
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -183,7 +223,7 @@ const ContactPage: NextPage = () => {
     setPage(0);
   };
 
-  const filteredInquiries = inquiries.filter((inquiry) => {
+  const filteredInquiries = inquiries?.filter((inquiry:Inquiry) => {
     const matchesSearch =
       inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       inquiry.inquiryId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -193,17 +233,41 @@ const ContactPage: NextPage = () => {
     return matchesSearch && matchesStatus && matchesProduct;
   });
 
-  const paginatedInquiries = filteredInquiries.slice(
+  const paginatedInquiries = filteredInquiries?.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
 
-  const kpiData = {
-    total: 156,
-    new: 12,
-    contacted: 84,
-    closed: 60,
-  };
+  const kpiData = useMemo(
+    () => ({
+      total: inquiries?.length,
+      new: inquiries?.filter((item: any) => item.status === "New")?.length,
+      contacted: inquiries?.filter((item: any) => item.status === "Contacted")?.length,
+      closed: inquiries?.filter((item: any) => item.status === "Completed")?.length,
+    }),
+    [inquiries]
+  );
+
+  if (inquiryloading)
+  return <LoadingState title="Loading inquiries..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load inquiries"
+  message="Unable to fetch inquiries."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
+
+if (!inquiries?.length)
+  return (
+    <EmptyState
+      title="No inquiries Found"
+      message="Create your first inquiry to get started."
+    />
+  );
 
   return (
     <>
@@ -321,14 +385,14 @@ const ContactPage: NextPage = () => {
                     <TableCell>Name</TableCell>
                     <TableCell>Contact</TableCell>
                     <TableCell>Interest</TableCell>
-                    <TableCell>Source</TableCell>
+                    {/* <TableCell>Source</TableCell> */}
                     <TableCell>Status</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedInquiries.map((inquiry, index) => (
+                  {paginatedInquiries.map((inquiry:Inquiry, index:any) => (
                     <TableRow
                       key={inquiry.id}
                       hover
@@ -351,11 +415,11 @@ const ContactPage: NextPage = () => {
                         </ContactInfo>
                       </TableCell>
                       <TableCell>{inquiry.interest}</TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <Typography variant="body2" color="textSecondary">
                           {inquiry.source}
                         </Typography>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <StatusChip status={inquiry.status} />
                       </TableCell>
@@ -365,15 +429,24 @@ const ContactPage: NextPage = () => {
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
-                        <ActionButtons>
-                          <ActionIconButton size="small" title="View Details">
-                            <VisibilityIcon />
-                          </ActionIconButton>
-                          <ActionIconButton size="small" title="Update Status">
-                            <EditIcon />
-                          </ActionIconButton>
-                        </ActionButtons>
-                      </TableCell>
+  <ActionButtons>
+    <ActionIconButton
+      size="small"
+      title="View Details"
+      onClick={() => handleView(inquiry)}
+    >
+      <VisibilityIcon />
+    </ActionIconButton>
+
+    <ActionIconButton
+      size="small"
+      title="Update Status"
+      onClick={() => handleEdit(inquiry)}
+    >
+      <EditIcon />
+    </ActionIconButton>
+  </ActionButtons>
+</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -392,6 +465,14 @@ const ContactPage: NextPage = () => {
         </MainContent>
       </PageContainer>
       <Footer />
+
+      <InquiryDrawer
+  open={openDrawer}
+  inquiry={selectedInquiry}
+  mode={mode}
+  onClose={() => setOpenDrawer(false)}
+  onSave={handleSave}
+/>
     </>
   );
 };

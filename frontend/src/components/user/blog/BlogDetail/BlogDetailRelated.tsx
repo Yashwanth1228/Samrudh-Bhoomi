@@ -37,7 +37,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
       <Grid container spacing={3}>
   {posts.map((post) => (
     <Grid size={{ xs: 12, md: 4 }} key={post.id}>
-      <RelatedCard>
+      <RelatedCard onClick={() => router.push("/blogs/".concat(post.slug.toString()))}>
         <Box sx={{ overflow: "hidden", height: 190 }}>
           <CardMedia
             component="img"
@@ -48,6 +48,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
               height: "100%",
               objectFit: "cover",
               transition: "transform .5s",
+              cursor: "pointer",
             }}
           />
         </Box>
@@ -119,7 +120,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
                 transition: "transform 0.3s",
               },
             }}
-            onClick={() => router.push("/blogs/".concat(post.slug.toString()))}
+            
           >
             Read more
           </Button>
@@ -130,7 +131,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
   ))}
 
   {/* Newsletter Card */}
-  <Grid size={{ xs: 12, md: 4 }}>
+  {/* <Grid size={{ xs: 12, md: 4 }}>
     <Card
       sx={{
         height: "100%",
@@ -240,7 +241,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
         </Box>
       </Box>
     </Card>
-  </Grid>
+  </Grid> */}
 </Grid>
     </RelatedSection>
   );
