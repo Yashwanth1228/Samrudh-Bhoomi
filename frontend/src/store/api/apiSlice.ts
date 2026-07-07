@@ -8,11 +8,41 @@ export interface User {
   phone: string;
   role: "admin" | "user";
   isActive: boolean;
-  avatar: string;
+  avatar: {
+    url: string;
+    publicId: string;
+  };
   createdAt: string;
   length: number;
 }
 
+export interface UpdateUserPayload {
+  id: string;
+
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  isActive: boolean;
+
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
+
+  password?: string;
+}
+
+export interface UploadedImage {
+  url: string;
+  publicId: string;
+}
+
+interface UploadResponse {
+  success: boolean;
+  message: string;
+  imageUrls: UploadedImage[];
+}
 export interface CreateUserRequest {
   email: string
   password: string
@@ -84,7 +114,7 @@ export const apiSlice = createApi({
         transformResponse: (response: any ) => response.data,
       }),
 
-      uploadimage: builder.mutation<{ success: boolean; message: string, imageUrls : string[]},{folder: string,data: FormData;}> ({
+      uploadimage: builder.mutation< UploadResponse,{folder: string,data: FormData;}> ({
         query: ({ folder, data }) => ({
           url: `/upload/${folder}`,
           method: "POST",
@@ -155,14 +185,14 @@ export const apiSlice = createApi({
             invalidatesTags: ["users"],
           }),
 
-          updateUser: builder.mutation<any,{id: string;name: string;email: string;password?: string;role: string;isActive: boolean;phone: string;avatar: string;}>({
-  query: ({ id, ...body }) => ({
-    url: `/auth/users/${id}`,
-    method: "PUT",
-    body,
-  }),
-  invalidatesTags: ["users"],
-}),
+          updateUser: builder.mutation<any, UpdateUserPayload>({
+            query: ({ id, ...body }) => ({
+              url: `/auth/users/${id}`,
+              method: "PUT",
+              body,
+            }),
+            invalidatesTags: ["users"],
+          }),
 
         // Contact us page routes
 

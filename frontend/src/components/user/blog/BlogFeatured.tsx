@@ -6,19 +6,44 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FeaturedCard, FeaturedContent, FeaturedTag } from "@/styles/user/blog/BlogFeatured.styles";
 import { useRouter } from "next/router";
 
-interface BlogPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  image: string;
-  featured?: boolean;
-  featuredImages: string;
-  slug: string;
-  createdAt : string;
+
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
 }
 
+interface BlogPost {
+  _id: string;
+  id: string;
+
+  title: string;
+  slug: string;
+  category: string;
+
+  featuredImages: CloudinaryImage[];
+
+  excerpt: string;
+  content: string;
+
+  author: {
+    name: string;
+    title: string;
+    bio: string;
+    image: CloudinaryImage;
+  };
+
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+
+  featured?: boolean;
+  status: "draft" | "published";
+
+  createdAt: string;
+  updatedAt: string;
+}
 interface Props {
   post: BlogPost;
 }
@@ -39,7 +64,7 @@ export const BlogFeatured: React.FC<Props> = ({ post }) => {
       <Box sx={{ position: "relative", width: { xs: "100%", md: "60%" }, height: { xs: 300, md: "auto" } }}>
         <CardMedia
           component="img"
-          image={post.featuredImages[1] || post.image}
+          image={post.featuredImages[1]?.url || post.featuredImages[0]?.url || "/images/blogs/default.jpg"}
           alt={post.title}
           sx={{
             width: "100%",

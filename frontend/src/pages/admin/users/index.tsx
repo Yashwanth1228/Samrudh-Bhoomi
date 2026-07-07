@@ -115,7 +115,10 @@ interface User {
   phone: string;
   role: "admin" | "user";
   status: "Active" | "Inactive";
-  avatar?: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
   isActive: boolean;
   
 }
@@ -500,7 +503,7 @@ if (!userdata?.length)
                         <UserCell>
                           <UserAvatar>
                             {user.avatar ? (
-                              <img src={user.avatar} alt={user.name} />
+                              <img src={user.avatar.url} alt={user.name} />
                             ) : (
                               <Box className="initials">
                                 {user.name
@@ -813,7 +816,7 @@ if (!userdata?.length)
             }}
           >
             <Avatar
-              src={selectedUser.avatar}
+              src={selectedUser.avatar.url}
               sx={{
                 width: 96,
                 height: 96,

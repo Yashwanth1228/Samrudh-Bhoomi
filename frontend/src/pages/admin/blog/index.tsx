@@ -31,6 +31,7 @@ import {
   Avatar,
   Snackbar,
   Alert,
+  Backdrop,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -136,29 +137,33 @@ import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import EmptyState from "@/components/common/EmptyState";
 import toast from "react-hot-toast";
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 // Types
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
+}
+
 interface BlogPost {
   _id: string;
-  id?: string;
+  id: string;
 
   title: string;
   slug: string;
   category: string;
 
-  featuredImages: string[];
+  featuredImages: CloudinaryImage[];
 
   excerpt: string;
   content: string;
-
-  readTime: string;
 
   author: {
     name: string;
     title: string;
     bio: string;
-    image: string;
+    image: CloudinaryImage;
   };
 
   seo: {
@@ -167,15 +172,8 @@ interface BlogPost {
     metaKeywords: string[];
   };
 
-  status: "draft" | "published";
-
   featured?: boolean;
-
-  publishedAt?: string;
-
-  views: number;
-
-  relatedPosts: string[];
+  status: "draft" | "published";
 
   createdAt: string;
   updatedAt: string;
@@ -266,6 +264,8 @@ const authorImageInputRef = useRef<HTMLInputElement>(null);
   // const [featuredImages, setFeaturedImages] = useState<File[]>([]);
 const [featuredPreview, setFeaturedPreview] = useState<string[]>([]);
 
+const [isSaving, setIsSaving] = useState(false);
+
 const handleFeaturedImages = (
   e: React.ChangeEvent<HTMLInputElement>
 ) => {
@@ -290,19 +290,24 @@ const handleFeaturedImages = (
     setAuthorImage(e.target.files[0]);
 };
 
+interface UploadedImage {
+  url: string;
+  publicId: string;
+}
+
 const uploadImages = async (
   files: File[],
   folder: string
-) => {
+): Promise<UploadedImage[]> => {
   const formData = new FormData();
 
-  files.forEach(file => {
-      formData.append("files", file);
+  files.forEach((file) => {
+    formData.append("files", file);
   });
 
   const res = await uploadImage({
-      folder,
-      data: formData,
+    folder,
+    data: formData,
   }).unwrap();
 
   return res.imageUrls;
@@ -398,8 +403,8 @@ const uploadImages = async (
     setFormAuthorName(blog.author.name);
     setFormAuthorTitle(blog.author.title);
     setFormAuthorBio(blog.author.bio);
-    setFormAuthorImage(blog.author.image);
-    setformImage(blog.featuredImages[0] || null)
+    setFormAuthorImage(blog.author.image?.url || "");
+    setformImage(blog.featuredImages[0]?.url || "")
 
     setPreviewOpen(true);
   };
@@ -419,14 +424,23 @@ const uploadImages = async (
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
+  
       // Use existing images in edit mode, otherwise start empty
       let featuredImageUrls =
-        isEdit && selectedBlog ? selectedBlog.featuredImages : [];
+  isEdit && selectedBlog
+    ? selectedBlog.featuredImages
+    : [];
+
+let authorImageUrl =
+  isEdit && selectedBlog
+    ? selectedBlog.author.image
+    : {
+        url: "",
+        publicId: "",
+      };
   
-      let authorImageUrl =
-        isEdit && selectedBlog ? selectedBlog.author.image : "";
-  
-      // Upload featured images only if new ones are selected
+      // Upload featured images
       if (featuredImages.length > 0) {
         featuredImageUrls = await uploadImages(
           featuredImages,
@@ -434,13 +448,13 @@ const uploadImages = async (
         );
       }
   
-      // Upload author image only if a new one is selected
+      // Upload author image
       if (authorImage instanceof File) {
         const uploaded = await uploadImages(
           [authorImage],
           "blogs/authors"
         );
-  
+      
         authorImageUrl = uploaded[0];
       }
   
@@ -448,9 +462,7 @@ const uploadImages = async (
         title: formTitle,
         slug: formSlug,
         category: formCategory,
-  
         featuredImages: featuredImageUrls,
-  
         excerpt: formDescription,
         content: formContent,
   
@@ -487,6 +499,8 @@ const uploadImages = async (
       handleCloseDrawer();
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -698,7 +712,7 @@ if (error)
                     <TableRow key={blog.id} hover>
                       <TableCell>
                         {blog.featuredImages ? (
-                          <BlogImage src={blog.featuredImages[0]} alt={blog.title} />
+                          <BlogImage src={blog.featuredImages[0]?.url} alt={blog.title} />
                         ) : (
                           <BlogImagePlaceholder>
                             <ImageIcon />
@@ -1141,12 +1155,43 @@ if (error)
             {/* <PreviewButton onClick={()=>{handlePreview}}>Preview</PreviewButton> */}
             {/* <FooterButtons> */}
               <CancelButton onClick={handleCloseDrawer}>Cancel</CancelButton>
-              <SaveButton onClick={handleSave} startIcon={<SaveIcon />}>
-                Save Blog
+              <SaveButton 
+              variant="contained"
+              onClick={handleSave}
+              disabled={isSaving} startIcon={<SaveIcon />}>
+                 {isSaving ? "Saving..." : isEdit ? "Update Blog" : "Save Blog"}
               </SaveButton>
             {/* </FooterButtons> */}
           </DrawerFooter>
         </DrawerContainer>
+
+        <Backdrop
+  open={isSaving}
+  sx={{
+    position: "absolute",
+    inset: 0,
+    zIndex: (theme) => theme.zIndex.drawer + 1,
+    color: "#fff",
+    flexDirection: "column",
+    backgroundColor: "rgba(255,255,255,0.65)",
+    backdropFilter: "blur(4px)",
+  }}
+>
+  <CircularProgress
+    size={48}
+    sx={{ color: "#154212" }}
+  />
+
+  <Typography
+    sx={{
+      mt: 2,
+      color: "#154212",
+      fontWeight: 600,
+    }}
+  >
+    {isEdit ? "Updating blog..." : "Creating blog..."}
+  </Typography>
+</Backdrop>
       </Drawer>
 
       {/* Preview Modal */}

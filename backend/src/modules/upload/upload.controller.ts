@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import cloudinary from "../../config/cloudinary";
 
 interface UploadParams {
-  folder: string;
   module: string;
   type: string;
 }
@@ -14,10 +13,10 @@ export const uploadImage = async (
   reply: FastifyReply
 ) => {
   try {
-    const { module, type } = request.params
-    
+    const { module, type } = request.params;
+
     const folder = `${module}/${type}`;
-    
+
     const allowedFolders = [
       "blogs/featured",
       "blogs/authors",
@@ -25,7 +24,7 @@ export const uploadImage = async (
       "inventory/images",
       "users/profile",
     ];
-    
+
     if (!allowedFolders.includes(folder)) {
       return reply.status(400).send({
         success: false,
@@ -35,7 +34,7 @@ export const uploadImage = async (
 
     const parts = request.files();
 
-    const imageUrls: string[] = [];
+    const imageUrls: { url: string; publicId: string }[] = [];
 
     for await (const file of parts) {
       if (file.type !== "file") continue;
@@ -56,7 +55,10 @@ export const uploadImage = async (
           .end(buffer);
       });
 
-      imageUrls.push(result.secure_url);
+      imageUrls.push({
+        url: result.secure_url,
+        publicId: result.public_id,
+      });
     }
 
     if (imageUrls.length === 0) {

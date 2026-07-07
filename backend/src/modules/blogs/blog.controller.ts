@@ -1,11 +1,17 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Blog from "./blog.model";
+import cloudinary from "../../config/cloudinary";
 
 interface BlogBody {
   title: string;
   slug: string;
   category: string;
-  featuredImage?: string;
+
+  featuredImages?: {
+    url: string;
+    publicId: string;
+  }[];
+
   excerpt?: string;
   content: string;
 
@@ -13,7 +19,10 @@ interface BlogBody {
     name?: string;
     title?: string;
     bio?: string;
-    image?: string;
+    image?: {
+      url: string;
+      publicId: string;
+    };
   };
 
   seo?: {
@@ -130,6 +139,21 @@ export const deleteBlog = async (
       });
     }
 
+    // Delete featured images
+await Promise.all(
+  blog.featuredImages.map((img) =>
+      cloudinary.uploader.destroy(img.publicId)
+  )
+);
+
+// Delete author image
+if (blog.author?.image?.publicId) {
+  await cloudinary.uploader.destroy(
+      blog.author.image.publicId
+  );
+}
+
+
     await Blog.findByIdAndDelete(id);
 
     return reply.status(200).send({
@@ -191,38 +215,12 @@ export const getBlogBySlug = async (
   }
 };
 
-interface IBlogUpdateInput {
-  title?: string;
-  slug?: string;
-  category?: string;
-  featuredImages?: string[];
-  excerpt?: string;
-  content?: string;
 
-  author?: {
-    name?: string;
-    title?: string;
-    bio?: string;
-    image?: string;
-  };
-
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-    metaKeywords?: string[];
-  };
-
-  featured?: boolean;
-
-  status?: "draft" | "published";
-
-  relatedPosts?: string[];
-}
 
 export const updateBlog = async (
   request: FastifyRequest<{
     Params: { id: string };
-    Body: IBlogUpdateInput;
+    Body: BlogBody;
   }>,
   reply: FastifyReply
 ) => {
@@ -230,7 +228,16 @@ export const updateBlog = async (
     const { id } = request.params;
     const body = request.body;
 
-    // Check if another blog already has this slug
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return reply.status(404).send({
+        success: false,
+        message: "Blog not found",
+      });
+    }
+
+    // Check duplicate slug
     if (body.slug) {
       const existing = await Blog.findOne({
         slug: body.slug,
@@ -245,24 +252,53 @@ export const updateBlog = async (
       }
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedBlog) {
-      return reply.status(404).send({
-        success: false,
-        message: "Blog not found",
-      });
+    //-------------------------------------------------------
+    // Delete old featured images if replaced
+    //-------------------------------------------------------
+    if (
+      body.featuredImages &&
+      body.featuredImages?.length > 0
+    ) {
+      await Promise.all(
+        blog.featuredImages.map((img) =>
+          cloudinary.uploader.destroy(img.publicId)
+        )
+      );
     }
 
-    return reply.send({
+    //-------------------------------------------------------
+    // Delete old author image if replaced
+    //-------------------------------------------------------
+    if (
+      body.author?.image?.publicId &&
+      blog.author?.image?.publicId &&
+      body.author?.image?.publicId !== blog.author.image.publicId
+    ) {
+      await cloudinary.uploader.destroy(
+        blog.author.image.publicId
+      );
+    }
+
+    //-------------------------------------------------------
+    // Update Blog
+    //-------------------------------------------------------
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      id,
+      body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return reply.status(200).send({
       success: true,
       message: "Blog updated successfully",
       data: updatedBlog,
     });
   } catch (err: any) {
+    console.error(err);
+
     return reply.status(500).send({
       success: false,
       message: err.message || "Internal Server Error",
