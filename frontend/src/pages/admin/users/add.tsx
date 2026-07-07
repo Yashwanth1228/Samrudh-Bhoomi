@@ -75,7 +75,7 @@ import { useRouter } from "next/router";
 import { useCreateUserMutation, useGetUserByIdQuery, useUpdateUserMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
-import EmptyState from "@/components/common/EmptyState";
+// import EmptyState from "@/components/common/EmptyState";
 
 interface FormData {
   fullName: string;
@@ -339,13 +339,13 @@ if (error)
 />
   );
 
-if (!user)
-  return (
-    <EmptyState
-      title="No user Found"
-      message="Create your first user to get started."
-    />
-  );
+// if (!user)
+//   return (
+//     <EmptyState
+//       title="No user Found"
+//       message="Create your first user to get started."
+//     />
+//   );
 
   
   return (
