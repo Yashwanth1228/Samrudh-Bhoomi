@@ -75,6 +75,7 @@ import { useRouter } from "next/router";
 import { useCreateUserMutation, useGetUserByIdQuery, useUpdateUserMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import toast from "react-hot-toast";
 // import EmptyState from "@/components/common/EmptyState";
 
 interface CloudinaryImage {
@@ -322,8 +323,22 @@ console.log("name",name);
       setTimeout(() => {
         router.push("/admin/users");
       }, 1200);
-    } catch (err) {
-      console.error("User save failed:", err);
+    } catch (err: any) {
+      console.error(err);
+    
+      toast.error(
+        err?.data?.message || "Something went wrong",
+        {
+          icon: "❌",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        }
+      );
     } finally {
       setLoading(false);
     }
