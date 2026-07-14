@@ -91,6 +91,7 @@ export const apiSlice = createApi({
      getProducts: builder.query<any,void>({
         query: () => '/products/all',
         providesTags: ['product'],
+        transformResponse: (response: any ) => response.data,
       }),
 
       // blogs routes

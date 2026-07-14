@@ -46,6 +46,8 @@ import { useRouter } from "next/router";
 import Footer from "./Footer";
 import { useGetProductsQuery } from "@/store/api/apiSlice";
 import { useEffect } from "react";
+import LoadingState from "../common/LoadingState";
+import ErrorState from "../common/ErrorState";
 
 const products = [
   {
@@ -71,7 +73,7 @@ const products = [
 
 export default function ProductHeader() {
   const router = useRouter();
-  const { data, error, isLoading } = useGetProductsQuery();
+  const { data:products , error, isLoading: productloading,refetch , isFetching} = useGetProductsQuery();
 
   // console.log("data from backend", data);
 
@@ -83,6 +85,20 @@ export default function ProductHeader() {
   //   }
 
   // },[])
+
+
+  if (productloading)
+  return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load products"
+  message="Unable to fetch products."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
   return (
     <>
 
@@ -179,11 +195,11 @@ export default function ProductHeader() {
           </TableHead>
 
           <TableBody>
-            {products.map((product) => (
+            {products?.map((product :any) => (
               <StyledTableRow key={product.name}>
                 <TableCell>
                   <Avatar
-                    src={product.image}
+                    src={product.images[0]}
                     variant="rounded"
                     sx={{ width: 50, height: 50 }}
                   />
