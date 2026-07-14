@@ -223,6 +223,15 @@ const handleEdit = (inquiry: any) => {
     setPage(0);
   };
 
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+  
+
   const filteredInquiries = inquiries?.filter((inquiry:Inquiry) => {
     const matchesSearch =
       inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -425,7 +434,7 @@ if (!inquiries?.length)
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="textSecondary">
-                          {inquiry.date}
+                          {formatDate(inquiry.date)}
                         </Typography>
                       </TableCell>
                       <TableCell align="right">

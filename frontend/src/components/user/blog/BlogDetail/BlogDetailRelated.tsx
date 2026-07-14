@@ -11,7 +11,12 @@ interface RelatedPost {
   category: string;
   image: string;
   description: string;
-  featuredImages: string;
+  featuredImages: [
+    {
+      url: string;
+      publicId: string;
+    }
+  ];
   excerpt: string;
   slug:string;
 }
@@ -22,6 +27,7 @@ interface Props {
 
 export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
   const router = useRouter();
+  console.log("BlogDetailRelated posts:", posts);
   return (
     <RelatedSection>
       <Typography
@@ -41,7 +47,7 @@ export const BlogDetailRelated: React.FC<Props> = ({ posts }) => {
         <Box sx={{ overflow: "hidden", height: 190 }}>
           <CardMedia
             component="img"
-            image={post.featuredImages[0]}
+            image={post.featuredImages[0]?.url}
             alt={post.title}
             sx={{
               width: "100%",

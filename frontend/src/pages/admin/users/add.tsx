@@ -75,7 +75,13 @@ import { useRouter } from "next/router";
 import { useCreateUserMutation, useGetUserByIdQuery, useUpdateUserMutation, useUploadimageMutation } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import toast from "react-hot-toast";
 // import EmptyState from "@/components/common/EmptyState";
+
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
+}
 
 interface FormData {
   fullName: string;
@@ -100,7 +106,10 @@ const AddUserPage: NextPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null); // Preview
-  const [avatarUrl, setAvatarUrl] = useState<string>(""); // Cloudinary URL
+  const [avatar, setAvatar] = useState<CloudinaryImage>({
+    url: "",
+    publicId: "",
+  });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -145,8 +154,14 @@ console.log("name",name);
     confirmPassword: "",
   });
 
-  setProfileImage(user.avatar || null);
-  setAvatarUrl(user.avatar || "");
+  setProfileImage(user.avatar?.url || null);
+
+  setAvatar(
+    user.avatar || {
+      url: "",
+      publicId: "",
+    }
+  );
 }, [user]);
 
 
@@ -203,20 +218,21 @@ console.log("name",name);
         folder: "users/profile",
         data: formData,
       }).unwrap();
-
-      console.log("Upload response:", res);
   
-      setAvatarUrl(res.imageUrls[0]);
-      console.log("Uploaded avatar URL:", res.imageUrls[0]);
-
+      const uploadedImage = res.imageUrls[0];
+  
+      setAvatar(uploadedImage);
+  
+      console.log("Uploaded avatar:", uploadedImage);
+  
       setUploadToast({
         open: true,
         severity: "success",
         message: "Profile image uploaded successfully.",
       });
-
     } catch (err) {
       console.error(err);
+  
       setUploadToast({
         open: true,
         severity: "error",
@@ -280,43 +296,53 @@ console.log("name",name);
   
     if (!validateForm()) return;
   
-    setLoading(true);
-  
     try {
+      setLoading(true);
+  
       const payload = {
-        name: formData.fullName,
-        email: formData.email,
+        name: formData.fullName.trim(),
+        email: formData.email.trim(),
         password: formData.password,
         role: formData.role,
         isActive: formData.status === "active",
         phone: formData.phone,
-        avatar: avatarUrl,
+  
+        avatar:avatar, // { url, publicId }
       };
-
-      console.log("avatar before", avatarUrl);
+  
+      console.log("Submitting payload:", payload);
   
       if (isEditMode) {
-        let update = await updateUser({
-          id: id as string,
-          ...payload,
-        }).unwrap();
-        console.log("update", update);
+        await updateUser({id: id as string,...payload,}).unwrap();
       } else {
         await createUser(payload).unwrap();
       }
-      
-      console.log("avatar after", avatarUrl);
+  
       setShowSuccess(true);
   
       setTimeout(() => {
         router.push("/admin/users");
       }, 1200);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+    
+      toast.error(
+        err?.data?.message || "Something went wrong",
+        {
+          icon: "❌",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        }
+      );
+    } finally {
       setLoading(false);
     }
   };
-
   const handleCancel = () => {
     router.push("/admin/users");
     console.log("Cancel clicked");

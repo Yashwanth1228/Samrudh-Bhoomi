@@ -8,7 +8,10 @@ interface Author {
   name: string;
   title: string;
   bio: string;
-  image: string;
+  image: {
+    url: string;
+    publicId: string;
+  };
 }
 
 interface Props {
@@ -19,7 +22,7 @@ export const BlogDetailAuthor: React.FC<Props> = ({ author }) => {
   return (
     <AuthorCard>
       <Avatar
-        src={author.image}
+        src={author.image.url}
         alt={author.name}
         sx={{ width: 80, height: 80, border: "2px solid", borderColor: "background.paper", flexShrink: 0 }}
       />

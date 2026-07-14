@@ -8,25 +8,43 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import { ContentWrapper, QuoteBlock, ImageWrapper, FeatureList, FeatureItem } from "@/styles/user/blog/BlogDetail/BlogDetailContent.styles";
 import { BlogDetailAuthor } from "./BlogDetailAuthor";
 
-interface Author {
-  name: string;
-  title: string;
-  bio: string;
-  image: string;
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
 }
 
 interface Post {
-  id: number;
+  _id: string;
+  id: string;
+
   title: string;
+  slug: string;
   category: string;
-  readTime: string;
-  date: string;
-  author: Author;
-  image: string;
+
+  featuredImages: CloudinaryImage[];
+
+  excerpt: string;
   content: string;
-  relatedPosts: any[];
-  featuredImages: string;
-  excerpt:string;
+
+  author: {
+    name: string;
+    title: string;
+    bio: string;
+    image: CloudinaryImage;
+  };
+
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+
+  featured?: boolean;
+  status: "draft" | "published";
+  readTime: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Props {
@@ -34,6 +52,7 @@ interface Props {
 }
 
 export const BlogDetailContent: React.FC<Props> = ({ post }) => {
+  console.log("BlogDetailContent post:", post);
   return (
     <ContentWrapper>
       <Box dangerouslySetInnerHTML={{ __html: post.content }} />
@@ -43,7 +62,7 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
         <Box
           component="img"
           // src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgG6Ypk0OIVDkcqG_gOGgdbOM7M-VfCABlSOMBX8-ZW_AJD7xUiaRsW9tQ_fEVik2CAo4fDc-8QxOk_6_f4jw690jZxFoH4Z7ajpFgnVU04gsyZkkXhIfGhk-3TphsognkZ1ZcVYMqtAy1u2OlVaH_fVT7xi53yz3I8ezRhSLebal4kGj94vptH9veGxH5ejRaWlk4Z_85J_3k8jklLXeGGDu8WZsBAC9ppElLqxHA2hpsCX3JZBpuephejiiLug4fanYrGktjosDL"
-          src={post.featuredImages[1]}
+          src={post.featuredImages?.[1]?.url || "/images/blogs/default.jpg"}
           alt="IoT sensors providing real-time moisture and nutrient data"
           sx={{ width: "100%", height: "auto", display: "block" }}
         />
@@ -99,7 +118,7 @@ export const BlogDetailContent: React.FC<Props> = ({ post }) => {
       </Box> */}
 
       {/* Author Bio */}
-      <BlogDetailAuthor author={post.author} />
+      <BlogDetailAuthor author={post.author as any} />
     </ContentWrapper>
   );
 };

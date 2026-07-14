@@ -17,7 +17,10 @@ export const register = async (
       phone?: string;
       role?: "admin" | "user";
       isActive?: boolean;
-      avatar?: string;
+      avatar?: {
+        url: string;
+        publicId: string;
+      };
     };
 
     console.log("REGISTER PAYLOAD:", payload);
@@ -151,7 +154,6 @@ export const getUserById = async (
     });
   }
 };
-
 export const updateUser = async (
   request: FastifyRequest,
   reply: FastifyReply,
@@ -159,34 +161,56 @@ export const updateUser = async (
   try {
     const { id } = request.params as { id: string };
 
-    const { name, email, phone, role, isActive, avatar } = request.body as {
+    const body = request.body as {
       name: string;
       email: string;
       phone?: string;
       role: "admin" | "user";
       isActive: boolean;
-      avatar?: string;
+      avatar?: {
+        url: string;
+        publicId: string;
+      };
     };
 
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        name,
-        email,
-        phone,
-        role,
-        isActive,
-        avatar,
-      },
-      { new: true },
-    ).select("-password");
+    const user = await User.findById(id);
 
-    if (!updatedUser) {
+    if (!user) {
       return reply.status(404).send({
         success: false,
         message: "User not found",
       });
     }
+
+    //--------------------------------------------------
+    // Delete old avatar if a new one was uploaded
+    //--------------------------------------------------
+    if (
+      body.avatar?.publicId &&
+      user.avatar?.publicId &&
+      body.avatar.publicId !== user.avatar.publicId
+    ) {
+      await cloudinary.uploader.destroy(user.avatar.publicId);
+    }
+
+    //--------------------------------------------------
+    // Update user
+    //--------------------------------------------------
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        role: body.role,
+        isActive: body.isActive,
+        avatar: body.avatar,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
 
     return reply.send({
       success: true,
@@ -196,7 +220,10 @@ export const updateUser = async (
   } catch (error) {
     return reply.status(500).send({
       success: false,
-      message: error instanceof Error ? error.message : "Something went wrong",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong",
     });
   }
 };
@@ -208,7 +235,7 @@ export const deleteUser = async (
   try {
     const { id } = request.params as { id: string };
 
-    // Find the user first
+    // Find the user
     const user = await User.findById(id);
 
     if (!user) {
@@ -218,23 +245,15 @@ export const deleteUser = async (
       });
     }
 
-    // Delete Cloudinary image if it exists
-    if (user.avatar) {
-      console.log("Avatar URL:", user.avatar);
+    // Delete avatar from Cloudinary
+    if (user.avatar?.publicId) {
+      console.log("Deleting Cloudinary Image:", user.avatar.publicId);
 
-      const publicId = user.avatar
-        .split("/upload/")[1]
-        .replace(/^v\d+\//, "")
-        .replace(/\.[^/.]+$/, "");
-
-      console.log("Public ID:", publicId);
-
-      const result = await cloudinary.uploader.destroy(publicId);
+      const result = await cloudinary.uploader.destroy(
+        user.avatar.publicId
+      );
 
       console.log("Cloudinary Delete Result:", result);
-
-      console.log("Avatar:", user.avatar);
-      console.log("Split Result:", user.avatar.split("/upload/"));
     }
 
     // Delete user from MongoDB
@@ -247,7 +266,10 @@ export const deleteUser = async (
   } catch (error) {
     return reply.status(500).send({
       success: false,
-      message: error instanceof Error ? error.message : "Something went wrong",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong",
     });
   }
 };

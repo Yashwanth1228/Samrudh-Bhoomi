@@ -5,25 +5,43 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 
 import { HeroWrapper, HeroImage, HeroContent } from "@/styles/user/blog/BlogDetail/BlogDetailHero.styles";
 
-interface Author {
-  name: string;
-  title: string;
-  bio: string;
-  image: string;
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
 }
 
 interface Post {
-  id: number;
+  _id: string;
+  id: string;
+
   title: string;
+  slug: string;
   category: string;
-  readTime: string;
-  date: string;
-  author: Author;
-  image: string;
+
+  featuredImages: CloudinaryImage[];
+
+  excerpt: string;
   content: string;
-  relatedPosts: any[];
-  featuredImages: string;
+
+  author: {
+    name: string;
+    title: string;
+    bio: string;
+    image: CloudinaryImage;
+  };
+
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+
+  featured?: boolean;
+  status: "draft" | "published";
+  readTime: string;
+
   createdAt: string;
+  updatedAt: string;
 }
 
 interface Props {
@@ -74,7 +92,7 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
         {/* Hero Image */}
         <HeroWrapper>
         <HeroImage
-  image={post?.featuredImages[0]}
+  image={post?.featuredImages[0]?.url || "/images/blogs/default.jpg"}
   title={post?.title}
 />
         </HeroWrapper>
@@ -128,7 +146,7 @@ export const BlogDetailHero: React.FC<Props> = ({ post }) => {
             }}
           >
             <Avatar
-              src={post?.author.image}
+              src={post?.author.image.url || "/images/blogs/default-author.jpg"}
               alt={post?.author.name}
               sx={{ width: 56, height: 56, border: "2px solid", borderColor: "divider" }}
             />
