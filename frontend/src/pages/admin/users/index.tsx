@@ -104,6 +104,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 import EmptyState from "@/components/common/EmptyState";
+import toast from "react-hot-toast";
 
 
 // Types
@@ -115,7 +116,10 @@ interface User {
   phone: string;
   role: "admin" | "user";
   status: "Active" | "Inactive";
-  avatar?: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+  };
   isActive: boolean;
   
 }
@@ -275,8 +279,22 @@ if (!userdata?.length)
         userId,
         role: newRole,
       }).unwrap();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+    
+      toast.error(
+        err?.data?.message || "Something went wrong",
+        {
+          icon: "❌",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        }
+      );
     }
   };
 
@@ -313,9 +331,22 @@ if (!userdata?.length)
       await deleteUser(userId).unwrap();
   
       setDeleteSuccess(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert(err);
+    
+      toast.error(
+        err?.data?.message || "Something went wrong",
+        {
+          icon: "❌",
+          style: {
+            borderRadius: "12px",
+            background: "#fff",
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
+            padding: "14px 18px",
+          },
+        }
+      );
     }
   };
 
@@ -500,7 +531,7 @@ if (!userdata?.length)
                         <UserCell>
                           <UserAvatar>
                             {user.avatar ? (
-                              <img src={user.avatar} alt={user.name} />
+                              <img src={user.avatar.url} alt={user.name} />
                             ) : (
                               <Box className="initials">
                                 {user.name
@@ -813,7 +844,7 @@ if (!userdata?.length)
             }}
           >
             <Avatar
-              src={selectedUser.avatar}
+              src={selectedUser.avatar.url}
               sx={{
                 width: 96,
                 height: 96,

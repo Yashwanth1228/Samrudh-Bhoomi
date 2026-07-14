@@ -17,19 +17,42 @@ import {
 } from "@/styles/user/blog/BlogCard.styles";
 import { useRouter } from "next/router";
 
-interface BlogPost {
-  _id: string,
-  id: number;
-  slug: string,
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  image: string;
-  featured?: boolean;
-  featuredImages: string;
-  createdAt : string;
+interface CloudinaryImage {
+  url: string;
+  publicId: string;
+}
 
+interface BlogPost {
+  _id: string;
+  id: string;
+
+  title: string;
+  slug: string;
+  category: string;
+
+  featuredImages: CloudinaryImage[];
+
+  excerpt: string;
+  content: string;
+
+  author: {
+    name: string;
+    title: string;
+    bio: string;
+    image: CloudinaryImage;
+  };
+
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string[];
+  };
+
+  featured?: boolean;
+  status: "draft" | "published";
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Props {
@@ -52,7 +75,7 @@ export const BlogCard: React.FC<Props> = ({ post }) => {
       <Box sx={{ position: "relative", height: 200, overflow: "hidden" }} >
         <CardMedia
           component="img"
-          image={post.featuredImages[0] || post.image}
+          image={post.featuredImages[0]?.url || "/images/blogs/default.jpg"}
           alt={post.title}
           sx={{
             height: "100%",

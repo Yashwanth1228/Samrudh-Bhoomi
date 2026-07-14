@@ -28,10 +28,17 @@ const BlogSchema = new mongoose.Schema(
     },
 
     featuredImages: [
-        {
+      {
+        url: {
           type: String,
-        }
-      ],
+          required: true,
+        },
+        publicId: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
 
     excerpt: {
       type: String,
@@ -63,7 +70,8 @@ const BlogSchema = new mongoose.Schema(
       },
 
       image: {
-        type: String,
+        url: String,
+        publicId: String,
       },
     },
 
