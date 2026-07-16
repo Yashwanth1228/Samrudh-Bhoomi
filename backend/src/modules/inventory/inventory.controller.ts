@@ -66,3 +66,28 @@ export const addInventory = async (
     });
   }
 };
+
+
+export const getInventories = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const inventories = await Inventory.find()
+      .populate({
+        path: "productId",
+        select: "name category images inventory",
+      })
+      .sort({ createdAt: -1 });
+
+    return reply.send({
+      success: true,
+      data: inventories,
+    });
+  } catch (error: any) {
+    return reply.status(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+};

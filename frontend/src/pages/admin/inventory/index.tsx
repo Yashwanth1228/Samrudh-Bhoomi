@@ -13,6 +13,10 @@ import {
 import { AddButton } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
 import Footer from "@/components/admin/Footer";
+import { useGetInventoriesQuery } from "@/store/api/apiSlice";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,9 +50,31 @@ export default function InventoryManagement() {
   const [tabValue, setTabValue] = useState(0);
   const router = useRouter();
 
+  const {
+    data: inventories = [],
+    isLoading: inventoryloading,
+    error,
+    refetch,
+    isFetching,
+} = useGetInventoriesQuery();
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+
+  
+  if (inventoryloading)
+  return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load products"
+  message="Unable to fetch products."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
 
   return (
     <>
@@ -70,7 +96,7 @@ export default function InventoryManagement() {
         </PageHeader>
 
         {/* KPI Cards */}
-        <KPICards />
+        <KPICards inventories={inventories} />
 
         {/* Tabs Section */}
         <Paper
@@ -113,11 +139,19 @@ export default function InventoryManagement() {
           </Tabs>
 
           <CustomTabPanel value={tabValue} index={0}>
-            <InventoryTable />
+          <InventoryTable
+    inventories={inventories}
+    isLoading={inventoryloading}
+    error={error}
+    refetch={refetch}
+  />
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={1}>
-            <StockInForm />
+          <StockInForm
+    inventories={inventories}
+    refetchInventory={refetch}
+  />
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={2}>

@@ -14,7 +14,7 @@ import { FormCard, StickyActionBar } from "@/styles/admin/AddInventory.styles";
 
 export interface InventoryFormData {
   // Basic Information
-  productName: string;
+  productId: string;
   sku: string;
   category: string;
   brand: string;
@@ -38,6 +38,9 @@ export interface InventoryFormData {
   status: "in-stock" | "low-stock" | "out-stock";
   description: string;
 
+   // Product image from Product collection
+  productImageUrl: string;
+
   // Media
   productImage: File | null;
   imagePreview: string | null;
@@ -46,7 +49,7 @@ export interface InventoryFormData {
 export const AddInventoryForm: React.FC = () => {
   const router = useRouter();
   const [formData, setFormData] = useState<InventoryFormData>({
-    productName: "",
+    productId: "",
     sku: "",
     category: "",
     brand: "",
@@ -61,6 +64,7 @@ export const AddInventoryForm: React.FC = () => {
     supplierContact: "",
     status: "in-stock",
     description: "",
+    productImageUrl: "",
     productImage: null,
     imagePreview: null,
   });

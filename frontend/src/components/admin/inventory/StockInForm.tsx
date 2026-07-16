@@ -21,10 +21,18 @@ interface FormData {
   notes: string;
 }
 
+interface StockInFormProps {
+  inventories: any[];
+  refetchInventory: () => void;
+}
+
 const units = ["Bags", "KG", "Tonnes", "Litres", "Packets", "Pieces"];
 const products = ["Premium Urea Fertilizer 46% N", "Hybrid Tomato Seeds (Vyapar)"];
 
-export const StockInForm: React.FC = () => {
+export const StockInForm: React.FC<StockInFormProps> = ({
+  inventories,
+  refetchInventory,
+}) => {
   const [formData, setFormData] = useState<FormData>({
     product: "",
     quantity: 0,

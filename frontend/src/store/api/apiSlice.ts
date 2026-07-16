@@ -48,13 +48,40 @@ export interface CreateUserRequest {
   password: string
 }
 
+export interface ProductInfo {
+  _id: string;
+  name: string;
+  category: string;
+  images?: string[];
+  inventory?: {
+    sku?: string;
+    unit?: string;
+  };
+}
+
+export interface InventoryItem {
+  _id: string;
+  productId: ProductInfo | null;
+  quantity: number;
+  minStockLevel: number;
+  maxStockLevel: number;
+  warehouseLocation?: string;
+  supplierName?: string;
+  supplierContact?: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  status: "in-stock" | "low-stock" | "out-of-stock";
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: 'include', // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog','upload','users','inquiries'],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory'],
 
 
   endpoints: (builder) => ({
@@ -221,6 +248,15 @@ export const apiSlice = createApi({
           invalidatesTags: ["inquiries"],
         }),
 
+        // Inventory routes
+
+        getInventories: builder.query<InventoryItem[], void>({
+          query: () => "/inventory/all",
+          transformResponse: (response: any) => response.data,
+          providesTags: ["inventory"],
+        }),
+        
+
 
 
 
@@ -250,5 +286,6 @@ export const {
   useGetInquiriesQuery,
   useCreateInquiriesMutation,
   useUpdateInquiryMutation,
+  useGetInventoriesQuery,
  
 } = apiSlice

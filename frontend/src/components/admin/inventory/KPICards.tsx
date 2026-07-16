@@ -15,6 +15,10 @@ interface KPIItemProps {
   trend?: "up" | "down";
 }
 
+interface KPICardsProps {
+  inventories: any[];
+}
+
 const KPIItem: React.FC<KPIItemProps> = ({ title, value, icon, valueSuffix, trend }) => (
   <KPIBox>
     {icon && <Box className="kpi-icon">{icon}</Box>}
@@ -90,13 +94,56 @@ const TrendKPI: React.FC<{ title: string; value: string | number; trend: "up" | 
   );
 };
 
-export const KPICards: React.FC = () => {
+export const KPICards: React.FC<KPICardsProps> = ({ inventories }) => {
+  // Total inventory records
+  const totalInventoryItems = inventories.length;
+
+  // Total available quantity
+  const totalStockQuantity = inventories.reduce(
+    (total, item) => total + (item.quantity || 0),
+    0
+  );
+
+  // Today's date
+  const today = new Date().toDateString();
+
+  // Today's Stock In
+  const todaysStockIn = inventories
+    .filter(
+      (item) => new Date(item.createdAt).toDateString() === today
+    )
+    .reduce((total, item) => total + (item.quantity || 0), 0);
+
+  // Low Stock Count
+  const lowStockCount = inventories.filter(
+    (item) => item.status === "low-stock"
+  ).length;
+
   return (
     <KPIGrid>
-      <KPIItem title="Total Inventory Items" value="45" icon={<CategoryIcon />} />
-      <KPIBigItem title="Current Stock Quantity" value="45,920" icon={<InventoryIcon />} />
-      <TrendKPI title="Today's Stock In" value="1,250" trend="down" />
-      <TrendKPI title="Today's Stock Out" value="840" trend="up" />
+      <KPIItem
+        title="Total Inventory Items"
+        value={totalInventoryItems}
+        icon={<CategoryIcon />}
+      />
+
+      <KPIBigItem
+        title="Current Stock Quantity"
+        value={totalStockQuantity}
+        icon={<InventoryIcon />}
+      />
+
+      <TrendKPI
+        title="Today's Stock In"
+        value={todaysStockIn}
+        trend="down"
+      />
+
+      <TrendKPI
+        title="Low Stock Items"
+        value={lowStockCount}
+        trend="up"
+      />
     </KPIGrid>
   );
 };

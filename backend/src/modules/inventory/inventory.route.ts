@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { addInventory } from "./inventory.controller";
+import { addInventory, getInventories } from "./inventory.controller";
 
 
 const inventoryRoutes = async (fastify: FastifyInstance) => {
     fastify.post("/add", addInventory);
-    // fastify.get("/all", getAllProducts);
+    fastify.get("/all", getInventories);
     // fastify.patch("/users/:id/role", updateUserRole);
   };
 

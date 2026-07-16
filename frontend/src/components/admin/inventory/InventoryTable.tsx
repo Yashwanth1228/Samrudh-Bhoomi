@@ -20,65 +20,80 @@ import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { TableToolbar, StatusBadge, StyledTable } from "@/styles/admin/Inventory.styles";
+import { useGetInventoriesQuery } from "@/store/api/apiSlice";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
 
-interface InventoryItem {
-  id: number;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  lastUpdated: string;
-  status: "in-stock" | "low-stock" | "out-of-stock";
+interface InventoryTableProps {
+  inventories: any[];
+  isLoading: boolean;
+  error: any;
+  refetch: () => void;
 }
 
-const mockData: InventoryItem[] = [
-  {
-    id: 1,
-    name: "Premium Urea Fertilizer 46% N",
-    category: "Fertilizers",
-    quantity: 1250,
-    unit: "Bags (50kg)",
-    lastUpdated: "Oct 24, 2023",
-    status: "in-stock",
-  },
-  {
-    id: 2,
-    name: "Hybrid Tomato Seeds (Vyapar)",
-    category: "Seeds",
-    quantity: 45,
-    unit: "Packets (100g)",
-    lastUpdated: "Oct 23, 2023",
-    status: "low-stock",
-  },
-  {
-    id: 3,
-    name: "Organic Neem Oil Pesticide",
-    category: "Pesticides",
-    quantity: 0,
-    unit: "Litres",
-    lastUpdated: "Oct 20, 2023",
-    status: "out-of-stock",
-  },
-  {
-    id: 4,
-    name: "DAP Fertilizer 18-46-0",
-    category: "Fertilizers",
-    quantity: 4500,
-    unit: "Bags (50kg)",
-    lastUpdated: "Oct 24, 2023",
-    status: "in-stock",
-  },
-];
+// const mockData: InventoryItem[] = [
+//   {
+//     id: 1,
+//     name: "Premium Urea Fertilizer 46% N",
+//     category: "Fertilizers",
+//     quantity: 1250,
+//     unit: "Bags (50kg)",
+//     lastUpdated: "Oct 24, 2023",
+//     status: "in-stock",
+//   },
+//   {
+//     id: 2,
+//     name: "Hybrid Tomato Seeds (Vyapar)",
+//     category: "Seeds",
+//     quantity: 45,
+//     unit: "Packets (100g)",
+//     lastUpdated: "Oct 23, 2023",
+//     status: "low-stock",
+//   },
+//   {
+//     id: 3,
+//     name: "Organic Neem Oil Pesticide",
+//     category: "Pesticides",
+//     quantity: 0,
+//     unit: "Litres",
+//     lastUpdated: "Oct 20, 2023",
+//     status: "out-of-stock",
+//   },
+//   {
+//     id: 4,
+//     name: "DAP Fertilizer 18-46-0",
+//     category: "Fertilizers",
+//     quantity: 4500,
+//     unit: "Bags (50kg)",
+//     lastUpdated: "Oct 24, 2023",
+//     status: "in-stock",
+//   },
+// ];
 
 const categories = ["All Categories", "Fertilizers", "Seeds", "Pesticides"];
 const statuses = ["All Status", "In Stock", "Low Stock", "Out of Stock"];
 
-export const InventoryTable: React.FC = () => {
+export const InventoryTable: React.FC<InventoryTableProps> = ({
+  inventories,
+  // isLoading,
+  // error,
+  // refetch,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All Categories");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+//   const {
+//     data: inventories = [],
+//     isLoading: inventoryloading,
+//     error,
+//     refetch,
+//     isFetching,
+// } = useGetInventoriesQuery();
+
+
 
   const getStatusValue = (status: string): "in-stock" | "low-stock" | "out-of-stock" => {
     const mapping: Record<string, "in-stock" | "low-stock" | "out-of-stock"> = {
@@ -89,15 +104,25 @@ export const InventoryTable: React.FC = () => {
     return mapping[status] || "in-stock";
   };
 
-  const filteredData = mockData.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category === "All Categories" || item.category === category;
+  const filteredData = inventories.filter((item) => {
+    const productName = item.productId?.name || "";
+    const productCategory = item.productId?.category || "";
+  
+    const matchesSearch = productName
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  
+    const matchesCategory =
+      category === "All Categories" ||
+      productCategory === category;
+  
     const matchesStatus =
       statusFilter === "All Status" ||
       (statusFilter === "In Stock" && item.status === "in-stock") ||
       (statusFilter === "Low Stock" && item.status === "low-stock") ||
-      (statusFilter === "Out of Stock" && item.status === "out-of-stock");
-
+      (statusFilter === "Out of Stock" &&
+        item.status === "out-of-stock");
+  
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
@@ -113,13 +138,27 @@ export const InventoryTable: React.FC = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
       "in-stock": "In Stock",
       "low-stock": "Low Stock",
-      "out-of-stock": "Out of Stock",
+      "out-stock": "Out of Stock",
     };
-    return labels[status as keyof typeof labels];
+  
+    return labels[status] || status;
   };
+
+//   if (inventoryloading)
+//   return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+
+// if (error)
+//   return (
+//     <ErrorState
+//   title="Failed to Load products"
+//   message="Unable to fetch products."
+//   loading={isFetching}
+//   onRetry={refetch}
+// />
+//   );
 
   return (
     <Box>
@@ -188,32 +227,50 @@ export const InventoryTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedData.map((item, index) => (
-              <TableRow
-                key={item.id}
-                sx={{
-                  bgcolor: "background.paper" ,
-                  "&:hover": {
-                    bgcolor: "action.selected",
-                  },
-                }}
-              >
-                <TableCell sx={{ fontWeight: 500 }}>{item.name}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>{item.quantity}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell>{item.lastUpdated}</TableCell>
-                <TableCell>
-                  <StatusBadge status={item.status}>{getStatusLabel(item.status)}</StatusBadge>
-                </TableCell>
-                <TableCell sx={{ textAlign: "right" }}>
-                  <IconButton size="small">
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  {paginatedData.map((item) => (
+    <TableRow
+      key={item._id}
+      sx={{
+        bgcolor: "background.paper",
+        "&:hover": {
+          bgcolor: "action.selected",
+        },
+      }}
+    >
+      <TableCell sx={{ fontWeight: 500 }}>
+        {item.productId?.name || "Unknown Product"}
+      </TableCell>
+
+      <TableCell>
+        {item.productId?.category || "-"}
+      </TableCell>
+
+      <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
+        {item.quantity}
+      </TableCell>
+
+      <TableCell>
+        {item.productId?.inventory?.unit || "-"}
+      </TableCell>
+
+      <TableCell>
+        {new Date(item.updatedAt).toLocaleDateString()}
+      </TableCell>
+
+      <TableCell>
+        <StatusBadge status={item.status}>
+          {getStatusLabel(item.status)}
+        </StatusBadge>
+      </TableCell>
+
+      <TableCell sx={{ textAlign: "right" }}>
+        <IconButton size="small">
+          <MoreVertIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
 
 
           </StyledTable>
