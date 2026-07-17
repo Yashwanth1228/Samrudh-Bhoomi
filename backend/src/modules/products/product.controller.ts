@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Product from "./product.model";
+import slugify from "slugify";
 
 interface ProductBody {
   name: string;
@@ -14,7 +15,7 @@ interface ProductBody {
 
 export const addProduct = async (
   request: FastifyRequest<{ Body: ProductBody }>,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) => {
   try {
     const data = request.body;
@@ -35,14 +36,21 @@ export const addProduct = async (
       });
     }
 
-    const newProduct = await Product.create(data);
+    const slug = slugify(data.name, {
+      lower: true,
+      strict: true,
+    });
+
+    const newProduct = await Product.create({
+      ...data,
+      slug,
+    });
 
     return reply.status(201).send({
       success: true,
       message: "Product created successfully",
       data: newProduct,
     });
-
   } catch (error: any) {
     console.error(error);
 
@@ -54,27 +62,24 @@ export const addProduct = async (
 };
 
 export const getAllProducts = async (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) => {
-    try {
-      const products = await Product.find()
-  
-      return reply.status(200).send({
-        success: true,
-        message: "products fetched successfully",
-        data: products,
-      });
-    } catch (error) {
-      return reply.status(500).send({
-        success: false,
-        message: error instanceof Error ? error.message : "Something went wrong",
-      });
-    }
-  };
+  request: FastifyRequest,
+  reply: FastifyReply,
+) => {
+  try {
+    const products = await Product.find();
 
-
-
+    return reply.status(200).send({
+      success: true,
+      message: "products fetched successfully",
+      data: products,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
 
 // try {
 //     const parts = request.parts();
