@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlined";
@@ -44,6 +44,7 @@ import {
   useCreateProductMutation,
   useUploadimageMutation,
 } from "@/store/api/apiSlice";
+import { useRouter } from "next/router";
 
 // {
 //   "name": "All Natural Granular Fertilizer",
@@ -74,9 +75,20 @@ import {
 // }
 
 function index() {
+  const router = useRouter();
   const [createProduct, { isLoading }] = useCreateProductMutation();
 
+  const [featureInput, setFeatureInput] = useState("");
+
+  const [usageInput, setUsageInput] = useState("");
+
+  const [specificationLabel, setSpecificationLabel] = useState("");
+  const [specificationValue, setSpecificationValue] = useState("");
+
   const [uploadImage] = useUploadimageMutation();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const [benefitInput, setBenefitInput] = useState("");
 
   const [productData, setProductData] = useState({
     name: "",
@@ -92,7 +104,11 @@ function index() {
 
     images: [] as string[],
 
-    benefits: [] as string[],
+    benefits: [] as {
+      icon: string;
+      title: string;
+      text: string;
+    }[],
     features: [] as string[],
 
     specifications: [] as {
@@ -117,41 +133,164 @@ function index() {
 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
 
     if (!files) return;
 
-    const uploadedUrls: string[] = [];
-    const previewUrls: string[] = [];
+    const fileArray = Array.from(files);
 
-    for (const file of Array.from(files)) {
-      previewUrls.push(URL.createObjectURL(file));
+    setSelectedFiles((prev) => [...prev, ...fileArray]);
 
-      const formData = new FormData();
-      formData.append("file", file);
+    const previews = fileArray.map((file) => URL.createObjectURL(file));
 
-      try {
-        const response = await uploadImage({
+    setImagePreviews((prev) => [...prev, ...previews]);
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const removeImage = (index: number) => {
+    const updatedPreviews = [...imagePreviews];
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(updatedPreviews);
+
+    const updatedFiles = [...selectedFiles];
+    updatedFiles.splice(index, 1);
+    setSelectedFiles(updatedFiles);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const addBenefit = () => {
+    if (!benefitInput.trim()) return;
+
+    setProductData((prev) => ({
+      ...prev,
+      benefits: [
+        ...prev.benefits,
+        {
+          icon: "",
+          title: benefitInput,
+          text: benefitInput,
+        },
+      ],
+    }));
+
+    setBenefitInput("");
+  };
+
+  const removeBenefit = (index: number) => {
+    setProductData((prev) => ({
+      ...prev,
+      benefits: prev.benefits.filter((_, i) => i !== index),
+    }));
+  };
+
+  const addUsageInstruction = () => {
+    if (!usageInput.trim()) return;
+
+    setProductData({
+      ...productData,
+      usageInstructions: [...productData.usageInstructions, usageInput],
+    });
+
+    setUsageInput("");
+  };
+
+  const removeUsageInstruction = (index: number) => {
+    const updated = [...productData.usageInstructions];
+
+    updated.splice(index, 1);
+
+    setProductData({
+      ...productData,
+      usageInstructions: updated,
+    });
+  };
+
+  const addFeature = () => {
+    if (!featureInput.trim()) return;
+
+    setProductData((prev) => ({
+      ...prev,
+      features: [...prev.features, featureInput],
+    }));
+
+    setFeatureInput("");
+  };
+
+  const removeFeature = (index: number) => {
+    setProductData((prev) => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index),
+    }));
+  };
+
+  const addSpecification = () => {
+    if (!specificationLabel.trim() || !specificationValue.trim()) return;
+
+    setProductData((prev) => ({
+      ...prev,
+      specifications: [
+        ...prev.specifications,
+        {
+          label: specificationLabel,
+          value: specificationValue,
+        },
+      ],
+    }));
+
+    setSpecificationLabel("");
+    setSpecificationValue("");
+  };
+
+  const removeSpecification = (index: number) => {
+    setProductData((prev) => ({
+      ...prev,
+      specifications: prev.specifications.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      let uploadedImages: string[] = [];
+
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+
+        selectedFiles.forEach((file) => {
+          formData.append("images", file);
+        });
+
+        const uploadResponse = await uploadImage({
           module: "products",
           type: "images",
           data: formData,
         }).unwrap();
 
-        uploadedUrls.push(response.imageUrls[0].url);
-      } catch (error) {
-        console.error(error);
+        uploadedImages = uploadResponse.imageUrls.map(
+          (image: any) => image.url,
+        );
       }
+
+      await createProduct({
+        ...productData,
+        images: uploadedImages,
+
+        price: Number(productData.price),
+        originalPrice: Number(productData.originalPrice),
+        taxRate: Number(productData.taxRate),
+      }).unwrap();
+
+      alert("Product created successfully!");
+
+      router.push("/admin/products");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to create product");
     }
-
-    setImagePreviews((prev) => [...prev, ...previewUrls]);
-
-    setProductData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...uploadedUrls],
-    }));
   };
   return (
     <>
@@ -213,7 +352,7 @@ function index() {
 
             <MenuItem value="Fertilizers">Fertilizers</MenuItem>
 
-            <MenuItem value="Organic">Organic Products</MenuItem>
+            <MenuItem value="Organic Products">Organic Products</MenuItem>
 
             <MenuItem value="Seeds">Seeds</MenuItem>
 
@@ -324,37 +463,32 @@ function index() {
         </SectionHeader>
 
         <AddBenefitSection>
-          <StyledTextField fullWidth placeholder="Enter benefit..." />
+          <StyledTextField
+            fullWidth
+            placeholder="Enter benefit..."
+            value={benefitInput}
+            onChange={(e) => setBenefitInput(e.target.value)}
+          />
 
-          <Button variant="contained" startIcon={<AddIcon />}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={addBenefit}
+          >
             Add
           </Button>
         </AddBenefitSection>
 
         <BenefitContainer>
-          <BenefitItem>
-            <Typography>Enhances rapid vegetative growth</Typography>
+          {productData.benefits.map((benefit, index) => (
+            <BenefitItem key={index}>
+              <Typography>{benefit.title}</Typography>
 
-            <IconButton color="error">
-              <DeleteOutlineIcon />
-            </IconButton>
-          </BenefitItem>
-
-          <BenefitItem>
-            <Typography>Improves crop yield and quality</Typography>
-
-            <IconButton color="error">
-              <DeleteOutlineIcon />
-            </IconButton>
-          </BenefitItem>
-
-          <BenefitItem>
-            <Typography>Suitable for all soil types</Typography>
-
-            <IconButton color="error">
-              <DeleteOutlineIcon />
-            </IconButton>
-          </BenefitItem>
+              <IconButton color="error" onClick={() => removeBenefit(index)}>
+                <DeleteOutlineIcon />
+              </IconButton>
+            </BenefitItem>
+          ))}
         </BenefitContainer>
       </SectionCard>
 
@@ -364,6 +498,7 @@ function index() {
         </SectionHeader>
 
         <Box
+          onClick={() => fileInputRef.current?.click()}
           sx={{
             border: "2px dashed #d1d5db",
             borderRadius: "12px",
@@ -373,6 +508,59 @@ function index() {
             background: "#fafafa",
           }}
         >
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              mt: 3,
+            }}
+          >
+            {imagePreviews.map((image, index) => (
+              <Box
+                key={index}
+                sx={{
+                  position: "relative",
+                }}
+              >
+                <img
+                  src={image}
+                  alt=""
+                  style={{
+                    width: 120,
+                    height: 120,
+                    objectFit: "cover",
+                    borderRadius: 10,
+                  }}
+                />
+
+                <IconButton
+                  color="error"
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: -10,
+                    right: -10,
+                    background: "#fff",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent parent Box click
+                    removeImage(index);
+                  }}
+                >
+                  <DeleteOutlineIcon />
+                </IconButton>
+              </Box>
+            ))}
+          </Box>
+          <input
+            ref={fileInputRef}
+            hidden
+            multiple
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
           <CloudUploadOutlinedIcon
             sx={{
               fontSize: 50,
@@ -400,11 +588,59 @@ function index() {
           <SectionTitle>Usage & Technical Instructions</SectionTitle>
         </SectionHeader>
 
-        <StyledTextField
-          multiline
-          rows={6}
-          placeholder="Dosage, application methods and safety precautions..."
-        />
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <StyledTextField
+            fullWidth
+            placeholder="Enter usage instruction..."
+            value={usageInput}
+            onChange={(e) => setUsageInput(e.target.value)}
+          />
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={addUsageInstruction}
+          >
+            Add
+          </Button>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {productData.usageInstructions.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 2,
+                border: "1px solid #e5e7eb",
+                borderRadius: 2,
+              }}
+            >
+              <Typography>{item}</Typography>
+
+              <IconButton
+                color="error"
+                onClick={() => removeUsageInstruction(index)}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+            </Box>
+          ))}
+        </Box>
       </SectionCard>
 
       <SectionCard>
@@ -437,11 +673,19 @@ function index() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
             }}
           >
             <SectionTitle>Specifications</SectionTitle>
 
-            <Button startIcon={<AddIcon />}>Add Row</Button>
+            <Button
+              startIcon={<AddIcon />}
+              onClick={addSpecification}
+              variant="contained"
+            >
+              Add Row
+            </Button>
           </Box>
         </SectionHeader>
 
@@ -449,16 +693,46 @@ function index() {
           sx={{
             display: "flex",
             gap: 2,
+            mb: 3,
           }}
         >
-          <StyledTextField label="Key" defaultValue="Weight" />
+          <StyledTextField
+            label="Key"
+            value={specificationLabel}
+            onChange={(e) => setSpecificationLabel(e.target.value)}
+            fullWidth
+          />
 
-          <StyledTextField label="Value" defaultValue="50 KG" />
-
-          <IconButton color="error">
-            <DeleteOutlineIcon />
-          </IconButton>
+          <StyledTextField
+            label="Value"
+            value={specificationValue}
+            onChange={(e) => setSpecificationValue(e.target.value)}
+            fullWidth
+          />
         </Box>
+
+        {productData.specifications.map((spec, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <StyledTextField value={spec.label} fullWidth disabled />
+
+            <StyledTextField value={spec.value} fullWidth disabled />
+
+            <IconButton
+              color="error"
+              onClick={() => removeSpecification(index)}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
+          </Box>
+        ))}
       </SectionCard>
 
       <SectionCard>
@@ -526,7 +800,13 @@ function index() {
 
           <DraftButton variant="outlined">Save as Draft</DraftButton>
 
-          <SaveButton variant="contained">Save Product</SaveButton>
+          <SaveButton
+            variant="contained"
+            onClick={handleSaveProduct}
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Product"}
+          </SaveButton>
         </FooterActions>
       </FooterContainer>
     </>
