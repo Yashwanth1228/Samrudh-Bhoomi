@@ -11,6 +11,9 @@ import { LocationSupplierSection } from "./LocationSupplierSection";
 import { StatusDescriptionSection } from "./StatusDescriptionSection";
 import { MediaSection } from "./MediaSection";
 import { FormCard, StickyActionBar } from "@/styles/admin/AddInventory.styles";
+import { useAddInventoryMutation } from "@/store/api/apiSlice";
+import toast from "react-hot-toast";
+import LoadingState from "@/components/common/LoadingState";
 
 export interface InventoryFormData {
   // Basic Information
@@ -35,7 +38,7 @@ export interface InventoryFormData {
   supplierContact: string;
 
   // Status & Description
-  status: "in-stock" | "low-stock" | "out-stock";
+  // status: "in-stock" | "low-stock" | "out-stock";
   description: string;
 
    // Product image from Product collection
@@ -62,12 +65,14 @@ export const AddInventoryForm: React.FC = () => {
     warehouseLocation: "",
     supplierName: "",
     supplierContact: "",
-    status: "in-stock",
+    // status: "in-stock",
     description: "",
     productImageUrl: "",
     productImage: null,
     imagePreview: null,
   });
+
+  const [addInventory, { isLoading }] = useAddInventoryMutation();
 
   const [lastAutosaved, setLastAutosaved] = useState<string>(() => {
     const now = new Date();
@@ -81,16 +86,56 @@ export const AddInventoryForm: React.FC = () => {
     setLastAutosaved(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add API call here
-    // router.push("/admin/inventory");
+  
+    try {
+      const response = await addInventory({
+        productId: formData.productId,
+        quantity: Number(formData.quantity),
+        unit: formData.unit,
+        minStockLevel: Number(formData.minStockLevel),
+        maxStockLevel: Number(formData.maxStockLevel),
+        warehouseLocation: formData.warehouseLocation,
+        supplierName: formData.supplierName,
+        supplierContact: formData.supplierContact,
+        purchasePrice: Number(formData.purchasePrice),
+        sellingPrice: Number(formData.sellingPrice),
+        // status: formData.status,
+        description:formData.description,
+      }).unwrap();
+
+      if(response.success) {
+        toast.success(response.message || "Inventory added successfully");
+        router.push("/admin/inventory");
+      }
+
+    } catch (error: any) {
+      console.error(error);
+  
+      toast.error(
+        error?.data?.message ||
+        error?.message ||
+        "Failed to add inventory."
+      );
+    }
   };
 
   const handleCancel = () => {
     router.push("/admin/inventory");
   };
+
+  if (isLoading)
+  return <LoadingState title="Adding Inventory..." message="Please wait while inventory is being created." />;
+
+// if (error)
+//   return (
+//     <ErrorState
+//   title="Failed to Load products"
+//   message="Unable to fetch products."
+//   loading={isFetching}
+//   onRetry={refetch}
+// />
 
   return (
     <form onSubmit={handleSubmit}>

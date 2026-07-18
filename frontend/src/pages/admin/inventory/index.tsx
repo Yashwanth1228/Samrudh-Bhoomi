@@ -13,9 +13,11 @@ import {
 import { AddButton } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
 import Footer from "@/components/admin/Footer";
-import { useGetInventoriesQuery } from "@/store/api/apiSlice";
+import { useGetInventoriesQuery, useGetInventoryHistoryQuery } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import { StockOutForm } from "@/components/admin/inventory/StockOutForm";
+import { StockHistory } from "@/components/admin/inventory/StockHistory";
 
 
 interface TabPanelProps {
@@ -64,13 +66,13 @@ export default function InventoryManagement() {
 
   
   if (inventoryloading)
-  return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+  return <LoadingState title="Loading inventory..." message="Please wait while we fetch your data." />;
 
 if (error)
   return (
     <ErrorState
-  title="Failed to Load products"
-  message="Unable to fetch products."
+  title="Failed to Load inventory"
+  message="Unable to fetch inventory."
   loading={isFetching}
   onRetry={refetch}
 />
@@ -157,16 +159,19 @@ if (error)
           <CustomTabPanel value={tabValue} index={2}>
             <Box sx={{ p: 4, textAlign: "center" }}>
               <Typography color="text.secondary">
-                Stock Out form will be implemented here
+              <StockOutForm
+    inventories={inventories}
+    refetchInventory={refetch}
+  />
               </Typography>
             </Box>
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={3}>
             <Box sx={{ p: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">
-                Stock history table will be implemented here
-              </Typography>
+            <CustomTabPanel value={tabValue} index={3}>
+  <StockHistory />
+</CustomTabPanel>
             </Box>
           </CustomTabPanel>
         </Paper>

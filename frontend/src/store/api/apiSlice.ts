@@ -81,7 +81,7 @@ export const apiSlice = createApi({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: 'include', // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory'],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory','InventoryHistory'],
 
 
   endpoints: (builder) => ({
@@ -255,6 +255,40 @@ export const apiSlice = createApi({
           transformResponse: (response: any) => response.data,
           providesTags: ["inventory"],
         }),
+
+        addInventory: builder.mutation({
+          query: (body) => ({
+            url: "/inventory/add",
+            method: "POST",
+            body,
+          }),
+          invalidatesTags: ["inventory"],
+        }),
+
+
+        getInventoryHistory: builder.query<any[], void>({
+          query: () => "/inventorytransaction/history",
+          providesTags: ["InventoryHistory"],
+          transformResponse: (response: any) => response.data,
+        }),
+
+      stockIn: builder.mutation({
+        query: (body) => ({
+            url: "/inventorytransaction/stock-in",
+            method: "POST",
+            body,
+        }),
+        invalidatesTags: ["inventory","InventoryHistory"],
+    }),
+
+    stockOut: builder.mutation({
+      query: (body) => ({
+          url: "/inventorytransaction/stock-out",
+          method: "POST",
+          body,
+      }),
+      invalidatesTags: ["inventory","InventoryHistory"],
+  }),
         
 
 
@@ -287,5 +321,9 @@ export const {
   useCreateInquiriesMutation,
   useUpdateInquiryMutation,
   useGetInventoriesQuery,
+  useGetInventoryHistoryQuery,
+  useStockInMutation,
+  useStockOutMutation,
+  useAddInventoryMutation
  
 } = apiSlice

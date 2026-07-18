@@ -67,7 +67,7 @@ if (error)
     // updateData("sellingPrice", selectedProduct.price || 0);
 
     // If your Product schema has these fields
-    // updateData("brand", selectedProduct.brand || "");
+    updateData("brand", selectedProduct.brand || "");
     updateData("unit", selectedProduct.inventory?.unit || "");
     updateData(
       "productImageUrl",

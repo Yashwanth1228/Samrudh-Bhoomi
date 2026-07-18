@@ -15,6 +15,8 @@ import {
   IconButton,
   TablePagination,
   Paper,
+  Typography,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -23,6 +25,16 @@ import { TableToolbar, StatusBadge, StyledTable } from "@/styles/admin/Inventory
 import { useGetInventoriesQuery } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import Tooltip from "@mui/material/Tooltip";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+} from "@mui/material";
 
 interface InventoryTableProps {
   inventories: any[];
@@ -92,6 +104,41 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
 //     refetch,
 //     isFetching,
 // } = useGetInventoriesQuery();
+
+const [selectedInventory, setSelectedInventory] = useState<any>(null);
+const [open, setOpen] = useState(false);
+
+const handleOpen = (inventory: any) => {
+  setSelectedInventory(inventory);
+  setOpen(true);
+};
+
+const handleClose = () => {
+  setOpen(false);
+  setSelectedInventory(null);
+};
+
+const DetailRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      py: 1.5,
+    }}
+  >
+    <Typography color="text.secondary">{label}</Typography>
+
+    <Typography sx={{fontWeight:600}}>
+      {value || "-"}
+    </Typography>
+  </Box>
+);
 
 
 
@@ -263,11 +310,13 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         </StatusBadge>
       </TableCell>
 
-      <TableCell sx={{ textAlign: "right" }}>
-        <IconButton size="small">
-          <MoreVertIcon />
-        </IconButton>
-      </TableCell>
+      <TableCell align="right">
+  <Tooltip title="View Details">
+    <IconButton onClick={() => handleOpen(item)}>
+      <VisibilityOutlinedIcon />
+    </IconButton>
+  </Tooltip>
+</TableCell>
     </TableRow>
   ))}
 </TableBody>
@@ -286,6 +335,153 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+<Dialog
+  open={open}
+  onClose={handleClose}
+  maxWidth="sm"
+  fullWidth
+>
+  <DialogTitle>
+    Inventory Details
+  </DialogTitle>
+
+  <DialogContent dividers>
+
+    {selectedInventory && (
+      <>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            mb: 3,
+          }}
+        >
+          <img
+            src={
+              selectedInventory.productId?.images?.[0] ||
+              "/placeholder.png"
+            }
+            alt={selectedInventory.productId?.name}
+            style={{
+              width: 150,
+              height: 150,
+              objectFit: "cover",
+              borderRadius: 12,
+            }}
+          />
+        </Box>
+
+        <DetailRow
+          label="Product"
+          value={selectedInventory.productId?.name}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Category"
+          value={selectedInventory.productId?.category}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Brand"
+          value={selectedInventory.productId?.brand}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="SKU"
+          value={selectedInventory.productId?.inventory?.sku || "-"}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Current Quantity"
+          value={`${selectedInventory.quantity} ${selectedInventory.productId?.inventory?.unit}`}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Status"
+          value={getStatusLabel(selectedInventory.status)}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Purchase Price"
+          value={`₹${selectedInventory.purchasePrice}`}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Selling Price"
+          value={`₹${selectedInventory.sellingPrice}`}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Minimum Stock"
+          value={selectedInventory.minStockLevel}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Maximum Stock"
+          value={selectedInventory.maxStockLevel}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Warehouse"
+          value={selectedInventory.warehouseLocation}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Supplier"
+          value={selectedInventory.supplierName}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Supplier Contact"
+          value={selectedInventory.supplierContact}
+        />
+
+        <Divider />
+
+        <DetailRow
+          label="Last Updated"
+          value={new Date(
+            selectedInventory.updatedAt
+          ).toLocaleDateString()}
+        />
+
+      </>
+    )}
+
+  </DialogContent>
+
+  <DialogActions>
+    <Button onClick={handleClose}>
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
     </Box>
   );
 };

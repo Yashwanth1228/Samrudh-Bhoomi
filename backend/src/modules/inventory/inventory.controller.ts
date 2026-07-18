@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Inventory from "./inventory.model";
+import { calculateInventoryStatus } from "../inventoryTransaction/inventoryTransaction.controller";
 
-interface InventoryBody {
+export interface InventoryBody {
   productId: string;
   quantity: number;
   minStockLevel?: number;
@@ -11,7 +12,7 @@ interface InventoryBody {
   supplierContact?: string;
   purchasePrice: number;
   sellingPrice: number;
-  status?: "in-stock" | "low-stock" | "out-stock";
+  status?: "in-stock" | "low-stock" | "out-of-stock";
 }
 
 export const addInventory = async (
@@ -48,8 +49,14 @@ export const addInventory = async (
       });
     }
 
+    const status = calculateInventoryStatus(
+      quantity,
+      data.minStockLevel ?? 10
+    );
+
     const inventory = await Inventory.create({
       ...data,
+      status,
     });
 
     return reply.status(201).send({
