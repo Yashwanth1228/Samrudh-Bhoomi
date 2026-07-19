@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlined";
@@ -41,7 +41,8 @@ import {
   AddBenefitSection,
 } from "@/styles/admin/Product.styles";
 import {
-  useCreateProductMutation,
+  useGetProductByIdQuery,
+  useUpdateProductMutation,
   useUploadimageMutation,
 } from "@/store/api/apiSlice";
 import { useRouter } from "next/router";
@@ -76,7 +77,17 @@ import { useRouter } from "next/router";
 
 function index() {
   const router = useRouter();
-  const [createProduct, { isLoading }] = useCreateProductMutation();
+
+  const { id } = router.query;
+
+  const { data: product, isLoading: loadingProduct } = useGetProductByIdQuery(
+    id as string,
+    {
+      skip: !id,
+    },
+  );
+
+  const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
   const [featureInput, setFeatureInput] = useState("");
 
@@ -102,10 +113,7 @@ function index() {
     shortDescription: "",
     description: "",
 
-    images: [] as {
-      url: string;
-      publicId: string;
-    }[],
+    images: [] as string[],
 
     benefits: [] as {
       icon: string;
@@ -136,6 +144,12 @@ function index() {
 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
+  const [existingImages, setExistingImages] = useState<
+    { url: string; publicId: string }[]
+  >([]);
+
+  const [deletedImages, setDeletedImages] = useState<string[]>([]);
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
 
@@ -145,21 +159,32 @@ function index() {
 
     setSelectedFiles((prev) => [...prev, ...fileArray]);
 
-    const previews = fileArray.map((file) => URL.createObjectURL(file));
-
-    setImagePreviews((prev) => [...prev, ...previews]);
+    setImagePreviews((prev) => [
+      ...prev,
+      ...fileArray.map((file) => URL.createObjectURL(file)),
+    ]);
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const removeImage = (index: number) => {
-    const updatedPreviews = [...imagePreviews];
-    updatedPreviews.splice(index, 1);
-    setImagePreviews(updatedPreviews);
+    // Existing Cloudinary image
+    if (index < existingImages.length) {
+      const imageToDelete = existingImages[index];
 
-    const updatedFiles = [...selectedFiles];
-    updatedFiles.splice(index, 1);
-    setSelectedFiles(updatedFiles);
+      if (imageToDelete?.publicId) {
+        setDeletedImages((prev) => [...prev, imageToDelete.publicId]);
+      }
+
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      // Newly selected image
+      const fileIndex = index - existingImages.length;
+
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== fileIndex));
+    }
+
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -260,6 +285,7 @@ function index() {
     try {
       let uploadedImages: { url: string; publicId: string }[] = [];
 
+      // Upload only newly selected images
       if (selectedFiles.length > 0) {
         const formData = new FormData();
 
@@ -276,28 +302,46 @@ function index() {
         uploadedImages = uploadResponse.imageUrls;
       }
 
-      await createProduct({
-        ...productData,
-        images: uploadedImages,
+      // Keep old images + newly uploaded ones
+      const images = [...existingImages, ...uploadedImages];
 
-        price: Number(productData.price),
-        originalPrice: Number(productData.originalPrice),
-        taxRate: Number(productData.taxRate),
+      await updateProduct({
+        id: id as string,
+        body: {
+          ...productData,
+
+          images,
+          deletedImages, // Send the list of deleted image publicIds to the backend
+
+          price: Number(productData.price),
+          originalPrice: Number(productData.originalPrice),
+          taxRate: Number(productData.taxRate),
+        },
       }).unwrap();
 
-      alert("Product created successfully!");
+      alert("Product updated successfully!");
 
       router.push("/admin/products");
     } catch (error) {
       console.error(error);
-      alert("Failed to create product");
+      alert("Failed to update product");
     }
   };
+
+  useEffect(() => {
+    if (!product) return;
+
+    setProductData(product);
+
+    setExistingImages(product.images || []);
+
+    setImagePreviews(product.images?.map((img: any) => img.url) || []);
+  }, [product]);
   return (
     <>
       <AddHeaderContainer>
         <HeaderLeft>
-          <AddHeaderTitle>Add Product</AddHeaderTitle>
+          <AddHeaderTitle>Edit Product</AddHeaderTitle>
         </HeaderLeft>
 
         <HeaderRight>
@@ -859,7 +903,7 @@ function index() {
             onClick={handleSaveProduct}
             disabled={isLoading}
           >
-            {isLoading ? "Saving..." : "Save Product"}
+            {isLoading ? "Updating..." : "Update Product"}
           </SaveButton>
         </FooterActions>
       </FooterContainer>

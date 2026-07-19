@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Product from "./product.model";
 import slugify from "slugify";
+import cloudinary from "../../config/cloudinary";
 
 interface ProductBody {
   name: string;
@@ -77,6 +78,118 @@ export const getAllProducts = async (
     return reply.status(500).send({
       success: false,
       message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
+export const getProductById = async (
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return reply.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
+export const updateProduct = async (
+  request: FastifyRequest<{
+    Params: { id: string };
+    Body: any;
+  }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params;
+    const { deletedImages, ...updateData } = request.body as any;
+
+    // Delete removed Cloudinary images
+    if (deletedImages && deletedImages.length > 0) {
+      for (const publicId of deletedImages) {
+        await cloudinary.uploader.destroy(publicId);
+      }
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedProduct) {
+      return reply.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      message: "Product updated successfully",
+      data: updatedProduct,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
+export const deleteProduct = async (
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { id } = request.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return reply.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Delete all images from Cloudinary
+    if (product.images?.length) {
+      for (const image of product.images) {
+        if (image.publicId) {
+          await cloudinary.uploader.destroy(image.publicId);
+        }
+      }
+    }
+
+    await Product.findByIdAndDelete(id);
+
+    return reply.send({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Delete failed",
     });
   }
 };
