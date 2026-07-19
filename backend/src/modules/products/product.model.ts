@@ -17,12 +17,7 @@ const ProductSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: [
-        "Fertilizers",
-        "Organic Products",
-        "Seeds",
-        "Pesticides",
-      ],
+      enum: ["Fertilizers", "Organic Products", "Seeds", "Pesticides"],
     },
 
     status: {
@@ -55,7 +50,14 @@ const ProductSchema = new mongoose.Schema(
 
     images: [
       {
-        type: String,
+        url: {
+          type: String,
+          required: true,
+        },
+        publicId: {
+          type: String,
+          required: true,
+        },
       },
     ],
 
@@ -128,10 +130,9 @@ const ProductSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const product = mongoose.model("Product", ProductSchema);
 
 export default product;
-

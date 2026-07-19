@@ -98,6 +98,12 @@ export const apiSlice = createApi({
       transformResponse: (response: any) => response.data,
     }),
 
+    getProductById: builder.query<any, string>({
+      query: (id) => `/products/${id}`,
+      providesTags: ["product"],
+      transformResponse: (response: any) => response.data,
+    }),
+
     // blogs routes
     getBlogs: builder.query<any, void>({
       query: () => "/blog/all",
@@ -216,6 +222,23 @@ export const apiSlice = createApi({
       invalidatesTags: ["product"],
     }),
 
+    updateProduct: builder.mutation<any, { id: string; body: any }>({
+      query: ({ id, body }) => ({
+        url: `/products/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["product"],
+    }),
+
+    deleteProduct: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["product"],
+    }),
+
     // Contact us page routes
 
     getInquiries: builder.query<any, void>({
@@ -267,4 +290,7 @@ export const {
   useGetInquiriesQuery,
   useCreateInquiriesMutation,
   useUpdateInquiryMutation,
+  useUpdateProductMutation,
+  useGetProductByIdQuery,
+  useDeleteProductMutation,
 } = apiSlice;
