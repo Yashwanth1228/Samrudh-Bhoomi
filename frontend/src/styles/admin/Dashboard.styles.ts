@@ -68,3 +68,15 @@ export const SectionTitle = styled.h2`
   margin: 0;
   color: #1a1c19;
 `;
+
+export const DoubleChartGrid = styled(Box)({
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: 24,
+  marginTop: 24,
+
+  "@media (max-width:900px)": {
+    gridTemplateColumns: "1fr",
+  },
+});
+

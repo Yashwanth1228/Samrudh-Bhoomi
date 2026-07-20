@@ -1,239 +1,136 @@
 import React from "react";
+import { Grid } from "@mui/material";
 
-import {
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import DashboardHeader from "@/components/admin/dashboard/DashboardHeader";
+import DashboardKPIs from "@/components/admin/dashboard/DashboardKPIs";
+import InventoryMovementChart from "@/components/admin/dashboard/InventoryMovementChart";
+import CategoryPieChart from "@/components/admin/dashboard/CategoryPieChart";
+import InquiryStatusChart from "@/components/admin/dashboard/InquiryStatusChart";
+import RecentTransactionsTable from "@/components/admin/dashboard/RecentTransactionsTable";
+import LowStockTable from "@/components/admin/dashboard/LowStockTable";
 
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
+import Footer from "@/components/admin/Footer";
+
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
 
 import {
   DashboardContainer,
-  HeaderSection,
-  StatsGrid,
-  StatsGridSecondary,
-  StatCard,
   ChartCard,
   TableCard,
-  SectionTitle,
 } from "@/styles/admin/Dashboard.styles";
 
-const inventoryData = [
-  { month: "Jan", stock: 400 },
-  { month: "Feb", stock: 300 },
-  { month: "Mar", stock: 500 },
-  { month: "Apr", stock: 450 },
-  { month: "May", stock: 650 },
-  { month: "Jun", stock: 550 },
-];
-
-const lowStockProducts = [
-  {
-    name: "Organic Fertilizer",
-    category: "Fertilizer",
-    stock: 5,
-    status: "Low",
-  },
-  {
-    name: "Hybrid Seeds",
-    category: "Seeds",
-    stock: 3,
-    status: "Low",
-  },
-  {
-    name: "Pesticide X",
-    category: "Pesticide",
-    stock: 7,
-    status: "Low",
-  },
-];
+import {
+  useGetProductsQuery,
+  useGetInventoriesQuery,
+  useGetInventoryHistoryQuery,
+  useGetInquiriesQuery,
+  useGetBlogsQuery,
+  useGetUsersQuery,
+} from "@/store/api/apiSlice";
 
 export default function Dashboard() {
+
+  const {
+    data: products = [],
+    isLoading: productLoading,
+  } = useGetProductsQuery();
+
+  const {
+    data: inventories = [],
+    isLoading: inventoryLoading,
+  } = useGetInventoriesQuery();
+
+  const {
+    data: transactions = [],
+    isLoading: transactionLoading,
+  } = useGetInventoryHistoryQuery(undefined);
+
+  const {
+    data: inquiries = [],
+    isLoading: inquiryLoading,
+  } = useGetInquiriesQuery();
+
+  const {
+    data: blogs = [],
+    isLoading: blogLoading,
+  } = useGetBlogsQuery();
+
+  const {
+    data: users = [],
+    isLoading: userLoading,
+  } = useGetUsersQuery();
+
+  if (
+    productLoading ||
+    inventoryLoading ||
+    transactionLoading ||
+    inquiryLoading ||
+    blogLoading ||
+    userLoading
+  ) {
+    return (
+      <LoadingState
+        title="Loading Dashboard..."
+        message="Fetching latest analytics..."
+      />
+    );
+  }
+
   return (
     <DashboardContainer>
-      {/* Header */}
 
-      <HeaderSection>
-        <div>
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            Welcome Back, Admin
-          </Typography>
+      <DashboardHeader />
 
-          <Typography
-            sx={{
-              color: "#6b7280",
-            }}
-          >
-            Monitor your business performance.
-          </Typography>
-        </div>
-      </HeaderSection>
-
-      {/* First Row */}
-
-      <StatsGrid>
-        <StatCard>
-          <Typography color="text.secondary">Total Products</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            240
-          </Typography>
-        </StatCard>
-
-        <StatCard>
-          <Typography color="text.secondary">Categories</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            18
-          </Typography>
-        </StatCard>
-
-        <StatCard>
-          <Typography color="text.secondary">Inventory</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            1,280
-          </Typography>
-        </StatCard>
-
-        <StatCard>
-          <Typography color="text.secondary">Today's Flow</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            124
-          </Typography>
-        </StatCard>
-      </StatsGrid>
-
-      {/* Second Row */}
-
-      <StatsGridSecondary>
-        <StatCard>
-          <Typography color="text.secondary">Low Stock Items</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "#d32f2f",
-            }}
-          >
-            12
-          </Typography>
-        </StatCard>
-
-        <StatCard>
-          <Typography color="text.secondary">Employees</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            25
-          </Typography>
-        </StatCard>
-
-        <StatCard>
-          <Typography color="text.secondary">Contact Inquiries</Typography>
-
-          <Typography
-            sx={{
-              fontSize: "32px",
-              fontWeight: 700,
-            }}
-          >
-            48
-          </Typography>
-        </StatCard>
-      </StatsGridSecondary>
-
-      {/* Graph */}
+      <DashboardKPIs
+        products={products}
+        inventories={inventories}
+        blogs={blogs}
+        inquiries={inquiries}
+        users={users}
+        transactions={transactions}
+      />
 
       <ChartCard>
-        <SectionTitle>Inventory Flow Overview</SectionTitle>
-
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={inventoryData}>
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-
-            <Bar dataKey="stock" fill="#2d5a27" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <InventoryMovementChart
+          transactions={transactions}
+        />
       </ChartCard>
 
-      {/* Table */}
+      <Grid container spacing={3} sx={{ mt: 1 }}>
 
-      <TableCard>
-        <SectionTitle>Low Stock Alerts</SectionTitle>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <ChartCard>
+            <CategoryPieChart
+              products={products}
+            />
+          </ChartCard>
+        </Grid>
 
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product Name</TableCell>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <ChartCard>
+            <InquiryStatusChart
+              inquiries={inquiries}
+            />
+          </ChartCard>
+        </Grid>
 
-              <TableCell>Category</TableCell>
+      </Grid>
 
-              <TableCell>Current Stock</TableCell>
-
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {lowStockProducts.map((product, index) => (
-              <TableRow key={index}>
-                <TableCell>{product.name}</TableCell>
-
-                <TableCell>{product.category}</TableCell>
-
-                <TableCell>{product.stock}</TableCell>
-
-                <TableCell>{product.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <TableCard sx={{ mt: 4 }}>
+        <RecentTransactionsTable
+          transactions={transactions}
+        />
       </TableCard>
+
+      <TableCard sx={{ mt: 4 }}>
+        <LowStockTable
+          inventories={inventories}
+        />
+      </TableCard>
+
+      <Footer />
+
     </DashboardContainer>
   );
 }
