@@ -303,6 +303,11 @@ interface UploadedImage {
   publicId: string;
 }
 
+interface UploadedImage {
+  url: string;
+  publicId: string;
+}
+
 const uploadImages = async (
   files: File[],
   folder: string
@@ -313,8 +318,11 @@ const uploadImages = async (
     formData.append("files", file);
   });
 
+  const [module, type] = folder.split("/");
+
   const res = await uploadImage({
-    folder,
+    module,
+    type,
     data: formData,
   }).unwrap();
 
