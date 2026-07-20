@@ -30,36 +30,21 @@ import {
 } from "@/store/api/apiSlice";
 
 export default function Dashboard() {
+  const { data: products = [], isLoading: productLoading } =
+    useGetProductsQuery({ limit: 5, page: 1 });
 
-  const {
-    data: products = [],
-    isLoading: productLoading,
-  } = useGetProductsQuery();
+  const { data: inventories = [], isLoading: inventoryLoading } =
+    useGetInventoriesQuery();
 
-  const {
-    data: inventories = [],
-    isLoading: inventoryLoading,
-  } = useGetInventoriesQuery();
+  const { data: transactions = [], isLoading: transactionLoading } =
+    useGetInventoryHistoryQuery();
 
-  const {
-    data: transactions = [],
-    isLoading: transactionLoading,
-  } = useGetInventoryHistoryQuery(undefined);
+  const { data: inquiries = [], isLoading: inquiryLoading } =
+    useGetInquiriesQuery();
 
-  const {
-    data: inquiries = [],
-    isLoading: inquiryLoading,
-  } = useGetInquiriesQuery();
+  const { data: blogs = [], isLoading: blogLoading } = useGetBlogsQuery();
 
-  const {
-    data: blogs = [],
-    isLoading: blogLoading,
-  } = useGetBlogsQuery();
-
-  const {
-    data: users = [],
-    isLoading: userLoading,
-  } = useGetUsersQuery();
+  const { data: users = [], isLoading: userLoading } = useGetUsersQuery();
 
   if (
     productLoading ||
@@ -79,7 +64,6 @@ export default function Dashboard() {
 
   return (
     <DashboardContainer>
-
       <DashboardHeader />
 
       <DashboardKPIs
@@ -92,45 +76,32 @@ export default function Dashboard() {
       />
 
       <ChartCard>
-        <InventoryMovementChart
-          transactions={transactions}
-        />
+        <InventoryMovementChart transactions={transactions} />
       </ChartCard>
 
       <Grid container spacing={3} sx={{ mt: 1 }}>
-
         <Grid size={{ xs: 12, md: 6 }}>
           <ChartCard>
-            <CategoryPieChart
-              products={products}
-            />
+            <CategoryPieChart products={products} />
           </ChartCard>
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
           <ChartCard>
-            <InquiryStatusChart
-              inquiries={inquiries}
-            />
+            <InquiryStatusChart inquiries={inquiries} />
           </ChartCard>
         </Grid>
-
       </Grid>
 
       <TableCard sx={{ mt: 4 }}>
-        <RecentTransactionsTable
-          transactions={transactions}
-        />
+        <RecentTransactionsTable transactions={transactions} />
       </TableCard>
 
       <TableCard sx={{ mt: 4 }}>
-        <LowStockTable
-          inventories={inventories}
-        />
+        <LowStockTable inventories={inventories} />
       </TableCard>
 
       <Footer />
-
     </DashboardContainer>
   );
 }
