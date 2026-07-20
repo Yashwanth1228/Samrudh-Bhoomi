@@ -49,6 +49,18 @@ export const addInventory = async (
       });
     }
 
+    const existingInventory = await Inventory.findOne({
+      productId,
+    });
+    
+    if (existingInventory) {
+      return reply.status(409).send({
+        success: false,
+        message:
+          "Inventory already exists for this product. Use Stock In to increase the quantity.",
+      });
+    }
+
     const status = calculateInventoryStatus(
       quantity,
       data.minStockLevel ?? 10
