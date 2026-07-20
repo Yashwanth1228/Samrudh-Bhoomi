@@ -7,7 +7,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ToolbarContainer,
   FilterSection,
@@ -45,7 +45,6 @@ import {
 import { useRouter } from "next/router";
 import Footer from "./Footer";
 import { useGetProductsQuery } from "@/store/api/apiSlice";
-import { useEffect } from "react";
 import LoadingState from "../common/LoadingState";
 import ErrorState from "../common/ErrorState";
 import { useDeleteProductMutation } from "@/store/api/apiSlice";
@@ -57,6 +56,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import TablePagination from "@mui/material/TablePagination";
 
 const products = [
   {
@@ -81,13 +81,8 @@ const products = [
 
 export default function ProductHeader() {
   const router = useRouter();
-  const {
-    data: products,
-    error,
-    isLoading: productloading,
-    refetch,
-    isFetching,
-  } = useGetProductsQuery();
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [deleteProduct] = useDeleteProductMutation();
 
@@ -101,6 +96,34 @@ export default function ProductHeader() {
 
   const [categoryFilter, setCategoryFilter] = useState("");
 
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const { data, isLoading, error, isFetching, refetch } = useGetProductsQuery({
+    page,
+    limit: rowsPerPage,
+    search: searchTerm,
+    category: categoryFilter,
+    status: statusFilter,
+  });
+
+  const products = data?.data || [];
+
+  const pagination = data?.pagination;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, categoryFilter, statusFilter]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // console.log("data from backend", data);
 
   // useEffect(()=> {
@@ -112,7 +135,7 @@ export default function ProductHeader() {
 
   // },[])
 
-  if (productloading)
+  if (isLoading)
     return (
       <LoadingState
         title="Loading products..."
@@ -149,19 +172,6 @@ export default function ProductHeader() {
     }
   };
 
-  const filteredProducts = products.filter((product: any) => {
-    const search = searchTerm.toLowerCase();
-
-    const matchesSearch =
-      product.name?.toLowerCase().includes(search) ||
-      product.category?.toLowerCase().includes(search) ||
-      product.status?.toLowerCase().includes(search);
-
-    const matchesCategory =
-      categoryFilter === "" || product.category === categoryFilter;
-
-    return matchesSearch && matchesCategory;
-  });
   return (
     <>
       <HeaderContainer>
@@ -219,11 +229,14 @@ export default function ProductHeader() {
           </SelectWrapper>
 
           <SelectWrapper>
-            <FilterSelect defaultValue="">
-              <option value="">Status</option>
-              <option value="instock">In Stock</option>
-              <option value="lowstock">Low Stock</option>
-              <option value="outofstock">Out of Stock</option>
+            <FilterSelect
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="inactive">Inactive</option>
             </FilterSelect>
 
             <KeyboardArrowDownIcon
@@ -264,7 +277,7 @@ export default function ProductHeader() {
               </TableHead>
 
               <TableBody>
-                {filteredProducts.map((product: any) => (
+                {products.map((product: any) => (
                   <StyledTableRow key={product.name}>
                     <TableCell>
                       <Avatar
@@ -323,7 +336,7 @@ export default function ProductHeader() {
           </Table>
         </TableContainer>
 
-        <Box
+        {/* <Box
           sx={{
             mt: 3,
             display: "flex",
@@ -334,7 +347,22 @@ export default function ProductHeader() {
           <Typography variant="body2">Showing 1 to 4 of 45 results</Typography>
 
           <Pagination count={3} color="primary" />
-        </Box>
+        </Box> */}
+
+        <TablePagination
+          component="div"
+          count={pagination?.totalProducts || 0}
+          page={page - 1}
+          onPageChange={(event, newPage) => {
+            setPage(newPage + 1);
+          }}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(1);
+          }}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </ProductTableContainer>
 
       <Footer />
