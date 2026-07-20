@@ -6,6 +6,7 @@ const InventorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
       required: true,
+      unique: true,
     },
 
     quantity: {
@@ -48,7 +49,7 @@ const InventorySchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["in-stock", "low-stock", "out-stock"],
+      enum: ["in-stock", "low-stock", "out-of-stock"],
       default: "in-stock",
     },
   },

@@ -27,7 +27,7 @@ export default function AddInventoryPage() {
       {/* <Container maxWidth="1500px" disableGutters sx={{ px: { xs: 2, sm: 3 } }}> */}
       <Container maxWidth={false} disableGutters sx={{ maxWidth: "1400px", mx: "auto" }}>
         {/* Breadcrumb Navigation */}
-        <Breadcrumbs
+        {/* <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
           sx={{ mb: 2, textTransform: "uppercase", letterSpacing: "0.5px" }}
         >
@@ -49,7 +49,7 @@ export default function AddInventoryPage() {
 >
             Add New Item
           </Typography>
-        </Breadcrumbs>
+        </Breadcrumbs> */}
 
         {/* Page Title */}
         <PageHeader>
