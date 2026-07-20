@@ -215,7 +215,8 @@ console.log("name",name);
   
     try {
       const res = await uploadImage({
-        folder: "users/profile",
+        module: "users/profile",
+        type: "profile",
         data: formData,
       }).unwrap();
   
