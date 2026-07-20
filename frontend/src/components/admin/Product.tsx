@@ -7,7 +7,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddIcon from "@mui/icons-material/Add";
-
+import { useState } from "react";
 import {
   ToolbarContainer,
   FilterSection,
@@ -48,6 +48,15 @@ import { useGetProductsQuery } from "@/store/api/apiSlice";
 import { useEffect } from "react";
 import LoadingState from "../common/LoadingState";
 import ErrorState from "../common/ErrorState";
+import { useDeleteProductMutation } from "@/store/api/apiSlice";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from "@mui/material";
 
 const products = [
   {
@@ -70,10 +79,27 @@ const products = [
   },
 ];
 
-
 export default function ProductHeader() {
   const router = useRouter();
-  const { data:products , error, isLoading: productloading,refetch , isFetching} = useGetProductsQuery();
+  const {
+    data: products,
+    error,
+    isLoading: productloading,
+    refetch,
+    isFetching,
+  } = useGetProductsQuery();
+
+  const [deleteProduct] = useDeleteProductMutation();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   // console.log("data from backend", data);
 
@@ -86,189 +112,254 @@ export default function ProductHeader() {
 
   // },[])
 
-
   if (productloading)
-  return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+    return (
+      <LoadingState
+        title="Loading products..."
+        message="Please wait while we fetch your data."
+      />
+    );
 
-if (error)
-  return (
-    <ErrorState
-  title="Failed to Load products"
-  message="Unable to fetch products."
-  loading={isFetching}
-  onRetry={refetch}
-/>
-  );
+  if (error)
+    return (
+      <ErrorState
+        title="Failed to Load products"
+        message="Unable to fetch products."
+        loading={isFetching}
+        onRetry={refetch}
+      />
+    );
+
+  const handleDelete = (id: string) => {
+    setSelectedProductId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedProductId) return;
+
+    try {
+      await deleteProduct(selectedProductId).unwrap();
+
+      setDeleteDialogOpen(false);
+      setSelectedProductId(null);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete product");
+    }
+  };
+
+  const filteredProducts = products.filter((product: any) => {
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      product.name?.toLowerCase().includes(search) ||
+      product.category?.toLowerCase().includes(search) ||
+      product.status?.toLowerCase().includes(search);
+
+    const matchesCategory =
+      categoryFilter === "" || product.category === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
   return (
     <>
+      <HeaderContainer>
+        <HeaderTitle>Products Management</HeaderTitle>
 
-<HeaderContainer>
-      <HeaderTitle>
-        Products Management
-      </HeaderTitle>
+        <HeaderSubtitle>
+          Manage products, categories, pricing, brochures and product
+          information.
+        </HeaderSubtitle>
+      </HeaderContainer>
 
-      <HeaderSubtitle>
-        Manage products, categories, pricing, brochures and product
-        information.
-      </HeaderSubtitle>
-    </HeaderContainer>
+      <ToolbarContainer>
+        <FilterSection>
+          <SearchWrapper>
+            <SearchIcon
+              sx={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                fontSize: 20,
+              }}
+            />
 
-<ToolbarContainer>
-<FilterSection>
-  <SearchWrapper>
-    <SearchIcon
-      sx={{
-        position: "absolute",
-        left: 12,
-        top: "50%",
-        transform: "translateY(-50%)",
-        color: "#6b7280",
-        fontSize: 20,
-      }}
-    />
+            <SearchInput
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </SearchWrapper>
 
-    <SearchInput placeholder="Search products..." />
-  </SearchWrapper>
+          <SelectWrapper>
+            <FilterSelect
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              <option value="Fertilizers">Fertilizers</option>
+              <option value="Organic Products">Organic Products</option>
+              <option value="Seeds">Seeds</option>
+              <option value="Pesticides">Pesticides</option>
+            </FilterSelect>
 
-  <SelectWrapper>
-    <FilterSelect defaultValue="">
-      <option value="">All Categories</option>
-      <option value="fertilizers">Fertilizers</option>
-      <option value="organic">Organic Products</option>
-      <option value="seeds">Seeds</option>
-      <option value="pesticides">Pesticides</option>
-      <option value="equipment">Equipment</option>
-    </FilterSelect>
+            <KeyboardArrowDownIcon
+              sx={{
+                position: "absolute",
+                right: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+              }}
+            />
+          </SelectWrapper>
 
-    <KeyboardArrowDownIcon
-      sx={{
-        position: "absolute",
-        right: 12,
-        top: "50%",
-        transform: "translateY(-50%)",
-        color: "#6b7280",
-        pointerEvents: "none",
-      }}
-    />
-  </SelectWrapper>
+          <SelectWrapper>
+            <FilterSelect defaultValue="">
+              <option value="">Status</option>
+              <option value="instock">In Stock</option>
+              <option value="lowstock">Low Stock</option>
+              <option value="outofstock">Out of Stock</option>
+            </FilterSelect>
 
-  <SelectWrapper>
-    <FilterSelect defaultValue="">
-      <option value="">Status</option>
-      <option value="instock">In Stock</option>
-      <option value="lowstock">Low Stock</option>
-      <option value="outofstock">Out of Stock</option>
-    </FilterSelect>
+            <KeyboardArrowDownIcon
+              sx={{
+                position: "absolute",
+                right: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#6b7280",
+                pointerEvents: "none",
+              }}
+            />
+          </SelectWrapper>
+        </FilterSection>
 
-    <KeyboardArrowDownIcon
-      sx={{
-        position: "absolute",
-        right: 12,
-        top: "50%",
-        transform: "translateY(-50%)",
-        color: "#6b7280",
-        pointerEvents: "none",
-      }}
-    />
-  </SelectWrapper>
-</FilterSection>
+        <AddButton
+          startIcon={<AddIcon />}
+          onClick={() => router.push("/admin/products/add")}
+        >
+          Add Product
+        </AddButton>
+      </ToolbarContainer>
 
-<AddButton startIcon={<AddIcon />}onClick={() => router.push("/admin/products/add")}>
-  Add Product
-</AddButton>
-</ToolbarContainer>
+      <ProductTableContainer>
+        <TableContainer component={Paper}>
+          <Table>
+            <StyledTable>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Image</TableCell>
+                  <TableCell>Product Name</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Price</TableCell>
+                  <TableCell>Status</TableCell>
+                  {/* <TableCell>Last Updated</TableCell> */}
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
 
-<ProductTableContainer>
-      <TableContainer component={Paper}>
-        <Table>
-          <StyledTable>
-          <TableHead>
-            <TableRow>
-              <TableCell>Image</TableCell>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Last Updated</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
+              <TableBody>
+                {filteredProducts.map((product: any) => (
+                  <StyledTableRow key={product.name}>
+                    <TableCell>
+                      <Avatar
+                        src={product.images?.[0]?.url}
+                        variant="rounded"
+                        sx={{ width: 50, height: 50 }}
+                      />
+                    </TableCell>
 
-          <TableBody>
-            {products?.map((product :any) => (
-              <StyledTableRow key={product.name}>
-                <TableCell>
-                  <Avatar
-                    src={product.images[0]}
-                    variant="rounded"
-                    sx={{ width: 50, height: 50 }}
-                  />
-                </TableCell>
+                    <TableCell>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {product.name}
+                      </Typography>
+                    </TableCell>
 
-                <TableCell>
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {product.name}
-                </Typography>
-                </TableCell>
+                    <TableCell>{product.category}</TableCell>
 
-                <TableCell>{product.category}</TableCell>
+                    <TableCell>{product.price}</TableCell>
 
-                <TableCell>{product.price}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={product.status}
+                        color={
+                          product.status === "In Stock" ? "success" : "error"
+                        }
+                        size="small"
+                      />
+                    </TableCell>
 
-                <TableCell>
-                  <Chip
-                    label={product.status}
-                    color={
-                      product.status === "In Stock"
-                        ? "success"
-                        : "error"
-                    }
-                    size="small"
-                  />
-                </TableCell>
+                    {/* <TableCell>{product.updated}</TableCell> */}
 
-                <TableCell>{product.updated}</TableCell>
+                    <TableCell align="right">
+                      <IconButton>
+                        <VisibilityOutlinedIcon />
+                      </IconButton>
 
-                <TableCell align="right">
-                  <IconButton>
-                    <VisibilityOutlinedIcon />
-                  </IconButton>
+                      <IconButton
+                        onClick={() =>
+                          router.push(`/admin/products/edit/${product._id}`)
+                        }
+                      >
+                        <EditOutlinedIcon />
+                      </IconButton>
 
-                  <IconButton>
-                    <EditOutlinedIcon />
-                  </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(product._id)}
+                      >
+                        <DeleteOutlineOutlinedIcon />
+                      </IconButton>
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </StyledTable>
+          </Table>
+        </TableContainer>
 
-                  <IconButton color="error">
-                    <DeleteOutlineOutlinedIcon />
-                  </IconButton>
-                </TableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
+        <Box
+          sx={{
+            mt: 3,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="body2">Showing 1 to 4 of 45 results</Typography>
 
+          <Pagination count={3} color="primary" />
+        </Box>
+      </ProductTableContainer>
 
-          </StyledTable>
-        </Table>
-      </TableContainer>
+      <Footer />
 
-      <Box
-  sx={{
-    mt: 3,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }}
->
-        <Typography variant="body2">
-          Showing 1 to 4 of 45 results
-        </Typography>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete Product</DialogTitle>
 
-        <Pagination count={3} color="primary" />
-      </Box>
-    </ProductTableContainer>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this product? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
 
-    <Footer/>
-    
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+
+          <Button color="error" variant="contained" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
