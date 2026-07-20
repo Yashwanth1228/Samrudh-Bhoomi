@@ -1,9 +1,17 @@
 import React, { useMemo } from "react";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import ContactSupportOutlinedIcon from "@mui/icons-material/ContactSupportOutlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import SouthOutlinedIcon from "@mui/icons-material/SouthOutlined";
+import NorthOutlinedIcon from "@mui/icons-material/NorthOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 
 import {
   StatsGrid,
-//   StatsGridSecondary,
   StatCard,
 } from "@/styles/admin/Dashboard.styles";
 
@@ -15,6 +23,29 @@ interface Props {
   inquiries: any[];
   transactions: any[];
 }
+
+const IconBox = ({
+  children,
+  bg,
+}: {
+  children: React.ReactNode;
+  bg: string;
+}) => (
+  <Box
+    sx={{
+      width: 54,
+      height: 54,
+      borderRadius: "14px",
+      backgroundColor: bg,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+    }}
+  >
+    {children}
+  </Box>
+);
 
 export default function DashboardKPIs({
   products,
@@ -35,7 +66,7 @@ export default function DashboardKPIs({
           item.type === "stock-in" &&
           new Date(item.createdAt).toDateString() === today
       )
-      .reduce((sum, item) => sum + item.quantity, 0);
+      .reduce((sum, item) => sum + (item.quantity || 0), 0);
 
     const todayStockOut = transactions
       .filter(
@@ -43,30 +74,22 @@ export default function DashboardKPIs({
           item.type === "stock-out" &&
           new Date(item.createdAt).toDateString() === today
       )
-      .reduce((sum, item) => sum + item.quantity, 0);
+      .reduce((sum, item) => sum + (item.quantity || 0), 0);
 
     return {
-
       totalProducts: products.length,
-
       totalInventory: inventories.length,
-
       totalUsers: users.length,
-
       totalInquiries: inquiries.filter(
         (item) => item.status === "new"
       ).length,
-
       lowStock: inventories.filter(
         (item) => item.status === "low-stock"
       ).length,
-
       publishedBlogs: blogs.filter(
         (blog) => blog.status === "published"
       ).length,
-
       todayStockIn,
-
       todayStockOut,
     };
 
@@ -79,132 +102,161 @@ export default function DashboardKPIs({
     transactions,
   ]);
 
+  const cards = [
+    {
+      title: "Total Products",
+      value: stats.totalProducts,
+      valueColor: "#111827",
+      bg: "#E8F5E9",
+      icon: (
+        <Inventory2OutlinedIcon
+          sx={{
+            color: "#2E7D32",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Inventory Items",
+      value: stats.totalInventory,
+      valueColor: "#111827",
+      bg: "#E3F2FD",
+      icon: (
+        <WarehouseOutlinedIcon
+          sx={{
+            color: "#1565C0",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Users",
+      value: stats.totalUsers,
+      valueColor: "#111827",
+      bg: "#F3E5F5",
+      icon: (
+        <GroupOutlinedIcon
+          sx={{
+            color: "#8E24AA",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "New Inquiries",
+      value: stats.totalInquiries,
+      valueColor: "#111827",
+      bg: "#FFF3E0",
+      icon: (
+        <ContactSupportOutlinedIcon
+          sx={{
+            color: "#EF6C00",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Low Stock",
+      value: stats.lowStock,
+      valueColor: "#D32F2F",
+      bg: "#FFEBEE",
+      icon: (
+        <WarningAmberOutlinedIcon
+          sx={{
+            color: "#D32F2F",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Today's Stock In",
+      value: stats.todayStockIn,
+      valueColor: "#2E7D32",
+      bg: "#E8F5E9",
+      icon: (
+        <SouthOutlinedIcon
+          sx={{
+            color: "#2E7D32",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Today's Stock Out",
+      value: stats.todayStockOut,
+      valueColor: "#EF6C00",
+      bg: "#FFF3E0",
+      icon: (
+        <NorthOutlinedIcon
+          sx={{
+            color: "#EF6C00",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+    {
+      title: "Published Blogs",
+      value: stats.publishedBlogs,
+      valueColor: "#111827",
+      bg: "#EDE7F6",
+      icon: (
+        <ArticleOutlinedIcon
+          sx={{
+            color: "#5E35B1",
+            fontSize: 28,
+          }}
+        />
+      ),
+    },
+  ];
+
   return (
     <StatsGrid>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Total Products
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-          }}
-        >
-          {stats.totalProducts}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Inventory Items
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-          }}
-        >
-          {stats.totalInventory}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Users
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-          }}
-        >
-          {stats.totalUsers}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          New Inquiries
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-          }}
-        >
-          {stats.totalInquiries}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Low Stock
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-            color: "#d32f2f",
-          }}
-        >
-          {stats.lowStock}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Today's Stock In
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-            color: "#2e7d32",
-          }}
-        >
-          {stats.todayStockIn}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Today's Stock Out
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-            color: "#ef6c00",
-          }}
-        >
-          {stats.todayStockOut}
-        </Typography>
-      </StatCard>
-  
-      <StatCard>
-        <Typography color="text.secondary">
-          Published Blogs
-        </Typography>
-  
-        <Typography
-          sx={{
-            fontSize: 32,
-            fontWeight: 700,
-          }}
-        >
-          {stats.publishedBlogs}
-        </Typography>
-      </StatCard>
-  
+      {cards.map((card) => (
+        <StatCard key={card.title}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  color: "#6B7280",
+                  fontSize: 15,
+                  fontWeight: 500,
+                }}
+              >
+                {card.title}
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontSize: 34,
+                  fontWeight: 700,
+                  color: card.valueColor,
+                }}
+              >
+                {card.value}
+              </Typography>
+            </Box>
+
+            <IconBox bg={card.bg}>
+              {card.icon}
+            </IconBox>
+          </Box>
+        </StatCard>
+      ))}
     </StatsGrid>
   );
 }

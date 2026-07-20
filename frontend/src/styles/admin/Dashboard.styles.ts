@@ -16,36 +16,29 @@ export const HeaderSection = styled(Box)`
 export const StatsGrid = styled(Box)`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 24px;
 
   @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(1, 1fr);
-  }
-`;
-
-export const StatsGridSecondary = styled(Box)`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(1, 1fr);
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
   }
 `;
 
 export const StatCard = styled(Paper)`
   padding: 24px;
   border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border: 1px solid #edf0f2;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
 `;
 
 export const ChartCard = styled(Paper)`
@@ -69,14 +62,12 @@ export const SectionTitle = styled.h2`
   color: #1a1c19;
 `;
 
-export const DoubleChartGrid = styled(Box)({
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: 24,
-  marginTop: 24,
+export const DoubleChartGrid = styled(Box)`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 
-  "@media (max-width:900px)": {
-    gridTemplateColumns: "1fr",
-  },
-});
-
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;

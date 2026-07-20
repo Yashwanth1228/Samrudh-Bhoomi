@@ -106,6 +106,12 @@ import ErrorState from "@/components/common/ErrorState";
 import EmptyState from "@/components/common/EmptyState";
 import toast from "react-hot-toast";
 
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+
+
 
 // Types
 interface User {
@@ -414,6 +420,29 @@ if (!userdata?.length)
 
   console.log(users);
 
+  const IconBox = ({
+    children,
+    bg,
+  }: {
+    children: React.ReactNode;
+    bg: string;
+  }) => (
+    <Box
+      sx={{
+        width: 52,
+        height: 52,
+        borderRadius: "12px",
+        backgroundColor: bg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      {children}
+    </Box>
+  );
+
 
   return (
     <>
@@ -439,32 +468,124 @@ if (!userdata?.length)
           </PageHeader>
 
           <KPIGrid>
-            <KPICard>
-              <KPILabel variant="overline">Total Users</KPILabel>
-              <KPIValue variant="h1">
-                {kpiData.totalUsers.toLocaleString()}
-              </KPIValue>
-            </KPICard>
-            <KPICard>
-              <KPILabel variant="overline">Active Users</KPILabel>
-              <KPIPrimaryValue variant="h1">
-                {kpiData.activeUsers.toLocaleString()}
-              </KPIPrimaryValue>
-            </KPICard>
-            <KPICard>
-              <KPILabel variant="overline">Inactive Users</KPILabel>
-              <KPIErrorValue variant="h1">
-                {kpiData.inactiveUsers.toLocaleString()}
-              </KPIErrorValue>
-            </KPICard>
-            <KPICard>
-              <KPILabel variant="overline">Admin Users</KPILabel>
-              <KPISecondaryValue variant="h1">
-                {kpiData.adminUsers.toLocaleString()}
-              </KPISecondaryValue>
-            </KPICard>
-          </KPIGrid>
 
+<KPICard>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    }}
+  >
+    <Box>
+      <KPILabel variant="overline">
+        Total Users
+      </KPILabel>
+
+      <KPIValue variant="h1">
+        {kpiData.totalUsers.toLocaleString()}
+      </KPIValue>
+    </Box>
+
+    <IconBox bg="#E3F2FD">
+      <GroupOutlinedIcon
+        sx={{
+          color: "#1565C0",
+          fontSize: 28,
+        }}
+      />
+    </IconBox>
+  </Box>
+</KPICard>
+
+<KPICard>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    }}
+  >
+    <Box>
+      <KPILabel variant="overline">
+        Active Users
+      </KPILabel>
+
+      <KPIPrimaryValue variant="h1">
+        {kpiData.activeUsers.toLocaleString()}
+      </KPIPrimaryValue>
+    </Box>
+
+    <IconBox bg="#E8F5E9">
+      <PersonOutlineOutlinedIcon
+        sx={{
+          color: "#2E7D32",
+          fontSize: 28,
+        }}
+      />
+    </IconBox>
+  </Box>
+</KPICard>
+
+<KPICard>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    }}
+  >
+    <Box>
+      <KPILabel variant="overline">
+        Inactive Users
+      </KPILabel>
+
+      <KPIErrorValue variant="h1">
+        {kpiData.inactiveUsers.toLocaleString()}
+      </KPIErrorValue>
+    </Box>
+
+    <IconBox bg="#FFEBEE">
+      <PersonOffOutlinedIcon
+        sx={{
+          color: "#D32F2F",
+          fontSize: 28,
+        }}
+      />
+    </IconBox>
+  </Box>
+</KPICard>
+
+<KPICard>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    }}
+  >
+    <Box>
+      <KPILabel variant="overline">
+        Admin Users
+      </KPILabel>
+
+      <KPISecondaryValue variant="h1">
+        {kpiData.adminUsers.toLocaleString()}
+      </KPISecondaryValue>
+    </Box>
+
+    <IconBox bg="#EDE7F6">
+      <AdminPanelSettingsOutlinedIcon
+        sx={{
+          color: "#5E35B1",
+          fontSize: 28,
+        }}
+      />
+    </IconBox>
+  </Box>
+</KPICard>
+
+</KPIGrid>
           <ActionBar>
             <ActionBarLeft>
               <SearchField

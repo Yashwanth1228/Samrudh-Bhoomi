@@ -22,9 +22,9 @@ export const PageContainer = styled(Box)`
 export const MainContent = styled(Box)`
   // margin-left: 280px;
   // padding-top: 64px;
-  min-height: 100vh;
-  overflow-y: auto;
-  height: 100vh;
+  // min-height: 100vh;
+  // overflow-y: auto;
+  // height: 100vh;
 
   @media (max-width: 1024px) {
     margin-left: 0;
