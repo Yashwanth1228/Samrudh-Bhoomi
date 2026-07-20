@@ -92,10 +92,28 @@ export const apiSlice = createApi({
     }),
 
     // GET Users
-    getProducts: builder.query<any, void>({
-      query: () => "/products/all",
+    getProducts: builder.query<
+      any,
+      {
+        page: number;
+        limit: number;
+        search?: string;
+        category?: string;
+        status?: string;
+      }
+    >({
+      query: ({ page, limit, search = "", category = "", status = "" }) => ({
+        url: "/products/all",
+        params: {
+          page,
+          limit,
+          search,
+          category,
+          status,
+        },
+      }),
+
       providesTags: ["product"],
-      transformResponse: (response: any) => response.data,
     }),
 
     getProductById: builder.query<any, string>({
