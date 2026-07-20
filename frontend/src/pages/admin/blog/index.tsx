@@ -1346,6 +1346,33 @@ const BlogPage: NextPage = () => {
             : "The Blog has been successfully created."}
         </Alert>
       </Snackbar>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          severity="success"
+          icon={<CheckCircleIcon />}
+          sx={{
+            backgroundColor: "#2d5a27",
+            color: "#ffffff",
+            "& .MuiAlert-icon": {
+              color: "#ffffff",
+            },
+          }}
+        >
+          <strong>{isEdit ? "Blog Updated" : "Blog Created"}</strong>
+
+          <br />
+
+          {isEdit
+            ? "Blog updated successfully."
+            : "The Blog has been successfully created."}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
