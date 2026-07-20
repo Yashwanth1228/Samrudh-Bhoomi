@@ -29,12 +29,17 @@ const categories = [
 
 export const BasicInfoSection: React.FC<Props> = ({ data, updateData }) => {
   const {
-    data: products,
+    data: productsResponse,
     error,
     isLoading: productloading,
     refetch,
     isFetching,
-  } = useGetProductsQuery({ limit: 5, page: 1 });
+  } = useGetProductsQuery({
+    page: 1,
+    limit: 100,
+  });
+
+  const products = productsResponse?.data || [];
   console.log("products data ", products);
 
   if (productloading)
