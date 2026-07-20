@@ -19,7 +19,7 @@ function BlogsCms() {
     const [blogSubTab, setBlogSubTab] = useState("listing");
     return (
         <BlogSectionCard>
-  <ProductSubTabs>
+  {/* <ProductSubTabs>
 
     <ProductSubTabButton
       active={blogSubTab === "listing"}
@@ -35,12 +35,12 @@ function BlogsCms() {
       Blog Detail Page
     </ProductSubTabButton>
 
-  </ProductSubTabs>
+  </ProductSubTabs> */}
 
   <ProductSectionContent>
 
     {/* BLOG LISTING */}
-    {blogSubTab === "listing" && (
+    {/* {blogSubTab === "listing" && ( */}
       <BlogGrid>
 
         <LeftSection>
@@ -95,10 +95,10 @@ function BlogsCms() {
         </EditorCard>
 
       </BlogGrid>
-    )}
+    {/* )} */}
 
     {/* BLOG DETAIL */}
-    {blogSubTab === "detail" && (
+    {/* {blogSubTab === "detail" && (
       <Box
         sx={{
           display: "flex",
@@ -138,7 +138,7 @@ function BlogsCms() {
         />
 
       </Box>
-    )}
+    )} */}
 
   </ProductSectionContent>
 </BlogSectionCard>
