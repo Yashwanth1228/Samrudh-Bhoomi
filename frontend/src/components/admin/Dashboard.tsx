@@ -82,7 +82,7 @@ export default function Dashboard() {
       <Grid container spacing={3} sx={{ mt: 1 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <ChartCard>
-            <CategoryPieChart products={products} />
+            <CategoryPieChart products={products.data || []} />
           </ChartCard>
         </Grid>
 
