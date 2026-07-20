@@ -63,16 +63,65 @@ export const addProduct = async (
 };
 
 export const getAllProducts = async (
-  request: FastifyRequest,
+  request: FastifyRequest<{
+    Querystring: {
+      page?: string;
+      limit?: string;
+      search?: string;
+      category?: string;
+      status?: string;
+    };
+  }>,
   reply: FastifyReply,
 ) => {
   try {
-    const products = await Product.find();
+    const {
+      page = "1",
+      limit = "10",
+      search = "",
+      category = "",
+      status = "",
+    } = request.query;
 
-    return reply.status(200).send({
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const filter: any = {};
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+        { status: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
+
+    return reply.send({
       success: true,
-      message: "products fetched successfully",
       data: products,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalProducts / limitNumber),
+        totalProducts,
+        limit: limitNumber,
+      },
     });
   } catch (error) {
     return reply.status(500).send({
