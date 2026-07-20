@@ -13,6 +13,12 @@ import {
 import { AddButton } from "@/styles/admin/Product.styles";
 import { useRouter } from "next/router";
 import Footer from "@/components/admin/Footer";
+import { useGetInventoriesQuery, useGetInventoryHistoryQuery } from "@/store/api/apiSlice";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import { StockOutForm } from "@/components/admin/inventory/StockOutForm";
+import { StockHistory } from "@/components/admin/inventory/StockHistory";
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,9 +52,31 @@ export default function InventoryManagement() {
   const [tabValue, setTabValue] = useState(0);
   const router = useRouter();
 
+  const {
+    data: inventories = [],
+    isLoading: inventoryloading,
+    error,
+    refetch,
+    isFetching,
+} = useGetInventoriesQuery();
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+
+  
+  if (inventoryloading)
+  return <LoadingState title="Loading inventory..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load inventory"
+  message="Unable to fetch inventory."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
 
   return (
     <>
@@ -70,7 +98,7 @@ export default function InventoryManagement() {
         </PageHeader>
 
         {/* KPI Cards */}
-        <KPICards />
+        <KPICards inventories={inventories} />
 
         {/* Tabs Section */}
         <Paper
@@ -113,26 +141,37 @@ export default function InventoryManagement() {
           </Tabs>
 
           <CustomTabPanel value={tabValue} index={0}>
-            <InventoryTable />
+          <InventoryTable
+    inventories={inventories}
+    isLoading={inventoryloading}
+    error={error}
+    refetch={refetch}
+  />
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={1}>
-            <StockInForm />
+          <StockInForm
+    inventories={inventories}
+    refetchInventory={refetch}
+  />
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={2}>
             <Box sx={{ p: 4, textAlign: "center" }}>
               <Typography color="text.secondary">
-                Stock Out form will be implemented here
+              <StockOutForm
+    inventories={inventories}
+    refetchInventory={refetch}
+  />
               </Typography>
             </Box>
           </CustomTabPanel>
 
           <CustomTabPanel value={tabValue} index={3}>
             <Box sx={{ p: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">
-                Stock history table will be implemented here
-              </Typography>
+            <CustomTabPanel value={tabValue} index={3}>
+  <StockHistory />
+</CustomTabPanel>
             </Box>
           </CustomTabPanel>
         </Paper>

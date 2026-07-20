@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Inventory from "./inventory.model";
+import { calculateInventoryStatus } from "../inventoryTransaction/inventoryTransaction.controller";
 
-interface InventoryBody {
+export interface InventoryBody {
   productId: string;
   quantity: number;
   minStockLevel?: number;
@@ -11,7 +12,7 @@ interface InventoryBody {
   supplierContact?: string;
   purchasePrice: number;
   sellingPrice: number;
-  status?: "in-stock" | "low-stock" | "out-stock";
+  status?: "in-stock" | "low-stock" | "out-of-stock";
 }
 
 export const addInventory = async (
@@ -48,8 +49,26 @@ export const addInventory = async (
       });
     }
 
+    const existingInventory = await Inventory.findOne({
+      productId,
+    });
+    
+    if (existingInventory) {
+      return reply.status(409).send({
+        success: false,
+        message:
+          "Inventory already exists for this product. Use Stock In to increase the quantity.",
+      });
+    }
+
+    const status = calculateInventoryStatus(
+      quantity,
+      data.minStockLevel ?? 10
+    );
+
     const inventory = await Inventory.create({
       ...data,
+      status,
     });
 
     return reply.status(201).send({
@@ -63,6 +82,31 @@ export const addInventory = async (
     return reply.status(500).send({
       success: false,
       message: error.message || "Internal Server Error",
+    });
+  }
+};
+
+
+export const getInventories = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const inventories = await Inventory.find()
+      .populate({
+        path: "productId",
+        select: "name category images inventory",
+      })
+      .sort({ createdAt: -1 });
+
+    return reply.send({
+      success: true,
+      data: inventories,
+    });
+  } catch (error: any) {
+    return reply.status(500).send({
+      success: false,
+      message: error.message,
     });
   }
 };
