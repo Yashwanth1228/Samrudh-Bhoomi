@@ -48,21 +48,41 @@ export interface CreateUserRequest {
   password: string;
 }
 
+export interface ProductInfo {
+  _id: string;
+  name: string;
+  category: string;
+  images?: string[];
+  inventory?: {
+    sku?: string;
+    unit?: string;
+  };
+}
+
+export interface InventoryItem {
+  _id: string;
+  productId: ProductInfo | null;
+  quantity: number;
+  minStockLevel: number;
+  maxStockLevel: number;
+  warehouseLocation?: string;
+  supplierName?: string;
+  supplierContact?: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  status: "in-stock" | "low-stock" | "out-of-stock";
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: "include", // for session/cookies
   }),
-  tagTypes: [
-    "User",
-    "equipment",
-    "product",
-    "blog",
-    "upload",
-    "users",
-    "inquiries",
-  ],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory','InventoryHistory'],
+
 
   endpoints: (builder) => ({
     // GET Users
@@ -240,6 +260,49 @@ export const apiSlice = createApi({
       invalidatesTags: ["product"],
     }),
 
+        // Inventory routes
+
+        getInventories: builder.query<InventoryItem[], void>({
+          query: () => "/inventory/all",
+          transformResponse: (response: any) => response.data,
+          providesTags: ["inventory"],
+        }),
+
+        addInventory: builder.mutation({
+          query: (body) => ({
+            url: "/inventory/add",
+            method: "POST",
+            body,
+          }),
+          invalidatesTags: ["inventory"],
+        }),
+
+
+        getInventoryHistory: builder.query<any[], void>({
+          query: () => "/inventorytransaction/history",
+          providesTags: ["InventoryHistory"],
+          transformResponse: (response: any) => response.data,
+        }),
+
+      stockIn: builder.mutation({
+        query: (body) => ({
+            url: "/inventorytransaction/stock-in",
+            method: "POST",
+            body,
+        }),
+        invalidatesTags: ["inventory","InventoryHistory"],
+    }),
+
+    stockOut: builder.mutation({
+      query: (body) => ({
+          url: "/inventorytransaction/stock-out",
+          method: "POST",
+          body,
+      }),
+      invalidatesTags: ["inventory","InventoryHistory"],
+  }),
+        
+
     updateProduct: builder.mutation<any, { id: string; body: any }>({
       query: ({ id, body }) => ({
         url: `/products/${id}`,
@@ -308,6 +371,11 @@ export const {
   useGetInquiriesQuery,
   useCreateInquiriesMutation,
   useUpdateInquiryMutation,
+  useGetInventoriesQuery,
+  useGetInventoryHistoryQuery,
+  useStockInMutation,
+  useStockOutMutation,
+  useAddInventoryMutation,
   useUpdateProductMutation,
   useGetProductByIdQuery,
   useDeleteProductMutation,

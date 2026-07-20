@@ -11,28 +11,38 @@ import {
   Grid,
   Paper,
 } from "@mui/material";
+import { useStockInMutation } from "@/store/api/apiSlice";
+import toast from "react-hot-toast";
+import LoadingState from "@/components/common/LoadingState";
 
 interface FormData {
-  product: string;
+  inventoryId: string;
   quantity: number;
-  unit: string;
-  date: string;
   reason: string;
   notes: string;
 }
 
-const units = ["Bags", "KG", "Tonnes", "Litres", "Packets", "Pieces"];
-const products = ["Premium Urea Fertilizer 46% N", "Hybrid Tomato Seeds (Vyapar)"];
+interface StockInFormProps {
+  inventories: any[];
+  refetchInventory: () => void;
+}
 
-export const StockInForm: React.FC = () => {
+// const units = ["Bags", "KG", "Tonnes", "Litres", "Packets", "Pieces"];
+// const products = ["Premium Urea Fertilizer 46% N", "Hybrid Tomato Seeds (Vyapar)"];
+
+export const StockInForm: React.FC<StockInFormProps> = ({
+  inventories,
+  refetchInventory,
+}) => {
   const [formData, setFormData] = useState<FormData>({
-    product: "",
+    inventoryId: "",
     quantity: 0,
-    unit: "",
-    date: "",
     reason: "",
     notes: "",
   });
+
+  const [stockin, { isLoading }] = useStockInMutation();
+
 
   const handleChange = (field: keyof FormData) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
@@ -43,22 +53,58 @@ export const StockInForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add API call here
+  
+    try {
+      if (!formData.inventoryId) {
+        toast.error("Please select a product.");
+        return;
+      }
+      
+      if (formData.quantity <= 0) {
+        toast.error("Quantity should be greater than 0.");
+        return;
+      }
+
+      const stockInData = await stockin({
+        inventoryId: formData.inventoryId,
+        quantity: Number(formData.quantity),
+        reason: formData.reason,
+        notes: formData.notes,
+      }).unwrap();
+  
+      toast.success(stockInData.message || "Stock recorded successfully");
+  
+      handleReset();
+  
+      // Refresh Inventory Table
+      // refetchInventory();
+  
+    } catch (error: any) {
+      console.error(error);
+  
+      toast.error(
+        error?.data?.message ||
+        error?.message ||
+        "Failed to record stock."
+      );
+    }
   };
 
   const handleReset = () => {
     setFormData({
-      product: "",
+      inventoryId:"",
       quantity: 0,
-      unit: "",
-      date: "",
+      // unit: "",
       reason: "",
       notes: "",
     });
   };
+
+  if (isLoading)
+  return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
+
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -86,39 +132,45 @@ export const StockInForm: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
           <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth required>
-                <InputLabel>Product</InputLabel>
-                <Select
-                  value={formData.product}
-                  onChange={handleChange("product")}
-                  label="Product"
-                >
-                  <MenuItem value="" disabled>
-                    Select Product...
-                  </MenuItem>
-                  {products.map((product) => (
-                    <MenuItem key={product} value={product}>
-                      {product}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+          <FormControl fullWidth required>
+  <InputLabel>Product</InputLabel>
+
+  <Select
+  value={formData.inventoryId}
+  label="Product"
+  onChange={handleChange("inventoryId")}
+  disabled={isLoading}
+>
+    <MenuItem value="" disabled>
+      Select Product
+    </MenuItem>
+
+    {inventories.map((inventory) => (
+      <MenuItem
+        key={inventory._id}
+        value={inventory._id}
+      >
+        {inventory.productId?.name}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                required
-                label="Quantity"
-                type="number"
-                value={formData.quantity || ""}
-                onChange={handleChange("quantity")}
-                placeholder="e.g., 100"
-              />
+            <TextField
+  fullWidth
+  required
+  label="Quantity"
+  type="number"
+  value={formData.quantity || ""}
+  onChange={handleChange("quantity")}
+  disabled={isLoading}
+/>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth required>
+            {/* <Grid size={{ xs: 12, sm: 6 }}> */}
+              {/* <FormControl fullWidth required>
                 <InputLabel>Unit</InputLabel>
                 <Select value={formData.unit} onChange={handleChange("unit")} label="Unit">
                   <MenuItem value="" disabled>
@@ -130,10 +182,10 @@ export const StockInForm: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
-            </Grid>
+              </FormControl> */}
+            {/* </Grid> */}
 
-            <Grid size={{ xs: 12, sm: 6 }}>
+            {/* <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
   fullWidth
   required
@@ -147,7 +199,7 @@ export const StockInForm: React.FC = () => {
     },
   }}
 />
-            </Grid>
+            </Grid> */}
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
@@ -183,12 +235,21 @@ export const StockInForm: React.FC = () => {
               borderColor: "divider",
             }}
           >
-            <Button variant="outlined" onClick={handleReset} type="button">
-              Reset
-            </Button>
-            <Button variant="contained" type="submit">
-              Save Entry
-            </Button>
+            <Button
+  variant="outlined"
+  onClick={handleReset}
+  type="button"
+  disabled={isLoading}
+>
+  Reset
+</Button>
+            <Button
+  variant="contained"
+  type="submit"
+  disabled={isLoading}
+>
+  {isLoading ? "Saving..." : "Save Entry"}
+</Button>
           </Box>
         </form>
       </Paper>

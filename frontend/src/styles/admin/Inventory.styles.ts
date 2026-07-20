@@ -25,9 +25,13 @@ export const PageHeader = styled(Box)(({ theme }) => ({
 
 export const KPIGrid = styled(Box)(({ theme }) => ({
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+  gridTemplateColumns: "repeat(4, 1fr)",
   gap: theme.spacing(2),
   marginBottom: theme.spacing(4),
+
+  [theme.breakpoints.down("lg")]: {
+    gridTemplateColumns: "repeat(2, 1fr)",
+  },
 
   [theme.breakpoints.down("sm")]: {
     gridTemplateColumns: "1fr",
@@ -35,44 +39,28 @@ export const KPIGrid = styled(Box)(({ theme }) => ({
 }));
 
 export const KPIBox = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: "12px",
+  padding: theme.spacing(3),
+  borderRadius: 16,
   border: `1px solid ${theme.palette.divider}`,
+  background: theme.palette.background.paper,
+  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
   position: "relative",
   overflow: "hidden",
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0px 2px 4px rgba(0,0,0,0.04)",
+  minHeight: 130,
+
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
 
   "& .kpi-icon": {
     position: "absolute",
-    right: -16,
-    bottom: -16,
-    opacity: 0.05,
-    fontSize: "120px",
-  },
-}));
+    right: 16,
+    top: 16,
+    opacity: 0.15,
 
-export const KPIBigBox = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: "12px",
-  border: `1px solid ${theme.palette.divider}`,
-  position: "relative",
-  overflow: "hidden",
-  gridColumn: "span 2",
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0px 2px 4px rgba(0,0,0,0.04)",
-
-  [theme.breakpoints.down("md")]: {
-    gridColumn: "span 1",
-  },
-
-  "& .gradient-bg": {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    height: "100%",
-    width: "33.33%",
-    background: `linear-gradient(to left, ${theme.palette.primary.light}10, transparent)`,
+    "& svg": {
+      fontSize: 36,
+    },
   },
 }));
 

@@ -12,6 +12,7 @@ import blogRoutes from "./modules/blogs/blog.route";
 import uploadRoutes from "./modules/upload/upload.route";
 import cloudinary from "./config/cloudinary";
 import inquiryRoutes from "./modules/contact/inquiry.route";
+import inventoryTransactionRoutes from "./modules/inventoryTransaction/inventoryTransaction.routes";
 
 dotenv.config();
 
@@ -67,6 +68,10 @@ app.register(productRoutes, {
 
 app.register(inventoryRoutes, {
   prefix: "/api/inventory",
+});
+
+app.register(inventoryTransactionRoutes, {
+  prefix: "/api/inventorytransaction"
 });
 
 app.register(blogRoutes, {
