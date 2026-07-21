@@ -159,6 +159,34 @@ export const getProductById = async (
   }
 };
 
+export const getProductBySlug = async (
+  request: FastifyRequest<{ Params: { slug: string } }>,
+  reply: FastifyReply,
+) => {
+  try {
+    const { slug } = request.params;
+
+    const product = await Product.findOne({ slug });
+
+    if (!product) {
+      return reply.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    return reply.send({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    return reply.status(500).send({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong",
+    });
+  }
+};
+
 export const updateProduct = async (
   request: FastifyRequest<{
     Params: { id: string };
