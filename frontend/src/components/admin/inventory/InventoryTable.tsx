@@ -97,14 +97,6 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-//   const {
-//     data: inventories = [],
-//     isLoading: inventoryloading,
-//     error,
-//     refetch,
-//     isFetching,
-// } = useGetInventoriesQuery();
-
 const [selectedInventory, setSelectedInventory] = useState<any>(null);
 const [open, setOpen] = useState(false);
 
@@ -188,24 +180,11 @@ const DetailRow = ({
     const labels: Record<string, string> = {
       "in-stock": "In Stock",
       "low-stock": "Low Stock",
-      "out-stock": "Out of Stock",
+      "out-of-stock": "Out of Stock",
     };
   
     return labels[status] || status;
   };
-
-//   if (inventoryloading)
-//   return <LoadingState title="Loading products..." message="Please wait while we fetch your data." />;
-
-// if (error)
-//   return (
-//     <ErrorState
-//   title="Failed to Load products"
-//   message="Unable to fetch products."
-//   loading={isFetching}
-//   onRetry={refetch}
-// />
-//   );
 
   return (
     <Box>

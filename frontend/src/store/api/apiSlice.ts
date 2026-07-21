@@ -81,7 +81,7 @@ export const apiSlice = createApi({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: "include", // for session/cookies
   }),
-  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory','InventoryHistory'],
+  tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory','InventoryHistory','cms'],
 
 
   endpoints: (builder) => ({
@@ -345,6 +345,32 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["inquiries"],
     }),
+
+    // cms routes
+
+    saveCms: builder.mutation<any,{page: string;content: Record<string, any>;isPublished?: boolean;}>({
+  query: (body) => ({
+    url: "/cms",
+    method: "POST",
+    body,
+  }),
+  invalidatesTags: ["cms"],
+}),
+
+getCmsByPage: builder.query<any, string>({
+  query: (page) => `/cms/${page}`,
+  providesTags: ["cms"],
+  transformResponse: (response: any) => response.data,
+}),
+
+getAllCms: builder.query<any, void>({
+  query: () => "/cms",
+  providesTags: ["cms"],
+  transformResponse: (response: any) => response.data,
+}),
+
+
+    
   }),
 });
 
@@ -379,4 +405,7 @@ export const {
   useUpdateProductMutation,
   useGetProductByIdQuery,
   useDeleteProductMutation,
+  useGetAllCmsQuery,
+  useGetCmsByPageQuery,
+  useSaveCmsMutation,
 } = apiSlice;
