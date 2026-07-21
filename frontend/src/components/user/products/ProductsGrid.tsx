@@ -43,65 +43,91 @@ import {
   EmptyStateButton,
 } from "../../../styles/user/products/ProductsGrid.styles";
 import { useRouter } from "next/router";
+import { useGetProductsQuery } from "@/store/api/apiSlice";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
 
 // Sample product data
-const products = [
-  {
-    id: 1,
-    name: "All-Natural Granular",
-    description:
-      "Organic fertilizer formulated to enrich soil health and robust root development.",
-    price: "₹2,450.00",
-    category: "Fertilizer",
-    image:
-      "https://lh3.googleusercontent.com/aida/AP1WRLtN6wUq66Ek_v6ONog7ZcXP7FKRFZdzWkqwvuK1jmuXQYsA078cdzHyOUV_dnejSjIcuWl1RVD0JfevGEAtZhWej-XjI6r3p71UHdOCV9tAlHdvuhqJNfnYDg5yvV8syfIO0L4X5Puso8Lzva2GCKUevYroPzLSI9-2x4Mi_35sHV5YmlyFaTqsi7X2cm-M7cG4n9t6GjaGUcjCASqyMF-IeAFnCQPEuOHMQFCP4bzGbWoADQNsiimrNfuX",
-  },
-  {
-    id: 2,
-    name: "Premium Wheat Seeds",
-    description:
-      "High-yield, disease-resistant hybrid wheat seeds optimized for diverse conditions.",
-    price: "₹1,200.00",
-    category: "Seeds",
-    image:
-      "https://lh3.googleusercontent.com/aida/AP1WRLv9D0gm9WYf0zzLfxZz6o1jP1vJmk-EEd3Yw3n3ooFNY-sUfnIEW49TlVvSBsw1zBqnfE5fJ2gjSu9w7XLqojtKvZGQy0RSZXOmnIH86AEok8_4NxrjBY3puC3t9j5v2YFk17YXfV8Uq2Q8YPSwku6SD5Hsuq7js0t0o16swfmPBVC1QHZHWY1qBF0o7dFoXAIhFn3vOqSdHqvOjnqB6HpphsI9yM-yvSogGBodcHxygdvE638abv1GUAF2",
-  },
-  {
-    id: 3,
-    name: "Eco-Grow Protector",
-    description:
-      "A 100% organic foliar spray to enhance plant immunity without harmful chemicals.",
-    price: "₹850.00",
-    category: "Organic",
-    image:
-      "https://lh3.googleusercontent.com/aida/AP1WRLt2mDd019pOiTY71nvHOayuYoUb8KAsa_St9y9QePfj8CLvT74mt5RRthlLaNqV8ESInDhOevk_1hw4GXhr5HGg-xo7JVm36eeOxK666VtoRaprNJa1jx6ShPHtQhWmMjlhJltgmAWuG4SdSzHz9sGlRLaE-pugib5xRvxcKmy3e_0SYjcYLwhIuaG0kTNa0oaqMYNx63AxMzSFWMnJsmo2kNAsTwbbc3zfSL2t3eQgVpQ-t4gjyKR5Ou1N",
-  },
-  {
-    id: 4,
-    name: "Agri-Tech Tractor X",
-    description:
-      "Autonomous ready tractor with precision mapping and integrated crop management.",
-    price: "Custom",
-    category: "Equipment",
-    image:
-      "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
-  },
-  {
-    id: 4,
-    name: "Agri-Tech Tractor X",
-    description:
-      "Autonomous ready tractor with precision mapping and integrated crop management.",
-    price: "Custom",
-    category: "Equipment",
-    image:
-      "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
-  },
-];
+// const products = [
+//   {
+//     id: 1,
+//     name: "All-Natural Granular",
+//     description:
+//       "Organic fertilizer formulated to enrich soil health and robust root development.",
+//     price: "₹2,450.00",
+//     category: "Fertilizer",
+//     image:
+//       "https://lh3.googleusercontent.com/aida/AP1WRLtN6wUq66Ek_v6ONog7ZcXP7FKRFZdzWkqwvuK1jmuXQYsA078cdzHyOUV_dnejSjIcuWl1RVD0JfevGEAtZhWej-XjI6r3p71UHdOCV9tAlHdvuhqJNfnYDg5yvV8syfIO0L4X5Puso8Lzva2GCKUevYroPzLSI9-2x4Mi_35sHV5YmlyFaTqsi7X2cm-M7cG4n9t6GjaGUcjCASqyMF-IeAFnCQPEuOHMQFCP4bzGbWoADQNsiimrNfuX",
+//   },
+//   {
+//     id: 2,
+//     name: "Premium Wheat Seeds",
+//     description:
+//       "High-yield, disease-resistant hybrid wheat seeds optimized for diverse conditions.",
+//     price: "₹1,200.00",
+//     category: "Seeds",
+//     image:
+//       "https://lh3.googleusercontent.com/aida/AP1WRLv9D0gm9WYf0zzLfxZz6o1jP1vJmk-EEd3Yw3n3ooFNY-sUfnIEW49TlVvSBsw1zBqnfE5fJ2gjSu9w7XLqojtKvZGQy0RSZXOmnIH86AEok8_4NxrjBY3puC3t9j5v2YFk17YXfV8Uq2Q8YPSwku6SD5Hsuq7js0t0o16swfmPBVC1QHZHWY1qBF0o7dFoXAIhFn3vOqSdHqvOjnqB6HpphsI9yM-yvSogGBodcHxygdvE638abv1GUAF2",
+//   },
+//   {
+//     id: 3,
+//     name: "Eco-Grow Protector",
+//     description:
+//       "A 100% organic foliar spray to enhance plant immunity without harmful chemicals.",
+//     price: "₹850.00",
+//     category: "Organic",
+//     image:
+//       "https://lh3.googleusercontent.com/aida/AP1WRLt2mDd019pOiTY71nvHOayuYoUb8KAsa_St9y9QePfj8CLvT74mt5RRthlLaNqV8ESInDhOevk_1hw4GXhr5HGg-xo7JVm36eeOxK666VtoRaprNJa1jx6ShPHtQhWmMjlhJltgmAWuG4SdSzHz9sGlRLaE-pugib5xRvxcKmy3e_0SYjcYLwhIuaG0kTNa0oaqMYNx63AxMzSFWMnJsmo2kNAsTwbbc3zfSL2t3eQgVpQ-t4gjyKR5Ou1N",
+//   },
+//   {
+//     id: 4,
+//     name: "Agri-Tech Tractor X",
+//     description:
+//       "Autonomous ready tractor with precision mapping and integrated crop management.",
+//     price: "Custom",
+//     category: "Equipment",
+//     image:
+//       "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
+//   },
+//   {
+//     id: 4,
+//     name: "Agri-Tech Tractor X",
+//     description:
+//       "Autonomous ready tractor with precision mapping and integrated crop management.",
+//     price: "Custom",
+//     category: "Equipment",
+//     image:
+//       "https://lh3.googleusercontent.com/aida/AP1WRLsRSlZ2lFwdFob51DFp14UxTSNLZ5y8W88K7s03V3g_Fzroc5jFgZ9JE_p2EnkMJIOuNffzeNbYIjHHmlR-UUrnvPC5uJddgyuj_2EWntJdt2OPhIoiZI8qQGGS-lWT46cIq490n0COCW2ugoKJMW0sox9x4UJpaNh-TnC9FSY4zv2B5zPBX01ikq8QAa-B7uEhMzMB1Zjw0PEHNkFchUDFXCaxi4PgbtY4lp4T_keN_WGhjTWVAey0F6gp",
+//   },
+// ];
 
 const ProductsGrid: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("newest");
+
+  const { data, isLoading, error, refetch, isFetching } = useGetProductsQuery({
+    page,
+    limit: 12,
+  });
+
+  interface Product {
+    _id: string;
+    name: string;
+    slug: string;
+    category: string;
+    shortDescription: string;
+    description: string;
+    price: number;
+    status: string;
+    images: {
+      url: string;
+      publicId: string;
+    }[];
+  }
+
+  const products: Product[] = data?.data || [];
+  const pagination = data?.pagination;
 
   const handleViewChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -125,13 +151,35 @@ const ProductsGrid: React.FC = () => {
 
   const router = useRouter();
 
+  if (isLoading)
+    return (
+      <LoadingState
+        title="Loading products..."
+        message="Please wait while we fetch the products."
+      />
+    );
+
+  if (error)
+    return (
+      <ErrorState
+        title="Failed to load products"
+        message="Unable to fetch products."
+        loading={isFetching}
+        onRetry={refetch}
+      />
+    );
+
   return (
     <GridSection>
       <GridContainer>
         <Toolbar>
           <ToolbarLeft>
             <ProductCount variant="body2">
-              Showing <span className="count">48</span> Products
+              Showing{" "}
+              <span className="count">
+                {pagination?.totalProducts || products.length}
+              </span>{" "}
+              Products
             </ProductCount>
           </ToolbarLeft>
           <ToolbarRight>
@@ -194,19 +242,24 @@ const ProductsGrid: React.FC = () => {
 
         <StyledProductGrid viewMode={viewMode}>
           {products.map((product) => (
-            <ProductCard key={product.id}>
+            <ProductCard key={product._id}>
               <ProductImageWrapper>
-                <ProductImage src={product.image} alt={product.name} />
+                <ProductImage
+                  src={product.images?.[0]?.url || "/images/no-image.png"}
+                  alt={product.name}
+                />
                 <ProductBadge>{product.category}</ProductBadge>
               </ProductImageWrapper>
               <ProductContent>
                 <ProductTitle variant="h6">{product.name}</ProductTitle>
                 <ProductDescription variant="body2">
-                  {product.description}
+                  {product.shortDescription}
                 </ProductDescription>
                 <ProductFooter>
-                  <ProductPrice variant="h6">{product.price}</ProductPrice>
-                  <DetailsButton onClick={() => router.push(`/products/1`)}>
+                  <ProductPrice variant="h6">₹{product.price}</ProductPrice>
+                  <DetailsButton
+                    onClick={() => router.push(`/products/${product.slug}`)}
+                  >
                     Details
                   </DetailsButton>
                 </ProductFooter>
@@ -218,7 +271,7 @@ const ProductsGrid: React.FC = () => {
         {/* MUI Pagination */}
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <Pagination
-            count={12}
+            count={pagination?.totalPages || 1}
             page={page}
             onChange={handlePageChange}
             color="primary"

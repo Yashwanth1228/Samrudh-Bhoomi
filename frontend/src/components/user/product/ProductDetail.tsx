@@ -104,10 +104,10 @@ const productData = {
 };
 
 interface ProductDetailProps {
-  id: string;
+  slug: string;
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ id }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ slug }) => {
   return (
     <MainContainer maxWidth="xl">
       {/* Product Overview Section - Side by Side using flexbox */}

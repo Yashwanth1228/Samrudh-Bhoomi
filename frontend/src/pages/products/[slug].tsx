@@ -7,7 +7,7 @@ import ProductDetail from "../../components/user/product/ProductDetail";
 
 const ProductDetailPage: NextPage = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { slug } = router.query;
 
   return (
     <>
@@ -17,7 +17,7 @@ const ProductDetailPage: NextPage = () => {
       </Head>
 
       <PageContainer>
-        <ProductDetail id={id as string} />
+        <ProductDetail slug={slug as string} />
       </PageContainer>
     </>
   );
