@@ -28,7 +28,7 @@ interface ProductInfoProps {
   name: string;
   category: string;
   price: string;
-  discountPrice: string;
+  discountPrice?: string;
   description: string;
   features: string[];
 }
