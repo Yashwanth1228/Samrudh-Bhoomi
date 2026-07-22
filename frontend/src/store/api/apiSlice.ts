@@ -81,6 +81,17 @@ export const apiSlice = createApi({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
     credentials: "include", // for session/cookies
   }),
+  tagTypes: [
+    "User",
+    "equipment",
+    "product",
+    "blog",
+    "upload",
+    "users",
+    "inquiries",
+    "inventory",
+    "InventoryHistory",
+  ],
   tagTypes: ['User','equipment','product','blog','upload','users','inquiries','inventory','InventoryHistory','cms'],
 
 
@@ -260,48 +271,46 @@ export const apiSlice = createApi({
       invalidatesTags: ["product"],
     }),
 
-        // Inventory routes
+    // Inventory routes
 
-        getInventories: builder.query<InventoryItem[], void>({
-          query: () => "/inventory/all",
-          transformResponse: (response: any) => response.data,
-          providesTags: ["inventory"],
-        }),
+    getInventories: builder.query<InventoryItem[], void>({
+      query: () => "/inventory/all",
+      transformResponse: (response: any) => response.data,
+      providesTags: ["inventory"],
+    }),
 
-        addInventory: builder.mutation({
-          query: (body) => ({
-            url: "/inventory/add",
-            method: "POST",
-            body,
-          }),
-          invalidatesTags: ["inventory"],
-        }),
+    addInventory: builder.mutation({
+      query: (body) => ({
+        url: "/inventory/add",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["inventory"],
+    }),
 
+    getInventoryHistory: builder.query<any[], void>({
+      query: () => "/inventorytransaction/history",
+      providesTags: ["InventoryHistory"],
+      transformResponse: (response: any) => response.data,
+    }),
 
-        getInventoryHistory: builder.query<any[], void>({
-          query: () => "/inventorytransaction/history",
-          providesTags: ["InventoryHistory"],
-          transformResponse: (response: any) => response.data,
-        }),
-
-      stockIn: builder.mutation({
-        query: (body) => ({
-            url: "/inventorytransaction/stock-in",
-            method: "POST",
-            body,
-        }),
-        invalidatesTags: ["inventory","InventoryHistory"],
+    stockIn: builder.mutation({
+      query: (body) => ({
+        url: "/inventorytransaction/stock-in",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["inventory", "InventoryHistory"],
     }),
 
     stockOut: builder.mutation({
       query: (body) => ({
-          url: "/inventorytransaction/stock-out",
-          method: "POST",
-          body,
+        url: "/inventorytransaction/stock-out",
+        method: "POST",
+        body,
       }),
-      invalidatesTags: ["inventory","InventoryHistory"],
-  }),
-        
+      invalidatesTags: ["inventory", "InventoryHistory"],
+    }),
 
     updateProduct: builder.mutation<any, { id: string; body: any }>({
       query: ({ id, body }) => ({
@@ -346,6 +355,11 @@ export const apiSlice = createApi({
       invalidatesTags: ["inquiries"],
     }),
 
+    getProductBySlug: builder.query<any, string>({
+      query: (slug) => `/products/slug/${slug}`,
+      transformResponse: (response: any) => response.data,
+      providesTags: ["product"],
+    }),
     // cms routes
 
     saveCms: builder.mutation<any,{page: string;content: Record<string, any>;isPublished?: boolean;}>({
@@ -405,6 +419,7 @@ export const {
   useUpdateProductMutation,
   useGetProductByIdQuery,
   useDeleteProductMutation,
+  useGetProductBySlugQuery,
   useGetAllCmsQuery,
   useGetCmsByPageQuery,
   useSaveCmsMutation,

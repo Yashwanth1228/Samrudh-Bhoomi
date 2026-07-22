@@ -12,7 +12,10 @@ import {
 } from "../../../styles/user/product/ProductGallery.styles";
 
 interface ProductGalleryProps {
-  images: string[];
+  images: {
+    url: string;
+    publicId: string;
+  }[];
 }
 
 const ProductGallery: React.FC<ProductGalleryProps> = ({ images }) => {
@@ -21,7 +24,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images }) => {
   return (
     <GalleryContainer>
       <MainImageWrapper>
-        <MainImage src={images[selectedImage]} alt="Product" />
+        <MainImage src={images[selectedImage]?.url} alt="Product" />
         {/* <ZoomButton>
           <ZoomInIcon />
         </ZoomButton> */}
@@ -33,7 +36,10 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ images }) => {
             active={selectedImage === index}
             onClick={() => setSelectedImage(index)}
           >
-            <ThumbnailImage src={image} alt={`Thumbnail ${index + 1}`} />
+            <ThumbnailImage
+              src={image.url}
+              alt={`Thumbnail ${index + 1}`}
+            />{" "}
           </ThumbnailButton>
         ))}
       </ThumbnailsContainer>
