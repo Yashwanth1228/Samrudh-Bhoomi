@@ -3,11 +3,34 @@ import { Container, Typography, Box, Breadcrumbs, Link } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 import { HeroSection, HeroOverlay, HeroContent } from "@/styles/user/blog/BlogHero.styles";
+import { useGetCmsByPageQuery } from "@/store/api/apiSlice";
+import ErrorState from "@/components/common/ErrorState";
+import LoadingState from "@/components/common/LoadingState";
 
 export const BlogHero: React.FC = () => {
+  const { data , isLoading: blogloading , error , refetch , isFetching } = useGetCmsByPageQuery("blogs");
+  console.log("cms data" , data);
+
+  if (blogloading)
+  return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
+
+if (error)
+  return (
+    <ErrorState
+  title="Failed to Load Blogs"
+  message="Unable to fetch blogs."
+  loading={isFetching}
+  onRetry={refetch}
+/>
+  );
   return (
     <HeroSection>
-      <HeroOverlay />
+      <HeroOverlay
+  image={
+    data?.content?.bannerImage?.url ||
+    "https://blog.plantwise.org/wp-content/uploads/sites/7/2020/05/sdas20121108-plantclinic_pondicherry-0268-1.jpg"
+  }
+/>
       <HeroContent>
         <Container maxWidth="xl">
           <Breadcrumbs
@@ -39,7 +62,7 @@ export const BlogHero: React.FC = () => {
               maxWidth: "800px",
             }}
           >
-            Blogs & Resources
+            {data?.content?.bannerTitle}
           </Typography>
 
           <Typography
@@ -50,7 +73,7 @@ export const BlogHero: React.FC = () => {
               fontSize: "1.125rem",
             }}
           >
-            Your trusted hub for agricultural knowledge, farming best practices, and industry insights.
+            {data?.content?.bannerDescription}
           </Typography>
         </Container>
       </HeroContent>
