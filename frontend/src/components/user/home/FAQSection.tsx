@@ -10,7 +10,18 @@ import {
   FAQAnswer,
 } from "../../../styles/user/home/FAQSection.styles";
 
-const faqs = [
+interface FAQProps {
+  faq?: {
+    title: string;
+    subtitle: string;
+    questions: {
+      question: string;
+      answer: string;
+    }[];
+  };
+}
+
+const defaultFaqs = [
   {
     question: "Do you provide bulk ordering for large enterprises?",
     answer:
@@ -28,39 +39,63 @@ const faqs = [
   },
 ];
 
-const FAQSection: React.FC = () => {
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+export default function FAQSection({
+  faq,
+}: FAQProps) {
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(0);
 
   const toggleFAQ = (index: number) => {
-    setExpandedFAQ(expandedFAQ === index ? null : index);
+    setExpandedFAQ((prev) => (prev === index ? null : index));
   };
+
+  const questions =
+    faq?.questions && faq.questions.length > 0
+      ? faq.questions
+      : defaultFaqs;
 
   return (
     <FAQSectionContainer>
       <Container maxWidth="md">
-        <FAQTitle variant="h2">Frequently Asked Questions</FAQTitle>
+        <FAQTitle variant="h2">
+          {faq?.title || "Frequently Asked Questions"}
+        </FAQTitle>
+
         <FAQSubtitle variant="body1">
-          Find answers to common queries about our products and services.
+          {faq?.subtitle ||
+            "Find answers to common queries about our products and services."}
         </FAQSubtitle>
+
         <FAQList>
-          {faqs.map((faq, index) => (
+          {questions.map((item, index) => (
             <FAQItem key={index}>
               <FAQSummary onClick={() => toggleFAQ(index)}>
-                <Typography variant="h6">{faq.question}</Typography>
+                <Typography variant="h6">
+                  {item.question}
+                </Typography>
+
                 <Box
                   component="span"
                   sx={{
-                    transition: "transform 0.3s",
+                    transition: "transform 0.3s ease",
                     transform:
-                      expandedFAQ === index ? "rotate(180deg)" : "rotate(0deg)",
-                    fontFamily: "Material Symbols Outlined",
+                      expandedFAQ === index
+                        ? "rotate(180deg)"
+                        : "rotate(0deg)",
+                    fontSize: 28,
+                    fontWeight: 500,
+                    lineHeight: 1,
                   }}
                 >
-                  expand_more
+                  +
                 </Box>
               </FAQSummary>
-              <FAQAnswer expanded={expandedFAQ === index ? "true" : "false"}>
-                <Typography variant="body2">{faq.answer}</Typography>
+
+              <FAQAnswer
+                expanded={expandedFAQ === index ? "true" : "false"}
+              >
+                <Typography variant="body2">
+                  {item.answer}
+                </Typography>
               </FAQAnswer>
             </FAQItem>
           ))}
@@ -68,6 +103,4 @@ const FAQSection: React.FC = () => {
       </Container>
     </FAQSectionContainer>
   );
-};
-
-export default FAQSection;
+}
