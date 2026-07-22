@@ -61,19 +61,6 @@ const WhyChooseSection: React.FC = () => {
             <WhyCardText variant="body2">{item.text}</WhyCardText>
           </WhyCard>
         ))}
-        <WhyHighlight>
-          <WhyHighlightContent>
-            <WhyHighlightTitle variant="h6">
-              <span className="material-symbols-outlined">psychiatry</span>
-              Sustainable Solutions
-            </WhyHighlightTitle>
-            <WhyHighlightText variant="body2">
-              Forward-looking formulations designed to maintain soil health,
-              reduce runoff, and promote long-term ecological balance without
-              sacrificing yield.
-            </WhyHighlightText>
-          </WhyHighlightContent>
-        </WhyHighlight>
       </WhyGrid>
     </WhySection>
   );

@@ -8,7 +8,8 @@ import MissionVisionSection from "../components/user/about/MissionVisionSection"
 import TimelineSection from "../components/user/about/TimelineSection";
 import WhyChooseSection from "../components/user/about/WhyChooseSection";
 import GallerySection from "../components/user/about/GallerySection";
-import AboutCTA from "../components/user/about/AboutCTA";
+import CTASection from "../components/user/home/CTASection";
+
 
 const AboutPage: NextPage = () => {
   return (
@@ -33,7 +34,7 @@ const AboutPage: NextPage = () => {
         <TimelineSection />
         <WhyChooseSection />
         <GallerySection />
-        <AboutCTA />
+        <CTASection/>
       </PageContainer>
     </>
   );
