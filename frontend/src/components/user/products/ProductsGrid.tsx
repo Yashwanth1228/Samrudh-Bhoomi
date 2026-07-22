@@ -43,7 +43,6 @@ import {
   EmptyStateButton,
 } from "../../../styles/user/products/ProductsGrid.styles";
 import { useRouter } from "next/router";
-import { useGetProductsQuery } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 
@@ -101,33 +100,53 @@ import ErrorState from "@/components/common/ErrorState";
 //   },
 // ];
 
-const ProductsGrid: React.FC = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState("newest");
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  category: string;
+  shortDescription: string;
+  description: string;
+  price: number;
+  status: string;
+  images: {
+    url: string;
+    publicId: string;
+  }[];
+}
 
-  const { data, isLoading, error, refetch, isFetching } = useGetProductsQuery({
-    page,
-    limit: 12,
-  });
+interface ProductsGridProps {
+  products: Product[];
+  pagination: any;
 
-  interface Product {
-    _id: string;
-    name: string;
-    slug: string;
+  filters: {
+    page: number;
+    limit: number;
+    search: string;
     category: string;
-    shortDescription: string;
-    description: string;
-    price: number;
     status: string;
-    images: {
-      url: string;
-      publicId: string;
-    }[];
-  }
+  };
 
-  const products: Product[] = data?.data || [];
-  const pagination = data?.pagination;
+  onChange: React.Dispatch<React.SetStateAction<any>>;
+
+  loading: boolean;
+  error: any;
+  refetch: any;
+  isFetching: boolean;
+}
+
+const ProductsGrid: React.FC<ProductsGridProps> = ({
+  products,
+  pagination,
+  filters,
+  onChange,
+  loading,
+  error,
+  refetch,
+  isFetching,
+}) => {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("newest");
 
   const handleViewChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -138,11 +157,11 @@ const ProductsGrid: React.FC = () => {
     }
   };
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setPage(value);
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    onChange((prev: any) => ({
+      ...prev,
+      page: value,
+    }));
   };
 
   const handleSortChange = (event: any) => {
@@ -151,7 +170,7 @@ const ProductsGrid: React.FC = () => {
 
   const router = useRouter();
 
-  if (isLoading)
+  if (loading)
     return (
       <LoadingState
         title="Loading products..."
@@ -272,7 +291,7 @@ const ProductsGrid: React.FC = () => {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <Pagination
             count={pagination?.totalPages || 1}
-            page={page}
+            page={filters.page}
             onChange={handlePageChange}
             color="primary"
             shape="rounded"
