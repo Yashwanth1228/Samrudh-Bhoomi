@@ -38,12 +38,14 @@ interface Specification {
 }
 
 interface ProductTabsProps {
+  description: string;
   benefits: Benefit[];
   specifications: Specification[];
   usage: string[];
 }
 
 const ProductTabs: React.FC<ProductTabsProps> = ({
+  description,
   benefits,
   specifications,
   usage,
@@ -89,24 +91,24 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         <TabContent value={activeTab} index={0}>
           <Typography
             variant="h6"
-            sx={{ fontFamily: "Inter", fontWeight: 500, mb: 2 }}
+            sx={{
+              fontFamily: "Inter",
+              fontWeight: 500,
+              mb: 2,
+            }}
           >
-            Complete Organic Nutrition
+            Product Description
           </Typography>
-          <Typography variant="body1" sx={{ color: "#42493e", mb: 2 }}>
-            Our All-Natural Granular Fertilizer is a premium, balanced plant
-            food designed to support vigorous growth and maximum yield in
-            agricultural settings. Composed entirely of organic matter, it
-            provides a steady, slow release of essential nutrients, ensuring
-            that plants receive sustenance throughout their growing cycle rather
-            than a sudden flush.
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#42493e" }}>
-            Beyond merely feeding the plant, this fertilizer actively improves
-            soil health. It increases microbial activity, enhances soil
-            aeration, and improves moisture retention capabilities. Regular use
-            leads to darker, richer soil that is more resilient to environmental
-            stresses.
+
+          <Typography
+            variant="body1"
+            sx={{
+              color: "#42493e",
+              whiteSpace: "pre-line",
+              lineHeight: 1.8,
+            }}
+          >
+            {description}
           </Typography>
         </TabContent>
 
