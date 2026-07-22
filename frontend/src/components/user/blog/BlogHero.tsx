@@ -14,15 +14,15 @@ export const BlogHero: React.FC = () => {
   if (blogloading)
   return <LoadingState title="Loading Blogs..." message="Please wait while we fetch your data." />;
 
-if (error)
-  return (
-    <ErrorState
-  title="Failed to Load Blogs"
-  message="Unable to fetch blogs."
-  loading={isFetching}
-  onRetry={refetch}
-/>
-  );
+// if (error)
+//   return (
+//     <ErrorState
+//   title="Failed to Load Blogs"
+//   message="Unable to fetch blogs."
+//   loading={isFetching}
+//   onRetry={refetch}
+// />
+//   );
   return (
     <HeroSection>
       <HeroOverlay
