@@ -62,7 +62,7 @@ if (error)
               maxWidth: "800px",
             }}
           >
-            {data?.content?.bannerTitle}
+            {data?.content?.bannerTitle || "Blogs & Resources"}
           </Typography>
 
           <Typography
@@ -73,7 +73,7 @@ if (error)
               fontSize: "1.125rem",
             }}
           >
-            {data?.content?.bannerDescription}
+            {data?.content?.bannerDescription || "Your trusted hub for agricultural knowledge, farming best practices , and industry insights."}
           </Typography>
         </Container>
       </HeroContent>
