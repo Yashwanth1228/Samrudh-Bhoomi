@@ -43,20 +43,6 @@ import {
     ) => {
       const { name, value } = e.target;
   
-      if (name.startsWith("button.")) {
-        const key = name.split(".")[1];
-  
-        setAbout({
-          ...about,
-          button: {
-            ...about.button,
-            [key]: value,
-          },
-        });
-  
-        return;
-      }
-  
       setAbout({
         ...about,
         [name]: value,
@@ -137,23 +123,7 @@ import {
               value={about.description}
               onChange={handleChange}
             />
-  
-            <TextField
-              label="Button Text"
-              fullWidth
-              name="button.text"
-              value={about.button.text}
-              onChange={handleChange}
-            />
-  
-            <TextField
-              label="Button Link"
-              fullWidth
-              name="button.link"
-              value={about.button.link}
-              onChange={handleChange}
-            />
-  
+              
             <Box>
               <Typography
                 sx={{

@@ -57,161 +57,161 @@ import {
   
     return (
       <Card
+  sx={{
+    borderRadius: 3,
+    boxShadow: 3,
+    height: "100%",
+  }}
+>
+  <CardContent>
+
+    {/* Header */}
+
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 4,
+      }}
+    >
+      <Box
         sx={{
-          borderRadius: 3,
-          boxShadow: 3,
-          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
         }}
       >
-        <CardContent>
+        <AnalyticsIcon color="primary" />
+
+        <Typography
+        sx={{
+          variant:"h6",
+          fontWeight:700,
+        }}
+        >
+          Statistics
+        </Typography>
+      </Box>
+
+      <IconButton
+        color="primary"
+        onClick={addItem}
+      >
+        <AddCircleIcon />
+      </IconButton>
+    </Box>
+
+    {/* Cards */}
+
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          md: "1fr 1fr",
+        },
+        gap: 3,
+      }}
+    >
+      {statistics.items.map((item, index) => (
+        <Box
+          key={index}
+          sx={{
+            border: "1px solid #E5E7EB",
+            borderRadius: 3,
+            p: 3,
+            bgcolor: "#FAFAFA",
+            transition: ".25s",
+
+            "&:hover": {
+              boxShadow: 2,
+              bgcolor: "#fff",
+            },
+          }}
+        >
           <Box
             sx={{
               display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
-              gap: 1,
               mb: 3,
             }}
           >
-            <AnalyticsIcon color="primary" />
-  
             <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-              }}
-            >
-              Statistics Section
-            </Typography>
-          </Box>
-  
-          <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 3,
+              fontWeight:700,
             }}
-          >
-            <TextField
-              label="Statistics Title"
-              fullWidth
-              value={statistics.title}
-              onChange={(e) =>
-                setStatistics({
-                  ...statistics,
-                  title: e.target.value,
-                })
-              }
-            />
-  
-            <TextField
-              label="Statistics Subtitle"
-              multiline
-              rows={2}
-              fullWidth
-              value={statistics.subtitle}
-              onChange={(e) =>
-                setStatistics({
-                  ...statistics,
-                  subtitle: e.target.value,
-                })
-              }
-            />
-  
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
             >
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                }}
-              >
-                Statistics Items
-              </Typography>
-  
-              <IconButton color="primary" onClick={addItem}>
-                <AddCircleIcon />
-              </IconButton>
-            </Box>
-  
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                },
-                gap: 2,
-              }}
+              Statistic {index + 1}
+            </Typography>
+
+            <IconButton
+              color="error"
+              size="small"
+              onClick={() => removeItem(index)}
             >
-              {statistics.items.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    border: "1px solid #E5E7EB",
-                    borderRadius: 2,
-                    p: 2,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 2,
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                      }}
-                    >
-                      Item {index + 1}
-                    </Typography>
-  
-                    <IconButton
-                      color="error"
-                      size="small"
-                      onClick={() => removeItem(index)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-  
-                  <TextField
-                    label="Label"
-                    fullWidth
-                    value={item.label}
-                    onChange={(e) =>
-                      handleItemChange(
-                        index,
-                        "label",
-                        e.target.value
-                      )
-                    }
-                    sx={{ mb: 2 }}
-                  />
-  
-                  <TextField
-                    label="Value"
-                    fullWidth
-                    value={item.value}
-                    onChange={(e) =>
-                      handleItemChange(
-                        index,
-                        "value",
-                        e.target.value
-                      )
-                    }
-                  />
-                </Box>
-              ))}
-            </Box>
+              <DeleteIcon />
+            </IconButton>
           </Box>
-        </CardContent>
-      </Card>
+
+          <TextField
+            fullWidth
+            label="Label"
+            placeholder="Happy Farmers"
+            value={item.label}
+            onChange={(e) =>
+              handleItemChange(
+                index,
+                "label",
+                e.target.value
+              )
+            }
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            label="Value"
+            placeholder="5000+"
+            value={item.value}
+            onChange={(e) =>
+              handleItemChange(
+                index,
+                "value",
+                e.target.value
+              )
+            }
+          />
+        </Box>
+      ))}
+    </Box>
+
+    {statistics.items.length === 0 && (
+      <Box
+        sx={{
+          py: 8,
+          textAlign: "center",
+          color: "text.secondary",
+          border: "2px dashed #E5E7EB",
+          borderRadius: 3,
+          mt: 2,
+        }}
+      >
+        <Typography sx={{ mb:2 }}>
+          No statistics added yet
+        </Typography>
+
+        <IconButton
+          color="primary"
+          onClick={addItem}
+        >
+          <AddCircleIcon sx={{ fontSize: 40 }} />
+        </IconButton>
+      </Box>
+    )}
+
+  </CardContent>
+</Card>
     );
   }

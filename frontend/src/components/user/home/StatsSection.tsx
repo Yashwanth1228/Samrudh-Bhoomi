@@ -8,6 +8,7 @@ import {
   StatValue,
   StatLabel,
 } from "../../../styles/user/home/StatsSection.styles";
+
 import {
   Inventory2 as Inventory2Icon,
   Groups as GroupsIcon,
@@ -15,24 +16,70 @@ import {
   Verified as VerifiedIcon,
 } from "@mui/icons-material";
 
-const stats = [
-  { icon: <Inventory2Icon />, value: "50+", label: "Premium Products" },
-  { icon: <GroupsIcon />, value: "10,000+", label: "Happy Customers" },
-  { icon: <StorefrontIcon />, value: "500+", label: "Authorized Dealers" },
-  { icon: <VerifiedIcon />, value: "15+", label: "Years Experience" },
+interface StatisticsProps {
+  statistics?: {
+    items: {
+      label: string;
+      value: string;
+    }[];
+  };
+}
+
+/* Default statistics */
+const defaultStats = [
+  {
+    label: "Premium Products",
+    value: "50+",
+  },
+  {
+    label: "Happy Customers",
+    value: "10,000+",
+  },
+  {
+    label: "Authorized Dealers",
+    value: "500+",
+  },
+  {
+    label: "Years Experience",
+    value: "15+",
+  },
 ];
 
-const StatsSection: React.FC = () => {
+/* Icons */
+const icons = [
+  <Inventory2Icon key="inventory" />,
+  <GroupsIcon key="groups" />,
+  <StorefrontIcon key="store" />,
+  <VerifiedIcon key="verified" />,
+];
+
+export default function StatsSection({
+  statistics,
+}: StatisticsProps) {
+  // Use CMS data if available, otherwise use default data
+  const stats =
+    statistics?.items && statistics.items.length > 0
+      ? statistics.items
+      : defaultStats;
+
   return (
     <StatsSectionContainer>
       <Container maxWidth="xl">
         <StatsGrid>
-          {stats.map((stat, index) => (
+          {stats.map((item, index) => (
             <StatCard key={index}>
-              <StatIconWrapper>{stat.icon}</StatIconWrapper>
+              <StatIconWrapper>
+                {icons[index % icons.length]}
+              </StatIconWrapper>
+
               <div>
-                <StatValue variant="h3">{stat.value}</StatValue>
-                <StatLabel variant="caption">{stat.label}</StatLabel>
+                <StatValue variant="h3">
+                  {item.value}
+                </StatValue>
+
+                <StatLabel variant="caption">
+                  {item.label}
+                </StatLabel>
               </div>
             </StatCard>
           ))}
@@ -40,6 +87,4 @@ const StatsSection: React.FC = () => {
       </Container>
     </StatsSectionContainer>
   );
-};
-
-export default StatsSection;
+}

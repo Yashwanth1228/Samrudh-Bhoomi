@@ -10,17 +10,30 @@ import {
   SecondaryButton,
 } from "../../../styles/user/home/HeroSection.styles";
 
-const HeroSection: React.FC = () => {
+interface HeroProps {
+  hero: {
+    title: string;
+    subtitle: string;
+    backgroundImage: {
+      url: string;
+    };
+  };
+}
+
+export default function HeroSection({
+  hero,
+}: HeroProps) {
   return (
-    <HeroSectionContainer>
+    <HeroSectionContainer
+  backgroundImage={hero?.backgroundImage?.url}
+>
       <HeroOverlay />
       <HeroContent maxWidth="xl">
         <HeroTitle variant="h1">
-          Sustainable Solutions for Agricultural Excellence
+        {hero?.title || "Sustainable Solutions for Agricultural Excellence"}
         </HeroTitle>
         <HeroSubtitle variant="body1">
-          Empowering farmers with premium fertilizers, high-yield seeds, and
-          organic growth solutions designed for the future of farming.
+        {hero?.subtitle || "Empowering farmers with premium fertilizers, high-yield seeds, and organic growth solutions designed for the future of farming."}
         </HeroSubtitle>
         <HeroButtons>
           <PrimaryButton variant="contained">Explore Products</PrimaryButton>
@@ -31,4 +44,3 @@ const HeroSection: React.FC = () => {
   );
 };
 
-export default HeroSection;

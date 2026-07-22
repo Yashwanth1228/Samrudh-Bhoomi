@@ -8,10 +8,6 @@ export interface ImageType {
 export interface HeroSectionType {
   title: string;
   subtitle: string;
-  button: {
-    text: string;
-    link: string;
-  };
   video: {
     url: string;
   };
@@ -22,10 +18,6 @@ export interface AboutSectionType {
   title: string;
   description: string;
   image: ImageType;
-  button: {
-    text: string;
-    link: string;
-  };
 }
 
 export interface StatisticItem {
@@ -34,8 +26,6 @@ export interface StatisticItem {
 }
 
 export interface StatisticsSectionType {
-  title: string;
-  subtitle: string;
   items: StatisticItem[];
 }
 
