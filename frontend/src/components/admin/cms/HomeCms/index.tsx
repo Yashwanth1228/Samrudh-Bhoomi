@@ -36,11 +36,6 @@ export default function HomeCms() {
       title: "",
       subtitle: "",
 
-      button: {
-        text: "",
-        link: "",
-      },
-
       video: {
         url: "",
       },
@@ -59,17 +54,9 @@ export default function HomeCms() {
         url: "",
         publicId: "",
       },
-
-      button: {
-        text: "",
-        link: "",
-      },
     },
 
     statistics: {
-      title: "",
-      subtitle: "",
-
       items: [],
     },
 

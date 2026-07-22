@@ -42,20 +42,6 @@ import {
     ) => {
       const { name, value } = e.target;
   
-      if (name.startsWith("button.")) {
-        const key = name.split(".")[1];
-  
-        setHero({
-          ...hero,
-          button: {
-            ...hero.button,
-            [key]: value,
-          },
-        });
-  
-        return;
-      }
-  
       if (name.startsWith("video.")) {
         const key = name.split(".")[1];
   
@@ -150,23 +136,7 @@ import {
               value={hero.subtitle}
               onChange={handleChange}
             />
-  
-            <TextField
-              label="Button Text"
-              fullWidth
-              name="button.text"
-              value={hero.button.text}
-              onChange={handleChange}
-            />
-  
-            <TextField
-              label="Button Link"
-              fullWidth
-              name="button.link"
-              value={hero.button.link}
-              onChange={handleChange}
-            />
-  
+
             <TextField
               label="Video URL"
               fullWidth

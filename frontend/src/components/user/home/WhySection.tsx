@@ -11,53 +11,102 @@ import {
   WhyTitle,
   WhyText,
 } from "../../../styles/user/home/WhySection.styles";
+
 import {
-  Science as ScienceIcon,
-  SupportAgent as SupportAgentIcon,
-  LocalShipping as LocalShippingIcon,
+  ScienceOutlined,
+  SupportAgentOutlined,
+  LocalShippingOutlined,
+  VerifiedOutlined,
+  SpaOutlined,
+  AgricultureOutlined,
 } from "@mui/icons-material";
 
-const whyData = [
+interface WhyProps {
+  whyChooseUs?: {
+    title: string;
+    subtitle: string;
+    cards: {
+      title: string;
+      description: string;
+      icon: string;
+    }[];
+  };
+}
+
+/* Default cards */
+const defaultCards = [
   {
-    icon: <ScienceIcon sx={{ fontSize: 32 }} />,
+    icon: "ScienceOutlined",
     title: "Scientific Approach",
-    text: "Our products are developed through rigorous R&D, ensuring they meet the specific agronomic needs of modern farming environments.",
+    description:
+      "Our products are developed through rigorous R&D, ensuring they meet the specific agronomic needs of modern farming environments.",
   },
   {
-    icon: <SupportAgentIcon sx={{ fontSize: 32 }} />,
+    icon: "SupportAgentOutlined",
     title: "Expert Support",
-    text: "Access a team of dedicated agronomists ready to provide personalized consultation and troubleshooting for your farm.",
+    description:
+      "Access a team of dedicated agronomists ready to provide personalized consultation and troubleshooting for your farm.",
   },
   {
-    icon: <LocalShippingIcon sx={{ fontSize: 32 }} />,
+    icon: "LocalShippingOutlined",
     title: "Reliable Supply Chain",
-    text: "With a robust distribution network, we ensure timely delivery of essential inputs exactly when you need them.",
+    description:
+      "With a robust distribution network, we ensure timely delivery of essential inputs exactly when you need them.",
   },
 ];
 
-const WhySection: React.FC = () => {
+/* Icon Mapping */
+const iconMap: Record<string, React.ReactNode> = {
+  ScienceOutlined: <ScienceOutlined sx={{ fontSize: 32 }} />,
+  SupportAgentOutlined: <SupportAgentOutlined sx={{ fontSize: 32 }} />,
+  LocalShippingOutlined: <LocalShippingOutlined sx={{ fontSize: 32 }} />,
+  VerifiedOutlined: <VerifiedOutlined sx={{ fontSize: 32 }} />,
+  SpaOutlined: <SpaOutlined sx={{ fontSize: 32 }} />,
+  AgricultureOutlined: <AgricultureOutlined sx={{ fontSize: 32 }} />,
+};
+
+export default function WhySection({
+  whyChooseUs,
+}: WhyProps) {
+  const cards =
+    whyChooseUs?.cards && whyChooseUs.cards.length > 0
+      ? whyChooseUs.cards
+      : defaultCards;
+
   return (
     <WhySectionContainer>
       <Container maxWidth="xl">
         <SectionHeader>
-          <SectionTitle variant="h2">Why Choose Samrudh Bhoomi?</SectionTitle>
+          <SectionTitle variant="h2">
+            {whyChooseUs?.title || "Why Choose Samrudh Bhoomi?"}
+          </SectionTitle>
+
           <SectionSubtitle variant="body1">
-            We bring enterprise-grade solutions and uncompromising quality to
-            every acre you farm.
+            {whyChooseUs?.subtitle ||
+              "We bring enterprise-grade solutions and uncompromising quality to every acre you farm."}
           </SectionSubtitle>
         </SectionHeader>
+
         <WhyGrid>
-          {whyData.map((item, index) => (
+          {cards.map((card, index) => (
             <WhyCard key={index}>
-              <WhyIconWrapper>{item.icon}</WhyIconWrapper>
-              <WhyTitle variant="h6">{item.title}</WhyTitle>
-              <WhyText variant="body2">{item.text}</WhyText>
+              <WhyIconWrapper>
+                {iconMap[card.icon] || (
+                  <ScienceOutlined sx={{ fontSize: 32 }} />
+                )}
+              </WhyIconWrapper>
+
+              <WhyTitle variant="h6">
+                {card.title}
+              </WhyTitle>
+
+              <WhyText variant="body2">
+                {card.description}
+              </WhyText>
             </WhyCard>
           ))}
         </WhyGrid>
       </Container>
     </WhySectionContainer>
   );
-};
-
-export default WhySection;
+}

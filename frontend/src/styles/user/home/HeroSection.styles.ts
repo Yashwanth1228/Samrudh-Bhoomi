@@ -1,7 +1,11 @@
 import styled from "@emotion/styled";
 import { Box, Typography, Button, Container } from "@mui/material";
 
-export const HeroSectionContainer = styled(Box)`
+interface HeroContainerProps {
+  backgroundImage?: string;
+}
+
+export const HeroSectionContainer = styled(Box)<HeroContainerProps>`
   position: relative;
   height: 600px;
   min-height: 500px;
@@ -10,8 +14,11 @@ export const HeroSectionContainer = styled(Box)`
   display: flex;
   align-items: center;
   overflow: hidden;
-  // background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFLRcr0jEbSoS1SyMpEUGKKy_9-IPImPtP5o8mJVA-3T982pyn0JDbPTmRT6WUu2adGTvOkqI6-u4NjtcOZBoXcp3tQykBkkQqAzlF6ZzF1NJlTAmCcZG9rq9YoY_0sQ8xVWH2IBZgtwYMuI23fuh0CKl50UZ062Vm76b6d_oT7D8EwZhfzfnedvXjHY-Rx10wBO1yNhQ2hFVv5GXq5VWMPeEQgcI7zfMNkeKKaZZxyYrzeB_tcvghOnxUU5k45oFnItrjzsU-aTgZ");
-  background-image: url("hero-image.jpg");
+  // background-image: url("https://lh3.googleusercontent.co  m/aida-public/AB6AXuCFLRcr0jEbSoS1SyMpEUGKKy_9-IPImPtP5o8mJVA-3T982pyn0JDbPTmRT6WUu2adGTvOkqI6-u4NjtcOZBoXcp3tQykBkkQqAzlF6ZzF1NJlTAmCcZG9rq9YoY_0sQ8xVWH2IBZgtwYMuI23fuh0CKl50UZ062Vm76b6d_oT7D8EwZhfzfnedvXjHY-Rx10wBO1yNhQ2hFVv5GXq5VWMPeEQgcI7zfMNkeKKaZZxyYrzeB_tcvghOnxUU5k45oFnItrjzsU-aTgZ");
+  background-image: ${({ backgroundImage }) =>
+  backgroundImage
+    ? `url(${backgroundImage})`
+    : `url("/hero-image.jpg")`};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
