@@ -17,16 +17,35 @@ import {
 const categories = [
   "All",
   "Fertilizers",
-  "Organic",
+  "Organic Products",
   "Seeds",
   "Pesticides",
-  "Agri-Equipment",
 ];
 
-const ProductsFilter: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
+interface ProductsFilterProps {
+  filters: {
+    page: number;
+    limit: number;
+    search: string;
+    category: string;
+    status: string;
+  };
 
+  onChange: React.Dispatch<
+    React.SetStateAction<{
+      page: number;
+      limit: number;
+      search: string;
+      category: string;
+      status: string;
+    }>
+  >;
+}
+
+const ProductsFilter: React.FC<ProductsFilterProps> = ({
+  filters,
+  onChange,
+}) => {
   return (
     <FilterSection>
       <FilterContainer>
@@ -46,8 +65,14 @@ const ProductsFilter: React.FC = () => {
             </SearchIconWrapper>
             <SearchInput
               placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={filters.search}
+              onChange={(e) =>
+                onChange((prev) => ({
+                  ...prev,
+                  page: 1,
+                  search: e.target.value,
+                }))
+              }
             />
           </SearchContainer>
 
@@ -55,8 +80,16 @@ const ProductsFilter: React.FC = () => {
             {categories.map((category) => (
               <CategoryButton
                 key={category}
-                active={activeCategory === category}
-                onClick={() => setActiveCategory(category)}
+                active={
+                  filters.category === (category === "All" ? "" : category)
+                }
+                onClick={() =>
+                  onChange((prev) => ({
+                    ...prev,
+                    page: 1,
+                    category: category === "All" ? "" : category,
+                  }))
+                }
               >
                 {category}
               </CategoryButton>
