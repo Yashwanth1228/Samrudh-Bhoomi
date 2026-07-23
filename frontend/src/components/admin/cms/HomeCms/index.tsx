@@ -16,6 +16,7 @@ import {
 } from "./types";
 
 import {
+  useDeleteImageMutation,
   useGetCmsByPageQuery,
   useSaveCmsMutation,
   useUploadimageMutation,
@@ -30,6 +31,9 @@ export default function HomeCms() {
     uploadImage,
     { isLoading: imageUploading },
   ] = useUploadimageMutation();
+
+  const [deleteImage, { isLoading: imageDeleting }] =
+  useDeleteImageMutation();
 
   const [cmsData, setCmsData] = useState<HomeCmsData>({
     hero: {
@@ -131,16 +135,18 @@ export default function HomeCms() {
 
       {/* Hero */}
       <HeroSection
-        hero={cmsData.hero}
-        setHero={(hero) =>
-          setCmsData((prev) => ({
-            ...prev,
-            hero,
-          }))
-        }
-        uploadImages={uploadImages}
-        imageUploading={imageUploading}
-      />
+  hero={cmsData.hero}
+  setHero={(hero) =>
+    setCmsData((prev) => ({
+      ...prev,
+      hero,
+    }))
+  }
+  uploadImages={uploadImages}
+  deleteImage={(data) => deleteImage(data).unwrap()}
+  imageUploading={imageUploading}
+  imageDeleting={imageDeleting}
+/>
 
       {/* About + Statistics */}
       <Box
@@ -154,17 +160,20 @@ export default function HomeCms() {
           mt: 3,
         }}
       >
-        <AboutSection
-          about={cmsData.about}
-          setAbout={(about) =>
-            setCmsData((prev) => ({
-              ...prev,
-              about,
-            }))
-          }
-          uploadImages={uploadImages}
-          imageUploading={imageUploading}
-        />
+
+<AboutSection
+  about={cmsData.about}
+  setAbout={(about) =>
+    setCmsData((prev) => ({
+      ...prev,
+      about,
+    }))
+  }
+  uploadImages={uploadImages}
+  deleteImage={(data) => deleteImage(data).unwrap()}
+  imageUploading={imageUploading}
+  imageDeleting={imageDeleting}
+/>
 
         <StatisticsSection
           statistics={cmsData.statistics}

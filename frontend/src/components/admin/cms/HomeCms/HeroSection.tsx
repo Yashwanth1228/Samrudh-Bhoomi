@@ -11,6 +11,7 @@ import {
   import toast from "react-hot-toast";
   
   import { HeroSectionType } from "./types";
+  import { CircularProgress } from "@mui/material";
   
   interface UploadedImage {
     url: string;
@@ -27,14 +28,22 @@ import {
       folder: string
     ) => Promise<UploadedImage[]>;
   
+    deleteImage: (
+      data: { publicId: string }
+    ) => Promise<any>;
+  
     imageUploading: boolean;
+  
+    imageDeleting: boolean;
   }
   
   export default function HeroSection({
     hero,
     setHero,
     uploadImages,
+    deleteImage,
     imageUploading,
+    imageDeleting,
   }: Props) {
   
     const handleChange = (
@@ -66,23 +75,33 @@ import {
       e: React.ChangeEvent<HTMLInputElement>
     ) => {
       const files = e.target.files;
-  
+    
       if (!files?.length) return;
-  
+    
       try {
+        // Upload new image first
         const uploaded = await uploadImages(
           [files[0]],
           "cms"
         );
-  
+    
+        // Delete previous image
+        if (hero.backgroundImage.publicId) {
+          await deleteImage({
+            publicId: hero.backgroundImage.publicId,
+          });
+        }
+    
+        // Update state
         setHero({
           ...hero,
           backgroundImage: uploaded[0],
         });
-  
-        toast.success("Hero image uploaded");
-      } catch {
-        toast.error("Upload failed");
+    
+        toast.success("Hero image uploaded successfully");
+      } catch (error) {
+        console.error(error);
+        toast.error("Image upload failed");
       }
     };
   
@@ -156,42 +175,113 @@ import {
               </Typography>
   
               <Button
-                component="label"
-                variant="outlined"
-                startIcon={<UploadFileIcon />}
-                disabled={imageUploading}
-              >
-                {imageUploading ? "Uploading..." : "Upload Image"}
+  component="label"
+  variant="outlined"
+  startIcon={<UploadFileIcon />}
+  disabled={imageUploading || imageDeleting}
+>
+  {imageUploading
+    ? "Uploading..."
+    : imageDeleting
+    ? "Deleting..."
+    : "Upload Image"}
+
+  <input
+    hidden
+    type="file"
+    accept="image/*"
+    onChange={handleImage}
+  />
+</Button>
   
-                <input
-                  hidden
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImage}
-                />
-              </Button>
-  
-              {hero.backgroundImage.url && (
-                <Box
-                  sx={{
-                    mt: 2,
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    border: "1px solid #ddd",
-                  }}
-                >
-                  <img
-                    src={hero.backgroundImage.url}
-                    alt="Hero"
-                    style={{
-                      width: "100%",
-                      maxHeight: 280,
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
-                </Box>
-              )}
+<Box
+  sx={{
+    mt: 2,
+    borderRadius: 2,
+    overflow: "hidden",
+    border: "1px solid #ddd",
+    position: "relative",
+    minHeight: 280,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    bgcolor: "#f8fafc",
+  }}
+>
+  {(imageUploading || imageDeleting) && (
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        bgcolor: "rgba(255,255,255,0.75)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        gap: 2,
+        zIndex: 1,
+      }}
+    >
+      <CircularProgress />
+
+      <Typography
+        variant="body2"
+        color="text.secondary"
+      >
+        {imageUploading
+          ? "Uploading image..."
+          : "Deleting previous image..."}
+      </Typography>
+    </Box>
+  )}
+
+  {hero.backgroundImage.url ? (
+    <img
+      src={hero.backgroundImage.url}
+      alt="Hero"
+      style={{
+        width: "100%",
+        maxHeight: 280,
+        objectFit: "cover",
+        display: "block",
+      }}
+    />
+  ) : (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#94A3B8",
+        gap: 1,
+      }}
+    >
+      <UploadFileIcon
+        sx={{
+          fontSize: 56,
+          color: "#CBD5E1",
+        }}
+      />
+
+      <Typography
+      sx={{
+        variant:"body1",
+        fontWeight:600,
+      }}
+      >
+        No Hero Image
+      </Typography>
+
+      <Typography
+        variant="body2"
+        color="text.secondary"
+      >
+        Upload a hero background image to preview it here.
+      </Typography>
+    </Box>
+  )}
+</Box>
             </Box>
           </Box>
         </CardContent>
