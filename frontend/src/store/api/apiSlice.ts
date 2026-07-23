@@ -192,6 +192,16 @@ export const apiSlice = createApi({
       invalidatesTags: ["upload"],
     }),
 
+    deleteImage: builder.mutation({
+      query: ({ publicId }) => ({
+        url: "/upload/image/delete",
+        method: "DELETE",
+        body: {
+          publicId,
+        },
+      }),
+    }),
+
     createBlog: builder.mutation<any, object>({
       query: (data) => ({
         url: `/blog/add-blog`,
@@ -423,4 +433,5 @@ export const {
   useGetAllCmsQuery,
   useGetCmsByPageQuery,
   useSaveCmsMutation,
+  useDeleteImageMutation,
 } = apiSlice;

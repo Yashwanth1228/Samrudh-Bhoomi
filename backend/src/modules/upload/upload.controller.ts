@@ -85,3 +85,53 @@ export const uploadImage = async (
     });
   }
 };
+interface DeleteImageBody {
+  publicId: string;
+}
+
+export const deleteImage = async (
+  request: FastifyRequest<{
+    Body: DeleteImageBody;
+  }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { publicId } = request.body;
+
+    if (!publicId) {
+      return reply.status(400).send({
+        success: false,
+        message: "publicId is required",
+      });
+    }
+
+    console.log("Deleting:", publicId);
+
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    console.log(result);
+
+    if (result.result !== "ok") {
+      return reply.status(404).send({
+        success: false,
+        message: "Image not found",
+        cloudinary: result,
+      });
+    }
+
+    return reply.send({
+      success: true,
+      message: "Image deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    return reply.status(500).send({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete image",
+    });
+  }
+};
