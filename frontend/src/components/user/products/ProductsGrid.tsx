@@ -125,6 +125,8 @@ interface ProductsGridProps {
     search: string;
     category: string;
     status: string;
+    alphabetical: string;
+    price: string;
   };
 
   onChange: React.Dispatch<React.SetStateAction<any>>;

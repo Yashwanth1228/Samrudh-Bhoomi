@@ -70,6 +70,8 @@ export const getAllProducts = async (
       search?: string;
       category?: string;
       status?: string;
+      alphabetical?: string;
+      price?: string;
     };
   }>,
   reply: FastifyReply,
@@ -81,7 +83,14 @@ export const getAllProducts = async (
       search = "",
       category = "",
       status = "",
+      alphabetical = "",
+      price = "",
     } = request.query;
+
+    console.log({
+      alphabetical,
+      price,
+    });
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -106,10 +115,27 @@ export const getAllProducts = async (
       filter.status = status;
     }
 
+    const sort: any = {};
+
+    if (alphabetical === "asc") {
+      sort.name = 1;
+    } else if (alphabetical === "desc") {
+      sort.name = -1;
+    } else if (price === "low") {
+      sort.price = 1;
+    } else if (price === "high") {
+      sort.price = -1;
+    } else {
+      // Default only when no filter is selected
+      sort.createdAt = -1;
+    }
+
     const totalProducts = await Product.countDocuments(filter);
 
+    console.log("SORT OBJECT:", sort);
+
     const products = await Product.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip(skip)
       .limit(limitNumber);
 

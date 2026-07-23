@@ -16,6 +16,8 @@ const ProductsPage: NextPage = () => {
     search: "",
     category: "",
     status: "",
+    alphabetical: "",
+    price: "",
   });
 
   const { data, isLoading, error, refetch, isFetching } =
