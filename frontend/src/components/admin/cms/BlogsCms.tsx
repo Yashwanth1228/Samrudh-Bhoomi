@@ -12,10 +12,13 @@ import {
 } from "@/styles/admin/Cms.styles";
 
 import {
+  useDeleteImageMutation,
   useGetCmsByPageQuery,
   useSaveCmsMutation,
   useUploadimageMutation,
 } from "@/store/api/apiSlice";
+
+import CircularProgress from "@mui/material/CircularProgress";
 
 function BlogsCms() {
   const [formData, setFormData] = useState({
@@ -33,6 +36,11 @@ function BlogsCms() {
 
   const [uploadImage, { isLoading: imageUploading }] =
     useUploadimageMutation();
+
+    const [deleteImage, { isLoading: imageDeleting }] =
+    useDeleteImageMutation();
+
+    const imageLoading = imageUploading || imageDeleting;
 
   useEffect(() => {
     if (data?.content) {
@@ -87,20 +95,31 @@ function BlogsCms() {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = e.target.files;
-
+  
     if (!files?.length) return;
-
+  
     try {
+      // Upload first
       const uploaded = await uploadImages(
         [files[0]],
         "cms"
       );
+  
+      // Delete old image only after upload succeeds
+      if (formData.bannerImage.publicId) {
+        let res = await deleteImage({
+          publicId: formData.bannerImage.publicId,
+        }).unwrap();
+        console.log("the delete upload response" , res)
+      }
 
+  
+      // Update state
       setFormData((prev) => ({
         ...prev,
         bannerImage: uploaded[0],
       }));
-
+  
       toast.success("Banner uploaded successfully");
     } catch {
       toast.error("Image upload failed");
@@ -157,54 +176,87 @@ function BlogsCms() {
           </Typography>
 
           <Box
-            sx={{
-              width: "100%",
-              aspectRatio: "16 / 7",
-              border: "2px dashed #CBD5E1",
-              borderRadius: 3,
-              overflow: "hidden",
-              bgcolor: "#F8FAFC",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {formData.bannerImage.url ? (
-              <img
-                src={formData.bannerImage.url}
-                alt="Banner"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  textAlign: "center",
-                  color: "#94A3B8",
-                }}
-              >
-                <ImageOutlinedIcon
-                  sx={{
-                    fontSize: 60,
-                    mb: 1,
-                  }}
-                />
+  sx={{
+    position: "relative",
+    width: "100%",
+    aspectRatio: "16 / 7",
+    border: "2px dashed #CBD5E1",
+    borderRadius: 3,
+    overflow: "hidden",
+    bgcolor: "#F8FAFC",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  {formData.bannerImage.url ? (
+    <img
+      src={formData.bannerImage.url}
+      alt="Banner"
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+      }}
+    />
+  ) : (
+    <Box
+      sx={{
+        textAlign: "center",
+        color: "#94A3B8",
+      }}
+    >
+      <ImageOutlinedIcon
+        sx={{
+          fontSize: 60,
+          mb: 1,
+        }}
+      />
 
-                <Typography>
-                  No Banner Uploaded
-                </Typography>
-              </Box>
-            )}
-          </Box>
+      <Typography>No Banner Uploaded</Typography>
+    </Box>
+  )}
+
+  {imageLoading && (
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        bgcolor: "rgba(255,255,255,0.75)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 2,
+        zIndex: 10,
+      }}
+    >
+      <CircularProgress
+        size={45}
+        sx={{
+          color: "#2d5a27",
+        }}
+      />
+
+      <Typography
+        sx={{
+          fontWeight: 600,
+          color: "#2d5a27",
+        }}
+      >
+        {imageDeleting
+          ? "Removing previous image..."
+          : "Uploading image..."}
+      </Typography>
+    </Box>
+  )}
+</Box>
 
           <Button
             component="label"
             variant="outlined"
             startIcon={<UploadFileOutlinedIcon />}
-            disabled={imageUploading}
+            disabled={imageLoading}
             sx={{
               mt: 3,
               mb: 4,
