@@ -29,6 +29,8 @@ interface ProductsFilterProps {
     search: string;
     category: string;
     status: string;
+    alphabetical: string;
+    price: string;
   };
 
   onChange: React.Dispatch<
@@ -38,6 +40,8 @@ interface ProductsFilterProps {
       search: string;
       category: string;
       status: string;
+      alphabetical: string;
+      price: string;
     }>
   >;
 }
@@ -100,11 +104,19 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
         {/* Secondary Filters */}
         <SecondaryFilters>
           <SelectWrapper>
-            <FilterSelect>
-              <option>Category</option>
-              <option>Soil Enhancers</option>
-              <option>Crop Protection</option>
-              <option>Machinery</option>
+            <FilterSelect
+              value={filters.status}
+              onChange={(e) =>
+                onChange((prev) => ({
+                  ...prev,
+                  page: 1,
+                  status: e.target.value,
+                }))
+              }
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </FilterSelect>
             <SelectIcon>
               <span className="material-symbols-outlined">expand_more</span>
@@ -112,11 +124,19 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
           </SelectWrapper>
 
           <SelectWrapper>
-            <FilterSelect>
-              <option>Product Type</option>
-              <option>Granular</option>
-              <option>Liquid</option>
-              <option>Powder</option>
+            <FilterSelect
+              value={filters.alphabetical}
+              onChange={(e) =>
+                onChange((prev) => ({
+                  ...prev,
+                  page: 1,
+                  alphabetical: e.target.value,
+                }))
+              }
+            >
+              <option value="">Alphabetical</option>
+              <option value="asc">A → Z</option>
+              <option value="desc">Z → A</option>
             </FilterSelect>
             <SelectIcon>
               <span className="material-symbols-outlined">expand_more</span>
@@ -124,10 +144,38 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
           </SelectWrapper>
 
           <SelectWrapper>
-            <FilterSelect>
-              <option>Availability Status</option>
-              <option>In Stock</option>
-              <option>Pre-order</option>
+            <FilterSelect
+              value={filters.price}
+              onChange={(e) =>
+                onChange((prev) => ({
+                  ...prev,
+                  page: 1,
+                  price: e.target.value,
+                }))
+              }
+            >
+              <option value="">Price</option>
+              <option value="low">Low → High</option>
+              <option value="high">High → Low</option>
+            </FilterSelect>
+            <SelectIcon>
+              <span className="material-symbols-outlined">expand_more</span>
+            </SelectIcon>
+          </SelectWrapper>
+          <SelectWrapper>
+            <FilterSelect
+              value={filters.status}
+              onChange={(e) =>
+                onChange((prev) => ({
+                  ...prev,
+                  page: 1,
+                  status: e.target.value,
+                }))
+              }
+            >
+              <option value="">Availability</option>
+              <option value="active">Available</option>
+              <option value="inactive">Unavailable</option>
             </FilterSelect>
             <SelectIcon>
               <span className="material-symbols-outlined">expand_more</span>

@@ -131,9 +131,19 @@ export const apiSlice = createApi({
         search?: string;
         category?: string;
         status?: string;
+        alphabetical?: string;
+        price?: string;
       }
     >({
-      query: ({ page, limit, search = "", category = "", status = "" }) => ({
+      query: ({
+        page,
+        limit,
+        search = "",
+        category = "",
+        status = "",
+        alphabetical = "",
+        price = "",
+      }) => ({
         url: "/products/all",
         params: {
           page,
@@ -141,6 +151,8 @@ export const apiSlice = createApi({
           search,
           category,
           status,
+          alphabetical,
+          price,
         },
       }),
 
