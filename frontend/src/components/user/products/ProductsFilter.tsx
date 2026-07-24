@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Button } from "@mui/material";
 import {
   FilterSection,
   FilterContainer,
@@ -50,6 +50,30 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
   filters,
   onChange,
 }) => {
+  const [searchValue, setSearchValue] = useState(filters.search);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onChange((prev) => ({
+        ...prev,
+        page: 1,
+        search: searchValue,
+      }));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchValue, onChange]);
+
+  useEffect(() => {
+    setSearchValue(filters.search);
+  }, [filters.search]);
+
+  const hasFilters =
+    filters.search ||
+    filters.category ||
+    filters.status ||
+    filters.alphabetical ||
+    filters.price;
   return (
     <FilterSection>
       <FilterContainer>
@@ -68,15 +92,8 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
               <span className="material-symbols-outlined">search</span>
             </SearchIconWrapper>
             <SearchInput
-              placeholder="Search products..."
-              value={filters.search}
-              onChange={(e) =>
-                onChange((prev) => ({
-                  ...prev,
-                  page: 1,
-                  search: e.target.value,
-                }))
-              }
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
             />
           </SearchContainer>
 
@@ -181,6 +198,33 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
               <span className="material-symbols-outlined">expand_more</span>
             </SelectIcon>
           </SelectWrapper>
+          {hasFilters && (
+            <Box
+              sx={{
+                mt: 3,
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                variant="outlined"
+                color="success"
+                onClick={() =>
+                  onChange({
+                    page: 1,
+                    limit: 12,
+                    search: "",
+                    category: "",
+                    status: "",
+                    alphabetical: "",
+                    price: "",
+                  })
+                }
+              >
+                Clear Filters
+              </Button>
+            </Box>
+          )}
         </SecondaryFilters>
       </FilterContainer>
     </FilterSection>
