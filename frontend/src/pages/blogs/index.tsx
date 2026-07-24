@@ -234,9 +234,10 @@ if (!blogPosts.length)
 
           {/* Newsletter */}
           {/* <BlogNewsletter /> */}
-          <CTASection />
+         
         </Box>
       </Container>
+      <CTASection />
     </BlogPageContainer>
   );
 }
