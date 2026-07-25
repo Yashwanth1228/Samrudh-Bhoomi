@@ -76,3 +76,44 @@ export const FooterLinkList = styled(Box)`
   flex-direction: column;
   gap: 12px;
 `;
+
+export const BottomBar = styled(Box)`
+  border-top: 1px solid #cfcfc8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 32px;
+  max-width: 1440px;
+  margin: auto;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 20px 16px;
+  }
+`;
+
+export const SocialContainer = styled(Box)`
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+`;
+
+export const SocialIcon = styled("a")`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #154212;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  text-decoration: none;
+
+  &:hover {
+    background: #2d5a27;
+    transform: translateY(-2px);
+  }
+`;
