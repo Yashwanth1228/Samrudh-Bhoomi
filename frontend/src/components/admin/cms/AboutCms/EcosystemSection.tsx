@@ -5,6 +5,7 @@ import {
     CardContent,
     CircularProgress,
     IconButton,
+    TextField,
     Typography,
   } from "@mui/material";
   
@@ -59,35 +60,43 @@ import {
   
     const handleImage = async (
       e: React.ChangeEvent<HTMLInputElement>,
-      index: number
+      startIndex?: number
     ) => {
       const files = e.target.files;
-  
+    
       if (!files?.length) return;
-  
+    
       try {
         const uploaded = await uploadImages(
-          [files[0]],
+          Array.from(files),
           "cms"
         );
-  
-        if (ecosystem.images[index].publicId) {
-          await deleteImage({
-            publicId:
-              ecosystem.images[index].publicId,
-          });
+    
+        let images = [...ecosystem.images];
+    
+        // Upload from gallery button
+        if (startIndex === undefined) {
+          images = [...images, ...uploaded];
         }
-  
-        const images = [...ecosystem.images];
-        images[index] = uploaded[0];
-  
+        // Replace existing image
+        else {
+          if (images[startIndex]?.publicId) {
+            await deleteImage({
+              publicId: images[startIndex].publicId,
+            });
+          }
+    
+          images[startIndex] = uploaded[0];
+        }
+    
         setEcosystem({
           ...ecosystem,
           images,
         });
-  
-        toast.success("Image uploaded");
-      } catch {
+    
+        toast.success("Images uploaded successfully");
+      } catch (err) {
+        console.error(err);
         toast.error("Upload failed");
       }
     };
@@ -96,23 +105,19 @@ import {
       try {
         if (ecosystem.images[index].publicId) {
           await deleteImage({
-            publicId:
-              ecosystem.images[index].publicId,
+            publicId: ecosystem.images[index].publicId,
           });
         }
-  
-        const images = [...ecosystem.images];
-  
-        images[index] = {
-          url: "",
-          publicId: "",
-        };
-  
+    
+        const images = ecosystem.images.filter(
+          (_, i) => i !== index
+        );
+    
         setEcosystem({
           ...ecosystem,
           images,
         });
-  
+    
         toast.success("Image removed");
       } catch {
         toast.error("Failed");
@@ -160,9 +165,7 @@ import {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) =>
-                handleImage(e, 0)
-              }
+              onChange={handleImage}
             />
           </Button>
   
@@ -176,14 +179,12 @@ import {
               Section Title
             </Typography>
   
-            <input
-              value={ecosystem.title}
-              onChange={handleTitle}
-              style={{
-                width: "100%",
-                padding: 12,
-              }}
-            />
+            <TextField
+    fullWidth
+    label="Section Title"
+    value={ecosystem.title}
+    onChange={handleTitle}
+/>
           </Box>
   
           <Box
@@ -267,16 +268,11 @@ import {
                       Replace
   
                       <input
-                        hidden
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          handleImage(
-                            e,
-                            index
-                          )
-                        }
-                      />
+  hidden
+  type="file"
+  accept="image/*"
+  onChange={(e) => handleImage(e, index)}
+/>
                     </Button>
   
                     <IconButton

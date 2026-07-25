@@ -25,6 +25,10 @@ export const uploadImage = async (
       "users/profile",
       "cms/blog",
       "cms/home",
+      "cms/about",
+      "cms/product",
+      "cms/contact",
+      
     ];
 
     if (!allowedFolders.includes(folder)) {

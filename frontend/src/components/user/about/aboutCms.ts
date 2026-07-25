@@ -1,3 +1,5 @@
+// types/aboutCms.ts
+
 export interface ImageType {
     url: string;
     publicId: string;
@@ -22,14 +24,15 @@ export interface ImageType {
     cards: AboutCardType[];
   }
   
-  export interface MissionVisionItem {
-    title: string;
-    description: string;
-  }
-  
   export interface MissionVisionType {
-    mission: MissionVisionItem;
-    vision: MissionVisionItem;
+    mission: {
+      title: string;
+      description: string;
+    };
+    vision: {
+      title: string;
+      description: string;
+    };
   }
   
   export interface JourneyItem {
@@ -47,10 +50,6 @@ export interface ImageType {
   export interface EcosystemType {
     title: string;
     images: ImageType[];
-    // galleryButton: {
-    //   text: string;
-    //   link: string;
-    // };
   }
   
   export interface AboutCmsType {

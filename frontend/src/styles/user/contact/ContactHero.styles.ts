@@ -8,9 +8,11 @@ export const HeroSection = styled(Box)`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFLRcr0jEbSoS1SyMpEUGKKy_9-IPImPtP5o8mJVA-3T982pyn0JDbPTmRT6WUu2adGTvOkqI6-u4NjtcOZBoXcp3tQykBkkQqAzlF6ZzF1NJlTAmCcZG9rq9YoY_0sQ8xVWH2IBZgtwYMuI23fuh0CKl50UZ062Vm76b6d_oT7D8EwZhfzfnedvXjHY-Rx10wBO1yNhQ2hFVv5GXq5VWMPeEQgcI7zfMNkeKKaZZxyYrzeB_tcvghOnxUU5k45oFnItrjzsU-aTgZ");
+
+  background-color: #e8e8e8;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 
   @media (min-width: 768px) {
     height: 400px;
