@@ -28,6 +28,7 @@ export const uploadImage = async (
       "cms/about",
       "cms/product",
       "cms/contact",
+      "cms/footer",
       
     ];
 
