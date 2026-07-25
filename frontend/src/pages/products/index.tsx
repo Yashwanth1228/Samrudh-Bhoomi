@@ -36,7 +36,7 @@ const ProductsPage: NextPage = () => {
     price: "",
   });
 
-  const { data, isLoading, error, refetch, isFetching } =
+  const { data : productdata, isLoading, error, refetch, isFetching } =
     useGetProductsQuery(filters);
   return (
     <>
@@ -60,8 +60,8 @@ const ProductsPage: NextPage = () => {
          <ProductsFilter filters={filters} onChange={setFilters} />
 
         <ProductsGrid
-          products={data?.data ?? []}
-          pagination={data?.pagination}
+          products={productdata?.data ?? []}
+          pagination={productdata?.pagination}
           filters={filters}
           onChange={setFilters}
           loading={isLoading}
@@ -70,7 +70,7 @@ const ProductsPage: NextPage = () => {
           isFetching={isFetching}
         />
 
-       <ProductsCTA />
+       <CTASection />
        
       </PageContainer>
     </>
