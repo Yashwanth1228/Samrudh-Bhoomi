@@ -39,20 +39,20 @@ const AboutPage: NextPage = () => {
       </Head>
 
       <PageContainer>
-        <AboutHero hero={cms.hero} />
+        <AboutHero hero={cms?.hero} />
 
-        <OverviewSection about={cms.about} />
+        <OverviewSection about={cms?.about} />
 
         <MissionVisionSection
-          missionVision={cms.missionVision}
+          missionVision={cms?.missionVision}
         />
 
         <TimelineSection
-          journey={cms.journey}
+          journey={cms?.journey}
         />
 
         <GallerySection
-          ecosystem={cms.ecosystem}
+          ecosystem={cms?.ecosystem}
         />
 
         <CTASection />
