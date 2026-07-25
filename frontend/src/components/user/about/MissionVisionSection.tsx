@@ -1,5 +1,10 @@
 import React from "react";
 import {
+  FlagOutlined,
+  LightbulbOutlined,
+} from "@mui/icons-material";
+
+import {
   MissionSection,
   MissionGrid,
   MissionCard,
@@ -13,37 +18,71 @@ import {
   VisionText,
 } from "../../../styles/user/about/MissionVisionSection.styles";
 
-const MissionVisionSection: React.FC = () => {
+import { MissionVisionType } from "./aboutCms";
+
+interface Props {
+  missionVision?: MissionVisionType;
+}
+
+/* Default Data */
+const defaultMissionVision: MissionVisionType = {
+  mission: {
+    title: "Our Mission",
+    description:
+      "To deliver unparalleled quality in agricultural solutions, fostering deep-rooted customer trust through consistent performance, transparent practices, and a commitment to operational excellence in every acre we touch.",
+  },
+  vision: {
+    title: "Our Vision",
+    description:
+      "To be the vanguard of sustainable agricultural innovation, catalyzing growth across the industry while harmonizing high-yield farming with long-term ecological stewardship.",
+  },
+};
+
+export default function MissionVisionSection({
+  missionVision,
+}: Props) {
+  const section =
+    missionVision ?? defaultMissionVision;
+
   return (
     <MissionSection>
       <MissionGrid>
+        {/* Mission */}
         <MissionCard>
           <MissionCardLeft />
+
           <MissionIconWrapper>
-            <span className="material-symbols-outlined fill">flag</span>
+            <FlagOutlined />
           </MissionIconWrapper>
-          <MissionTitle variant="h2">Our Mission</MissionTitle>
+
+          <MissionTitle variant="h2">
+            {section.mission.title ||
+              defaultMissionVision.mission.title}
+          </MissionTitle>
+
           <MissionText variant="body1">
-            To deliver unparalleled quality in agricultural solutions, fostering
-            deep-rooted customer trust through consistent performance,
-            transparent practices, and a commitment to operational excellence in
-            every acre we touch.
+            {section.mission.description ||
+              defaultMissionVision.mission.description}
           </MissionText>
         </MissionCard>
+
+        {/* Vision */}
         <VisionCard>
           <VisionIconWrapper>
-            <span className="material-symbols-outlined fill">lightbulb</span>
+            <LightbulbOutlined />
           </VisionIconWrapper>
-          <VisionTitle variant="h2">Our Vision</VisionTitle>
+
+          <VisionTitle variant="h2">
+            {section.vision.title ||
+              defaultMissionVision.vision.title}
+          </VisionTitle>
+
           <VisionText variant="body1">
-            To be the vanguard of sustainable agricultural innovation,
-            catalyzing growth across the industry while harmonizing high-yield
-            farming with long-term ecological stewardship.
+            {section.vision.description ||
+              defaultMissionVision.vision.description}
           </VisionText>
         </VisionCard>
       </MissionGrid>
     </MissionSection>
   );
-};
-
-export default MissionVisionSection;
+}

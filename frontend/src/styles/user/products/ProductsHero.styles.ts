@@ -10,9 +10,10 @@ export const HeroSection = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvBZAjGZ93pWC2HUTM9p7Yif7yjDzEqWogI-YM-HZoHWtRoBH8lQt-Y30hwD1oDOmeoqNfHYmuwqs4ahUGuXWtvwjKqehC6vEfiB3wG2jw98DhzJSNc8DXIiAZ-EaxuUA_JDlfMl7U8SCf20Vn_hshQRyaXGb8X6JEZ7NUVlaho25s4hXNV2_HaefEuSAnBi9RDgLMZ1A-1FDON4p6wRMIDZrP4OVMN3In3vnVEpNCb-Cd0VJOrMDiol7J8vmjpXV3NE1SA6sBAZLr");
+
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 
   @media (min-width: 768px) {
     height: 400px;

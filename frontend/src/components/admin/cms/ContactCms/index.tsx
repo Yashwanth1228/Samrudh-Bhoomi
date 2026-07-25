@@ -1,22 +1,12 @@
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-} from "@mui/material";
-
+import { Box, Button } from "@mui/material";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-
 import toast from "react-hot-toast";
 
 import HeroSection from "./HeroSection";
-import AboutSection from "./AboutSection";
-import MissionVisionSection from "./MissionVisionSection";
-import JourneySection from "./JourneySection";
-import EcosystemSection from "./EcosystemSection";
-
-import {
-  AboutCmsType,
-} from "./types";
+import ContactSection from "./ContactSection";
+import OfficeSection from "./OfficeSection";
+import FAQSection from "./FAQSection";
 
 import {
   useDeleteImageMutation,
@@ -25,7 +15,9 @@ import {
   useUploadimageMutation,
 } from "@/store/api/apiSlice";
 
-const initialData: AboutCmsType = {
+import { ContactCmsType } from "./types";
+
+const initialData: ContactCmsType = {
   hero: {
     title: "",
     description: "",
@@ -35,56 +27,64 @@ const initialData: AboutCmsType = {
     },
   },
 
-  about: {
+  contactSection: {
     title: "",
     description: "",
-    image: {
-      url: "",
-      publicId: "",
-    },
-    cards: [
+    contactCards: [
       {
         title: "",
-        description: "",
+        subtitle: "",
         icon: "",
+        value: "",
+        link: "",
       },
       {
         title: "",
-        description: "",
+        subtitle: "",
         icon: "",
+        value: "",
+        link: "",
+      },
+      {
+        title: "",
+        subtitle: "",
+        icon: "",
+        value: "",
+        link: "",
       },
     ],
   },
 
-  missionVision: {
-    mission: {
-      title: "",
-      description: "",
+  officeSection: {
+    title: "",
+    address: {
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      country: "",
+      pincode: "",
     },
-    vision: {
-      title: "",
-      description: "",
+
+    map: {
+      embedUrl: "",
+      locationUrl: "",
     },
   },
 
-  journey: {
+  faqSection: {
     title: "",
-    subtitle: "",
-    timeline: [],
-  },
-
-  ecosystem: {
-    title: "",
-    images: [],
+    description: "",
+    items: [],
   },
 };
 
-export default function AboutCms() {
+export default function ContactCms() {
   const [cms, setCms] =
-    useState(initialData);
+    useState<ContactCmsType>(initialData);
 
   const { data } =
-    useGetCmsByPageQuery("about");
+    useGetCmsByPageQuery("contact");
 
   const [saveCms, { isLoading }] =
     useSaveCmsMutation();
@@ -109,44 +109,46 @@ export default function AboutCms() {
     }
   }, [data]);
 
+  interface UploadedImage {
+    url: string;
+    publicId: string;
+  }
+
   const uploadImages = async (
     files: File[],
     folder: string
-  ) => {
+  ): Promise<UploadedImage[]> => {
     const fd = new FormData();
 
     files.forEach((file) =>
       fd.append("files", file)
     );
 
-    const res =
-      await uploadImage({
-        module: folder,
-        type: "about",
-        data: fd,
-      }).unwrap();
-      console.log("the response from the about cms" ,res );
+    const res = await uploadImage({
+      module: folder,
+      type: "contact",
+      data: fd,
+    }).unwrap();
 
     return res.imageUrls;
   };
 
-  const handleSave =
-    async () => {
-      try {
-        await saveCms({
-          page: "about",
-          content: cms,
-        }).unwrap();
+  const handleSave = async () => {
+    try {
+      await saveCms({
+        page: "contact",
+        content: cms,
+      }).unwrap();
 
-        toast.success(
-          "About CMS saved successfully"
-        );
-      } catch {
-        toast.error(
-          "Failed to save CMS"
-        );
-      }
-    };
+      toast.success(
+        "Contact CMS saved successfully."
+      );
+    } catch {
+      toast.error(
+        "Failed to save Contact CMS."
+      );
+    }
+  };
 
   return (
     <Box>
@@ -169,67 +171,41 @@ export default function AboutCms() {
         }
       />
 
-      <AboutSection
-        about={cms.about}
-        setAbout={(about) =>
-          setCms({
-            ...cms,
-            about,
-          })
+      <ContactSection
+        contactSection={
+          cms.contactSection
         }
-        uploadImages={uploadImages}
-        deleteImage={deleteImage}
-        imageUploading={
-          imageUploading
-        }
-        imageDeleting={
-          imageDeleting
-        }
-      />
-
-      <MissionVisionSection
-        missionVision={
-          cms.missionVision
-        }
-        setMissionVision={(
-          missionVision
+        setContactSection={(
+          contactSection
         ) =>
           setCms({
             ...cms,
-            missionVision,
+            contactSection,
           })
         }
       />
 
-      <JourneySection
-        journey={cms.journey}
-        setJourney={(
-          journey
+      <OfficeSection
+        officeSection={
+          cms.officeSection
+        }
+        setOfficeSection={(
+          officeSection
         ) =>
           setCms({
             ...cms,
-            journey,
+            officeSection,
           })
         }
       />
 
-      <EcosystemSection
-        ecosystem={cms.ecosystem}
-        setEcosystem={(
-          ecosystem
-        ) =>
+      <FAQSection
+        faqSection={cms.faqSection}
+        setFaqSection={(faqSection) =>
           setCms({
             ...cms,
-            ecosystem,
+            faqSection,
           })
-        }
-        uploadImages={uploadImages}
-        deleteImage={deleteImage}
-        imageUploading={
-          imageUploading
-        }
-        imageDeleting={
-          imageDeleting
         }
       />
 

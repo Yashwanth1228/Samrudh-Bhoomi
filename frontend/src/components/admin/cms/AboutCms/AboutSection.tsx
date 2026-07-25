@@ -4,7 +4,11 @@ import {
     Card,
     CardContent,
     CircularProgress,
+    FormControl,
     Grid,
+    InputLabel,
+    MenuItem,
+    Select,
     TextField,
     Typography,
   } from "@mui/material";
@@ -63,6 +67,21 @@ import {
         [e.target.name]: e.target.value,
       });
     };
+
+    const iconOptions = [
+      { label: "Science", value: "ScienceOutlined" },
+      { label: "Eco", value: "EcoOutlined" },
+      { label: "Agriculture", value: "AgricultureOutlined" },
+      { label: "Spa", value: "SpaOutlined" },
+      { label: "Forest", value: "ForestOutlined" },
+      { label: "Verified", value: "VerifiedOutlined" },
+      { label: "Local Shipping", value: "LocalShippingOutlined" },
+      { label: "Workspace Premium", value: "WorkspacePremiumOutlined" },
+      { label: "Inventory", value: "Inventory2Outlined" },
+      { label: "Water Drop", value: "WaterDropOutlined" },
+      { label: "Energy", value: "BoltOutlined" },
+      { label: "Support", value: "SupportAgentOutlined" },
+    ];
   
     const handleCardChange = (
       index: number,
@@ -314,18 +333,30 @@ import {
                         }
                       />
   
-                      <TextField
-                        label="Icon"
-                        fullWidth
-                        value={card.icon}
-                        onChange={(e) =>
-                          handleCardChange(
-                            index,
-                            "icon",
-                            e.target.value
-                          )
-                        }
-                      />
+  <FormControl fullWidth>
+  <InputLabel>Icon</InputLabel>
+
+  <Select
+    value={card.icon}
+    label="Icon"
+    onChange={(e) =>
+      handleCardChange(
+        index,
+        "icon",
+        e.target.value
+      )
+    }
+  >
+    {iconOptions.map((icon) => (
+      <MenuItem
+        key={icon.value}
+        value={icon.value}
+      >
+        {icon.label}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
                     </Card>
                   </Grid>
                 )

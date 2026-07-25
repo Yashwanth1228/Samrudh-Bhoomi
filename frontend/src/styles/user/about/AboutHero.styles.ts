@@ -6,8 +6,8 @@ export const HeroSection = styled(Box)`
   padding-top: 96px;
   padding-bottom: 128px;
   overflow: hidden;
+
   background-color: #f4f4ee;
-  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFLRcr0jEbSoS1SyMpEUGKKy_9-IPImPtP5o8mJVA-3T982pyn0JDbPTmRT6WUu2adGTvOkqI6-u4NjtcOZBoXcp3tQykBkkQqAzlF6ZzF1NJlTAmCcZG9rq9YoY_0sQ8xVWH2IBZgtwYMuI23fuh0CKl50UZ062Vm76b6d_oT7D8EwZhfzfnedvXjHY-Rx10wBO1yNhQ2hFVv5GXq5VWMPeEQgcI7zfMNkeKKaZZxyYrzeB_tcvghOnxUU5k45oFnItrjzsU-aTgZ");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
