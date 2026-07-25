@@ -2,10 +2,15 @@ import React from "react";
 import {
   AgricultureOutlined,
   ScienceOutlined,
-  Co2Outlined,
+  SpaOutlined,
+  ForestOutlined,
   VerifiedOutlined,
   LocalShippingOutlined,
-  SpaOutlined,
+  WorkspacePremiumOutlined,
+  Inventory2Outlined,
+  WaterDropOutlined,
+  BoltOutlined,
+  SupportAgentOutlined,
 } from "@mui/icons-material";
 
 import {
@@ -60,10 +65,15 @@ const defaultAbout: AboutType = {
 const iconMap: Record<string, React.ReactNode> = {
   AgricultureOutlined: <AgricultureOutlined />,
   ScienceOutlined: <ScienceOutlined />,
-  Co2Outlined: <Co2Outlined />,
+  SpaOutlined: <SpaOutlined />,
+  ForestOutlined: <ForestOutlined />,
   VerifiedOutlined: <VerifiedOutlined />,
   LocalShippingOutlined: <LocalShippingOutlined />,
-  SpaOutlined: <SpaOutlined />,
+  WorkspacePremiumOutlined: <WorkspacePremiumOutlined />,
+  Inventory2Outlined: <Inventory2Outlined />,
+  WaterDropOutlined: <WaterDropOutlined />,
+  BoltOutlined: <BoltOutlined />,
+  SupportAgentOutlined: <SupportAgentOutlined />,
 };
 
 export default function OverviewSection({
