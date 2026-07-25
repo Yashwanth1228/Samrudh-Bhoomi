@@ -70,7 +70,6 @@ import {
 
     const iconOptions = [
       { label: "Science", value: "ScienceOutlined" },
-      { label: "Eco", value: "EcoOutlined" },
       { label: "Agriculture", value: "AgricultureOutlined" },
       { label: "Spa", value: "SpaOutlined" },
       { label: "Forest", value: "ForestOutlined" },

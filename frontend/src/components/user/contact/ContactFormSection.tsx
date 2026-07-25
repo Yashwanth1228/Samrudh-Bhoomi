@@ -6,6 +6,11 @@ import {
   Mail as MailIcon,
   Send as SendIcon,
   ExpandMore as ExpandMoreIcon,
+  LocationOn as LocationOnIcon,
+  Facebook as FacebookIcon,
+  Instagram as InstagramIcon,
+  X as XIcon, // MUI uses X for Twitter
+  LinkedIn as LinkedInIcon,
 } from "@mui/icons-material";
 
 import {
@@ -42,10 +47,15 @@ interface Props {
   contactSection?: ContactSectionType;
 }
 
-const iconMap = {
+const iconMap: Record<string, React.ReactNode> = {
   WhatsApp: <ForumIcon />,
   Phone: <CallIcon />,
   Email: <MailIcon />,
+  LocationOn: <LocationOnIcon />,
+  Facebook: <FacebookIcon />,
+  Instagram: <InstagramIcon />,
+  Twitter: <XIcon />,
+  LinkedIn: <LinkedInIcon />,
 };
 
 export default function ContactFormSection({
