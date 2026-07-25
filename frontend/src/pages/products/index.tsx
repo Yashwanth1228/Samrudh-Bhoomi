@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 
@@ -10,6 +10,7 @@ import ProductsGrid from "../../components/user/products/ProductsGrid";
 import CTASection from "../../components/user/home/CTASection";
 
 import { useGetCmsByPageQuery } from "@/store/api/apiSlice";
+import { useGetProductsQuery } from "@/store/api/apiSlice";
 
 const ProductsPage: NextPage = () => {
   const { data } = useGetCmsByPageQuery("products");
@@ -24,6 +25,19 @@ const ProductsPage: NextPage = () => {
     },
   };
 
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 12,
+
+    search: "",
+    category: "",
+    status: "",
+    alphabetical: "",
+    price: "",
+  });
+
+  const { data, isLoading, error, refetch, isFetching } =
+    useGetProductsQuery(filters);
   return (
     <>
       <Head>
@@ -43,11 +57,21 @@ const ProductsPage: NextPage = () => {
       <PageContainer>
         <ProductsHero hero={hero} />
 
-        <ProductsFilter />
+         <ProductsFilter filters={filters} onChange={setFilters} />
 
-        <ProductsGrid />
+        <ProductsGrid
+          products={data?.data ?? []}
+          pagination={data?.pagination}
+          filters={filters}
+          onChange={setFilters}
+          loading={isLoading}
+          error={error}
+          refetch={refetch}
+          isFetching={isFetching}
+        />
 
-        <CTASection />
+       <ProductsCTA />
+       
       </PageContainer>
     </>
   );

@@ -787,7 +787,7 @@ function index() {
         ))}
       </SectionCard>
 
-      <SectionCard>
+      {/* <SectionCard>
         <SectionHeader>
           <SectionTitle>Key Benefits</SectionTitle>
         </SectionHeader>
@@ -822,7 +822,7 @@ function index() {
             <DeleteOutlineIcon />
           </IconButton>
         </Box>
-      </SectionCard>
+      </SectionCard> */}
 
       <SectionCard>
         <SectionHeader>
@@ -850,9 +850,9 @@ function index() {
         </CancelButton>
 
         <FooterActions>
-          <PreviewButton>Preview Product</PreviewButton>
+          {/* <PreviewButton>Preview Product</PreviewButton>
 
-          <DraftButton variant="outlined">Save as Draft</DraftButton>
+          <DraftButton variant="outlined">Save as Draft</DraftButton> */}
 
           <SaveButton
             variant="contained"
@@ -861,6 +861,10 @@ function index() {
           >
             {isLoading ? "Saving..." : "Save Product"}
           </SaveButton>
+
+          <CancelButton onClick={() => router.push("/admin/products")}>
+            Cancel
+          </CancelButton>
         </FooterActions>
       </FooterContainer>
     </>

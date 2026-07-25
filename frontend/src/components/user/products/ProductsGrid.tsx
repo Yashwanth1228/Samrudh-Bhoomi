@@ -43,7 +43,6 @@ import {
   EmptyStateButton,
 } from "../../../styles/user/products/ProductsGrid.styles";
 import { useRouter } from "next/router";
-import { useGetProductsQuery } from "@/store/api/apiSlice";
 import LoadingState from "@/components/common/LoadingState";
 import ErrorState from "@/components/common/ErrorState";
 
@@ -101,33 +100,55 @@ import ErrorState from "@/components/common/ErrorState";
 //   },
 // ];
 
-const ProductsGrid: React.FC = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState("newest");
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  category: string;
+  shortDescription: string;
+  description: string;
+  price: number;
+  status: string;
+  images: {
+    url: string;
+    publicId: string;
+  }[];
+}
 
-  const { data, isLoading, error, refetch, isFetching } = useGetProductsQuery({
-    page,
-    limit: 12,
-  });
+interface ProductsGridProps {
+  products: Product[];
+  pagination: any;
 
-  interface Product {
-    _id: string;
-    name: string;
-    slug: string;
+  filters: {
+    page: number;
+    limit: number;
+    search: string;
     category: string;
-    shortDescription: string;
-    description: string;
-    price: number;
     status: string;
-    images: {
-      url: string;
-      publicId: string;
-    }[];
-  }
+    alphabetical: string;
+    price: string;
+  };
 
-  const products: Product[] = data?.data || [];
-  const pagination = data?.pagination;
+  onChange: React.Dispatch<React.SetStateAction<any>>;
+
+  loading: boolean;
+  error: any;
+  refetch: any;
+  isFetching: boolean;
+}
+
+const ProductsGrid: React.FC<ProductsGridProps> = ({
+  products,
+  pagination,
+  filters,
+  onChange,
+  loading,
+  error,
+  refetch,
+  isFetching,
+}) => {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("newest");
 
   const handleViewChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -138,11 +159,11 @@ const ProductsGrid: React.FC = () => {
     }
   };
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setPage(value);
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    onChange((prev: any) => ({
+      ...prev,
+      page: value,
+    }));
   };
 
   const handleSortChange = (event: any) => {
@@ -151,7 +172,7 @@ const ProductsGrid: React.FC = () => {
 
   const router = useRouter();
 
-  if (isLoading)
+  if (loading)
     return (
       <LoadingState
         title="Loading products..."
@@ -169,6 +190,14 @@ const ProductsGrid: React.FC = () => {
       />
     );
 
+  const startProduct =
+    products.length === 0 ? 0 : (filters.page - 1) * filters.limit + 1;
+
+  const endProduct =
+    products.length === 0
+      ? 0
+      : Math.min(filters.page * filters.limit, pagination?.totalProducts || 0);
+
   return (
     <GridSection>
       <GridContainer>
@@ -177,8 +206,9 @@ const ProductsGrid: React.FC = () => {
             <ProductCount variant="body2">
               Showing{" "}
               <span className="count">
-                {pagination?.totalProducts || products.length}
+                {startProduct}-{endProduct}
               </span>{" "}
+              of <span className="count">{pagination?.totalProducts || 0}</span>{" "}
               Products
             </ProductCount>
           </ToolbarLeft>
@@ -240,39 +270,73 @@ const ProductsGrid: React.FC = () => {
           </ToolbarRight>
         </Toolbar>
 
-        <StyledProductGrid viewMode={viewMode}>
-          {products.map((product) => (
-            <ProductCard key={product._id}>
-              <ProductImageWrapper>
-                <ProductImage
-                  src={product.images?.[0]?.url || "/images/no-image.png"}
-                  alt={product.name}
-                />
-                <ProductBadge>{product.category}</ProductBadge>
-              </ProductImageWrapper>
-              <ProductContent>
-                <ProductTitle variant="h6">{product.name}</ProductTitle>
-                <ProductDescription variant="body2">
-                  {product.shortDescription}
-                </ProductDescription>
-                <ProductFooter>
-                  <ProductPrice variant="h6">₹{product.price}</ProductPrice>
-                  <DetailsButton
-                    onClick={() => router.push(`/products/${product.slug}`)}
-                  >
-                    Details
-                  </DetailsButton>
-                </ProductFooter>
-              </ProductContent>
-            </ProductCard>
-          ))}
-        </StyledProductGrid>
+        {products.length === 0 ? (
+          <EmptyState>
+            <EmptyStateIcon>
+              <span className="material-symbols-outlined">search_off</span>
+            </EmptyStateIcon>
+
+            <EmptyStateTitle variant="h6">No Products Found</EmptyStateTitle>
+
+            <EmptyStateText variant="body2">
+              We couldn't find any products matching your current filters.
+            </EmptyStateText>
+
+            <EmptyStateButton
+              onClick={() =>
+                onChange((prev: any) => ({
+                  ...prev,
+                  page: 1,
+                  search: "",
+                  category: "",
+                  status: "",
+                  alphabetical: "",
+                  price: "",
+                }))
+              }
+            >
+              Clear Filters
+            </EmptyStateButton>
+          </EmptyState>
+        ) : (
+          <StyledProductGrid viewMode={viewMode}>
+            {products.map((product) => (
+              <ProductCard key={product._id}>
+                <ProductImageWrapper>
+                  <ProductImage
+                    src={product.images?.[0]?.url || "/images/no-image.png"}
+                    alt={product.name}
+                  />
+                  <ProductBadge>{product.category}</ProductBadge>
+                </ProductImageWrapper>
+
+                <ProductContent>
+                  <ProductTitle variant="h6">{product.name}</ProductTitle>
+
+                  <ProductDescription variant="body2">
+                    {product.shortDescription}
+                  </ProductDescription>
+
+                  <ProductFooter>
+                    <ProductPrice variant="h6">₹{product.price}</ProductPrice>
+
+                    <DetailsButton
+                      onClick={() => router.push(`/products/${product.slug}`)}
+                    >
+                      Details
+                    </DetailsButton>
+                  </ProductFooter>
+                </ProductContent>
+              </ProductCard>
+            ))}
+          </StyledProductGrid>
+        )}
 
         {/* MUI Pagination */}
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <Pagination
             count={pagination?.totalPages || 1}
-            page={page}
+            page={filters.page}
             onChange={handlePageChange}
             color="primary"
             shape="rounded"
@@ -292,19 +356,6 @@ const ProductsGrid: React.FC = () => {
             }}
           />
         </Box>
-
-        {/* Empty State (hidden by default) */}
-        <EmptyState style={{ display: "none" }}>
-          <EmptyStateIcon>
-            <span className="material-symbols-outlined">search_off</span>
-          </EmptyStateIcon>
-          <EmptyStateTitle variant="h6">No Products Found</EmptyStateTitle>
-          <EmptyStateText variant="body2">
-            We couldn't find any products matching your current filters. Try
-            adjusting your search or clearing filters.
-          </EmptyStateText>
-          <EmptyStateButton>Clear Filters</EmptyStateButton>
-        </EmptyState>
       </GridContainer>
     </GridSection>
   );
