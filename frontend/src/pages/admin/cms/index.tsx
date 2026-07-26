@@ -54,12 +54,12 @@ function index() {
           </CmsSubtitle>
         </div>
 
-        <PublishButton
+        {/* <PublishButton
           variant="contained"
           startIcon={<RocketLaunchOutlinedIcon />}
         >
           Publish Changes
-        </PublishButton>
+        </PublishButton> */}
       </CmsHeaderContent>
     </CmsHeaderContainer>
 
