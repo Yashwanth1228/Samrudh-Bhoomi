@@ -127,7 +127,7 @@ export default function GallerySection({
             borderBottom:
               "1px solid #e5e5e5",
           }}
-        >
+        > 
           <Typography
           sx={{
             variant:"h6",
