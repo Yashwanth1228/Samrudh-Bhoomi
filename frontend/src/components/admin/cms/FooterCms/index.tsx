@@ -169,9 +169,6 @@ const uploadImages = async (
       data.content.socialLinks
     );
 
-    setBottomBar(
-      data.content.bottomBar
-    );
   }, [data]);
 
   const handleSave = async () => {

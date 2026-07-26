@@ -11,7 +11,7 @@ import ContactFAQSection from "../components/user/contact/ContactFAQSection";
 import CTASection from "../components/user/home/CTASection";
 
 import { useGetCmsByPageQuery } from "@/store/api/apiSlice";
-import { ContactCmsType } from "../components/user/contact/contactCms";
+import { ContactCmsType } from "@/components/admin/cms/ContactCms/types";
 
 const ContactPage: NextPage = () => {
   const { data } = useGetCmsByPageQuery("contact");
